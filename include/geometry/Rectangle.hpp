@@ -13,16 +13,37 @@ namespace ray_storm
     {
     public:
 
-      Rectangle(const glm::vec3 &origin, const glm::vec3 normal,
-        const glm::vec3 &wAxis, float width, float height, materials::AbstractMaterialPtr &material) :
-        Object(material), plane(origin, normal, material)
+      struct RectParams
       {
-        this->normal = glm::normalize(normal);
-        this->wAxis = glm::normalize(wAxis);
-        this->hAxis = glm::normalize(glm::cross(this->normal, wAxis));
+        glm::vec3 origin;
+        glm::vec3 wAxis;
+        glm::vec3 hAxis;
+        float width;
+        float height;
 
-        this->width = width;
-        this->height = height;
+        RectParams(const glm::vec3 &origin,
+                   const glm::vec3 &wAxis,
+                   const glm::vec3 &hAxis,
+                   float width,
+                   float height)
+        {
+          this->origin = origin;
+          this->wAxis = glm::normalize(wAxis);
+          this->hAxis = glm::normalize(hAxis);
+          this->width = width;
+          this->height = height;
+        }
+
+        glm::vec3 calcNormal() const
+        {
+          return cross(this->hAxis, this->wAxis);
+        }
+      };
+
+      Rectangle(const RectParams &rectParams, materials::AbstractMaterialPtr &material) :
+        Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal(), material)
+      {
+        this->normal = rectParams.calcNormal();
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection)
@@ -36,12 +57,12 @@ namespace ray_storm
 
         const glm::vec3 &pIntersPnt = pInters.intersection.position;
 
-        const glm::vec3 rInters = pIntersPnt - this->origin;
-        const float wAxisDot = glm::dot(rInters, this->wAxis);
-        const float hAxisDot = glm::dot(rInters, this->hAxis);
+        const glm::vec3 rInters = pIntersPnt - this->rectParams.origin;
+        const float wAxisDot = glm::dot(rInters, this->rectParams.wAxis);
+        const float hAxisDot = glm::dot(rInters, this->rectParams.hAxis);
 
         // inside the rectangle?
-        if (wAxisDot < 0.0f || wAxisDot >= this->width || hAxisDot < 0.0f || hAxisDot >= this->height)
+        if (wAxisDot < 0.0f || wAxisDot >= this->rectParams.width || hAxisDot < 0.0f || hAxisDot >= this->rectParams.height)
         {
           return false;
         }
@@ -54,10 +75,8 @@ namespace ray_storm
 
     private:
 
-      glm::vec3 origin;
+      RectParams rectParams;
       glm::vec3 normal;
-      glm::vec3 wAxis;
-      glm::vec3 hAxis;
 
       float width;
       float height;

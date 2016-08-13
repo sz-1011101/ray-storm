@@ -1,10 +1,8 @@
 #include "utility/common.hpp"
 #include "scene/Scene.h"
-#include "geometry/Sphere.hpp"
-#include "geometry/Plane.hpp"
-#include "geometry/Rectangle.hpp"
+
 #include "camera/PinholeCamera.h"
-#include "materials/Lambertian.hpp"
+#include "scene/TestSceneFactory.h"
 #include "renderer/PathTracer.h"
 #include "utility/Window.h"
 #include "utility/RenderedData.h"
@@ -14,42 +12,11 @@ int main(int argc, char* argv[])
 
   using namespace ray_storm;
 
-  scene::ScenePtr scene(new scene::Scene());
-
   // camera
   camera::AbstractCameraPtr camera(new camera::PinholeCamera(
-    glm::vec3(2,2,2), glm::vec3(0,0,0), glm::vec3(0, 1, 0), 1.0f, 75.0f));
+    glm::vec3(0, 5, 11), glm::vec3(0, 5, -5), glm::vec3(0, 1, 0), 1.0f, 65.0f));
 
-  // materials
-  materials::AbstractMaterialPtr eMat(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(30.0f)));
-  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(1), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matR(new materials::Lambertian(glm::vec3(1, 0, 0), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matG(new materials::Lambertian(glm::vec3(0, 1, 0), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matB(new materials::Lambertian(glm::vec3(0, 0, 1), glm::vec3(0.0f)));
-
-  // scene objects
-  geometry::ObjectPtr sphereX = geometry::ObjectPtr(
-    new geometry::Sphere(glm::vec3(1.0f, 0.0, 0.0f), 0.5f, matR));
-  geometry::ObjectPtr sphereY = geometry::ObjectPtr(
-    new geometry::Sphere(glm::vec3(0.0f, 1.0, 0.0f), 0.5f, matG));
-  geometry::ObjectPtr sphereZ = geometry::ObjectPtr(
-    new geometry::Sphere(glm::vec3(0.0f, 0.0, 1.0f), 0.5f, matB));
-  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(
-    new geometry::Sphere(glm::vec3(3.0f, 0.0f, 0.0f), 0.5f, eMat));
-  geometry::ObjectPtr plane = geometry::ObjectPtr(
-    new geometry::Plane(glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0, 1, 0), matWhite));
-  geometry::ObjectPtr rect = geometry::ObjectPtr(
-    new geometry::Rectangle(glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 2.0f, 1.0f, matR));
-
-  scene->setSky(glm::vec3(0.0f));
-  // build scene
-  scene->add(sphereX);
-  scene->add(sphereY);
-  scene->add(sphereZ);
-  scene->add(sphereLight);
-  scene->add(plane);
-  scene->add(rect);
-  scene->finalize();
+  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 
   utility::RenderedDataPtr rd(new utility::RenderedData());
   utility::Window window;
