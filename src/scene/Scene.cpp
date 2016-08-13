@@ -10,12 +10,7 @@ Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
 
 bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const
 {
-  if (this->dataStruct->intersect(ray, intersection))
-  {
-    return true;
-  }
-
-  return false;
+  return this->dataStruct->intersect(ray, intersection);
 }
 
 void Scene::add(geometry::ObjectPtr &object)

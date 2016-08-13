@@ -46,8 +46,7 @@ namespace ray_storm
         intersection.intersected = this;
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
 
-        SimpleIntersection si(iPoint, glm::normalize(iPoint - this->position));
-        intersection.intersection = si;
+        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position));
         return true;
       }
 

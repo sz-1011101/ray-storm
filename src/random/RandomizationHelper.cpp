@@ -13,7 +13,7 @@ glm::vec3 RandomizationHelper::drawUniformRandomSphereDirection(MTEngine &engine
 
   const float cosTheta = std::cos(theta);
   const float cosPhi = std::cos(phi);
-  const float sinTheta = std::sin(phi);
+  const float sinTheta = std::sin(theta);
   const float sinPhi = std::sin(phi);
 
   return glm::vec3(cosTheta*sinPhi, sinTheta*sinPhi, cosPhi);

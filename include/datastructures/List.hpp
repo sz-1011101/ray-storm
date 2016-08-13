@@ -28,7 +28,7 @@ namespace ray_storm
         bool objHit = false;
 
         for (T* d : this->data) {
-          
+
           geometry::Intersection<T> currIntersect;
 
           // we hit the object?
@@ -48,7 +48,7 @@ namespace ray_storm
             currentClosest = currIntersect;
           }
         }
-
+        intersection = currentClosest;
         return objHit;
       }
 
