@@ -28,6 +28,8 @@ namespace ray_storm
 
       void setPixel(int x, int y, const glm::vec3 &rgb);
 
+      void setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear);
+
       void setWindow(Window *window);
 
       const cv::Mat &getData();

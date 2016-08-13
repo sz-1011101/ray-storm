@@ -1,5 +1,6 @@
 #include "utility/RenderedData.h"
 #include "utility/Window.h"
+#include "utility/ColorTools.hpp"
 
 using namespace ray_storm::utility;
 
@@ -27,6 +28,11 @@ void RenderedData::setPixel(int x, int y, const glm::vec3 &rgb)
   pixel[0] = rgb.b;
   pixel[1] = rgb.g;
   pixel[2] = rgb.r;
+}
+
+void RenderedData::setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear)
+{
+  this->setPixel(x, y, ColorTools::linearToSRGB(rgbLinear));
 }
 
 void RenderedData::setWindow(Window *window)

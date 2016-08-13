@@ -4,7 +4,7 @@
 using namespace ray_storm::renderer;
 
 const uint BOUNCES = 2;
-const uint SAMPLES = 512;
+const uint SAMPLES = 16;
 const glm::vec3 SKY = glm::vec3(0.0, 0.2, 0.8);
 
 void PathTracer::render(const scene::Scene &scene, camera::AbstractCameraPtr &camera)
@@ -75,7 +75,7 @@ void PathTracer::render(const scene::Scene &scene, camera::AbstractCameraPtr &ca
         radianceSum += radiance;
       }
 
-      this->renderedData->setPixel(x, y, radianceSum/static_cast<float>(SAMPLES));
+      this->renderedData->setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
       
     }
   }
