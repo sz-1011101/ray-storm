@@ -1,3 +1,5 @@
+#include <omp.h> // <- best thing since sliced bread!
+
 #include "renderer/PathTracer.h"
 
 using namespace ray_storm::renderer;
@@ -34,16 +36,22 @@ void PathTracer::render()
     return;
   }
 
-  puts("rendering...");
+  const int maxThreads = omp_get_max_threads();
+
+  printf("rendering with %d threads...\n", maxThreads);
+
   const uint width = this->renderedData->getWidth();
   const uint height = this->renderedData->getHeight();
 
   this->renderedImage = cv::Mat::zeros(cv::Size(width, height), CV_32FC3);
 
-  random::RandomizationHelper::MTEngine engine;
-
+  random::RandomizationHelper::MTEngine engine[maxThreads];
+#pragma omp parallel for schedule(dynamic)
   for (uint x = 0; x < width; x++)
   {
+    // current thread id used to id different random engines
+    const int currentThread = omp_get_thread_num();
+
     for (uint y = 0; y < height; y++)
     {
       glm::vec3 radianceSum(0.0f);
@@ -53,7 +61,7 @@ void PathTracer::render()
       for (uint s = 0; s < SAMPLES; s++)
       {
         // we can reuse the first ray
-        radianceSum += walkPath(ray, engine);
+        radianceSum += walkPath(ray, engine[currentThread]);
       }
       this->renderedData->setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
     }
@@ -70,6 +78,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
   // path tracing vars
   glm::vec3 weights[BOUNCES];
   glm::vec3 emittance[BOUNCES];
+
   int depth = 0;
 
   geometry::Intersection<geometry::Object> intersection;
@@ -108,7 +117,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
   glm::vec3 radiance = emittance[depth];
   for (int b = depth - 1; b >= 0; b--)
   {
-    radiance = emittance[b] + weights[b]*radiance;
+    radiance = (emittance[b] + weights[b]*radiance);
   }
 
   return radiance;

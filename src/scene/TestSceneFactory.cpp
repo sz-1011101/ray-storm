@@ -50,7 +50,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   ScenePtr scene(new scene::Scene());
 
   // materials
-  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(10.0f)));
+  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(30.0f)));
   materials::AbstractMaterialPtr matRed(new materials::Lambertian(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matGreen(new materials::Lambertian(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matBlue(new materials::Lambertian(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f)));
