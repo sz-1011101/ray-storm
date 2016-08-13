@@ -21,7 +21,7 @@ namespace ray_storm
 
       void setRenderedData(utility::RenderedDataPtr &renderedData);
 
-      virtual void render(const scene::Scene &scene, camera::AbstractCameraPtr &camera) = 0;
+      virtual void render() = 0;
 
     protected:
 

@@ -34,6 +34,8 @@ namespace ray_storm
       std::unique_ptr<datastructures::SpatialDatastructure<geometry::Object>> dataStruct;
       
     };
+
+    typedef std::shared_ptr<Scene> ScenePtr;
   }
 }
 
