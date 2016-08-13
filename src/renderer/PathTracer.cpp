@@ -1,6 +1,7 @@
 #include <omp.h> // <- best thing since sliced bread!
 
 #include "renderer/PathTracer.h"
+#include "random/RandomRay.hpp"
 
 using namespace ray_storm::renderer;
 
@@ -98,19 +99,15 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     geometry::SimpleIntersection iSmpl = intersection.intersection;
     materials::AbstractMaterial *iMat = iObj->getMaterial();
 
-    geometry::Ray nextRay;
-    // next ray
-    nextRay.direction = random::RandomizationHelper::drawUniformRandomHemisphereDirection(
-      engine, iSmpl.normal);
-    nextRay.origin = iSmpl.position + iSmpl.normal*0.001f;
+    random::RandomRay randRay;
+    iMat->drawReflectedRay(-ray.direction, iSmpl.position + iSmpl.normal*0.001f, iSmpl.normal, engine, randRay);
+    const glm::vec3 brdf = iMat->evaluateBRDF(-ray.direction, iSmpl.normal, randRay.ray.direction);
 
-    const glm::vec3 brdf = iMat->evaluateBRDF(-ray.direction, iSmpl.normal, nextRay.direction);
-
-    // brdf + cos weighting*(pdf for uniform hemisphere)
-    weights[b] = brdf*2.0f*glm::dot(iSmpl.normal, nextRay.direction);
+    // brdf times inverse PDF times cos weighting
+    weights[b] = brdf*randRay.inversePDF*glm::dot(iSmpl.normal, randRay.ray.direction);
     emittance[b] = iMat->getEmittance();
 
-    ray = nextRay;
+    ray = randRay.ray;
   }
 
   // accumulate radiance according to rendering equation

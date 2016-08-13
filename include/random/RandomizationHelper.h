@@ -3,6 +3,7 @@
 
 #include <random>
 
+#include "utility/common.hpp"
 #include "utility/linear_alg.hpp"
 
 namespace ray_storm
@@ -35,6 +36,11 @@ namespace ray_storm
       static glm::vec3 drawUniformRandomSphereDirection(MTEngine &engine);
 
       static glm::vec3 drawUniformRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &normal);
+
+      static float uniformRandomHemispherePDF()
+      {
+        return 2.0f/M_PI;
+      }
 
     };
   }

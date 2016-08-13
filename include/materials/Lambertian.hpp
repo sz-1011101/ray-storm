@@ -2,6 +2,8 @@
 #define LAMBERTIAN_H_
 
 #include "utility/common.hpp"
+#include "materials/AbstractMaterial.h"
+#include "random/RandomizationHelper.h"
 
 namespace ray_storm
 {
@@ -27,6 +29,14 @@ namespace ray_storm
 
       glm::vec3 getEmittance() {
         return this->emittance;
+      }
+
+      void drawReflectedRay(const glm::vec3 &v, const glm::vec3 &position, const glm::vec3 &n, 
+        random::RandomizationHelper::MTEngine &engine, random::RandomRay &randRay)
+      {
+        randRay.ray.direction = random::RandomizationHelper::drawUniformRandomHemisphereDirection(engine, n);
+        randRay.ray.origin = position;
+        randRay.inversePDF = random::RandomizationHelper::uniformRandomHemispherePDF();
       }
     
     private:
