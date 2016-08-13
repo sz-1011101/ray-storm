@@ -3,9 +3,11 @@
 
 using namespace ray_storm::scene;
 
+const glm::vec3 DEFAULT_SKY = glm::vec3(0.0, 0.0, 0.0);
+
 Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
 {
-
+  this->sky = DEFAULT_SKY;
 }
 
 bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const
@@ -29,4 +31,14 @@ void Scene::finalize()
 
   this->dataStruct->initialize();
   puts("Scene finalized");
+}
+
+void Scene::setSky(const glm::vec3 &sky)
+{
+  this->sky = sky;
+}
+
+const glm::vec3 &Scene::getSky()
+{
+  return sky;
 }

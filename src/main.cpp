@@ -17,10 +17,10 @@ int main(int argc, char* argv[])
 
   // camera
   camera::AbstractCameraPtr camera(new camera::PinholeCamera(
-    glm::vec3(3,3,3), glm::vec3(0,0,0), glm::vec3(0, 1, 0), 1.0f, 75.0f));
+    glm::vec3(2,2,2), glm::vec3(0,0,0), glm::vec3(0, 1, 0), 1.0f, 75.0f));
 
   // materials
-  materials::AbstractMaterialPtr eMat(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(10.0f)));
+  materials::AbstractMaterialPtr eMat(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(30.0f)));
   materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(1), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matR(new materials::Lambertian(glm::vec3(1, 0, 0), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matG(new materials::Lambertian(glm::vec3(0, 1, 0), glm::vec3(0.0f)));
@@ -34,12 +34,14 @@ int main(int argc, char* argv[])
   geometry::ObjectPtr sphereZ = geometry::ObjectPtr(
     new geometry::Sphere(glm::vec3(0.0f, 0.0, 1.0f), 0.5f, matB));
   geometry::ObjectPtr sphereLight = geometry::ObjectPtr(
-    new geometry::Sphere(glm::vec3(-0.0f, 0.0f, 0.0f), 0.5f, eMat));
+    new geometry::Sphere(glm::vec3(3.0f, 0.0f, 0.0f), 0.5f, eMat));
   geometry::ObjectPtr plane1 = geometry::ObjectPtr(
-    new geometry::Plane(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0, 1, 0), matWhite));
+    new geometry::Plane(glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0, 1, 0), matWhite));
   geometry::ObjectPtr plane2 = geometry::ObjectPtr(
     new geometry::Plane(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0, 0, 1), matR));
 
+  scene->setSky(glm::vec3(0.0f));
+  // build scene
   scene->add(sphereX);
   scene->add(sphereY);
   scene->add(sphereZ);

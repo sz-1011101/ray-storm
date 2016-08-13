@@ -2,19 +2,18 @@
 
 using namespace ray_storm::renderer;
 
-const uint BOUNCES = 2;
-const uint SAMPLES = 16;
-const glm::vec3 SKY = glm::vec3(0.0, 0.2, 0.8);
+const uint BOUNCES = 4;
+const uint SAMPLES = 256;
 
 PathTracer::PathTracer()
 {
-  this->sky = SKY;
+
 }
 
 PathTracer::PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera) : 
   scene(scene), camera(camera)
 {
-  this->sky = SKY;
+
 }
 
 void PathTracer::setScene(scene::ScenePtr &scene)
@@ -82,7 +81,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     // we hit the sky...
     if (!scene->intersect(ray, intersection))
     {
-      emittance[b] = this->sky;
+      emittance[b] = this->scene->getSky();
       continue;
     }
 

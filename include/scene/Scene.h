@@ -25,6 +25,10 @@ namespace ray_storm
 
       void finalize();
 
+      void setSky(const glm::vec3 &sky);
+
+      const glm::vec3 &getSky();
+
     private:
 
       // scene objects that interact with the light
@@ -32,6 +36,8 @@ namespace ray_storm
 
       // for fast object intersecting
       std::unique_ptr<datastructures::SpatialDatastructure<geometry::Object>> dataStruct;
+
+      glm::vec3 sky;
       
     };
 
