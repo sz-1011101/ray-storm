@@ -20,13 +20,21 @@ namespace ray_storm
 
     public:
 
-      RenderedData(Window *window);
+      RenderedData();
 
-      void initialize(int width, int height);
+      RenderedData(uint width, uint height);
+
+      void initialize(uint width, uint height);
 
       void setPixel(int x, int y, const glm::vec3 &rgb);
 
+      void setWindow(Window *window);
+
       const cv::Mat &getData();
+
+      uint getWidth() const;
+
+      uint getHeight() const;
 
       void signalChanged();
 

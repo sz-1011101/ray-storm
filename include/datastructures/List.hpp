@@ -12,15 +12,6 @@ namespace ray_storm
 
     public:
 
-      ~List()
-      {
-        for (T* t : this->data) {
-          delete t;
-        }
-
-        this->data.clear();
-      }
-
       void add(T *data)
       {
         this->data.push_back(data);
@@ -37,6 +28,7 @@ namespace ray_storm
         bool objHit = false;
 
         for (T* d : this->data) {
+          
           geometry::Intersection<T> currIntersect;
 
           // we hit the object?

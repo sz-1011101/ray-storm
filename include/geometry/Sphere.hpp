@@ -20,9 +20,9 @@ namespace ray_storm
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection) {
         const float a = glm::dot(ray.direction, ray.direction);
-        const glm::vec3 orgMinusDir = ray.origin - ray.direction;
-        const float b = 2.0f*glm::dot(ray.direction, orgMinusDir);
-        const float c = glm::dot(orgMinusDir, orgMinusDir) - this->radius*this->radius;
+        const glm::vec3 orgMinusCenter = ray.origin - this->position;
+        const float b = 2.0f*glm::dot(ray.direction, orgMinusCenter);
+        const float c = glm::dot(orgMinusCenter, orgMinusCenter) - this->radius*this->radius;
 
         const float discriminant = b*b - 4*a*c;
 

@@ -8,15 +8,14 @@ Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
 
 }
 
-ray_storm::geometry::Object *Scene::intersect(const geometry::Ray &ray) const
+bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const
 {
-  geometry::Intersection<geometry::Object> intersection;
   if (this->dataStruct->intersect(ray, intersection))
   {
-    return intersection.intersected;
+    return true;
   }
 
-  return nullptr;
+  return false;
 }
 
 void Scene::add(geometry::ObjectPtr &object)

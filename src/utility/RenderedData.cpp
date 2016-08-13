@@ -3,19 +3,35 @@
 
 using namespace ray_storm::utility;
 
-RenderedData::RenderedData(Window *window)
+RenderedData::RenderedData()
 {
-  this->window = window;
+  this->window = nullptr;
 }
 
-void RenderedData::initialize(int width, int height)
+RenderedData::RenderedData(uint width, uint height)
+{
+  this->window = nullptr;
+  this->initialize(width, height);
+}
+
+void RenderedData::initialize(uint width, uint height)
 {
   this->data = cv::Mat::zeros(cv::Size(width, height), CV_32FC3);
 }
 
 void RenderedData::setPixel(int x, int y, const glm::vec3 &rgb)
 {
+  cv::Vec3f &pixel = this->data.at<cv::Vec3f>(cv::Point(x, y));
 
+  // open cv uses BGR
+  pixel[0] = rgb.b;
+  pixel[1] = rgb.g;
+  pixel[2] = rgb.r;
+}
+
+void RenderedData::setWindow(Window *window)
+{
+  this->window = window;
 }
 
 const cv::Mat &RenderedData::getData()
@@ -25,5 +41,18 @@ const cv::Mat &RenderedData::getData()
 
 void RenderedData::signalChanged()
 {
-  // TODO do something on the window
+  if (this->window != nullptr)
+  {
+    this->window->refresh();
+  }
+}
+
+uint RenderedData::getWidth() const
+{
+  return this->data.cols;
+}
+
+uint RenderedData::getHeight() const
+{
+  return this->data.rows;
 }

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "geometry/Object.h"
+#include "geometry/Ray.hpp"
 #include "datastructures/SpatialDatastructure.h"
 
 namespace ray_storm
@@ -18,7 +19,7 @@ namespace ray_storm
 
       Scene();
 
-      geometry::Object *intersect(const geometry::Ray &ray) const;
+      bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
 
       void add(geometry::ObjectPtr &object);
 
