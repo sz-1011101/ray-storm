@@ -13,7 +13,7 @@ PinholeCamera::PinholeCamera(const glm::vec3 &position,
   this->aspectRatio = aspectRatio;
   this->fov_degrees = fov_degrees;
 
-  this->tanFovHalved = std::tan(this->fov_degrees/2.0f);
+  this->tanFovHalved = std::tan(utility::Math::degToRad(this->fov_degrees)/2.0f);
 
   // build basic camera vectors
   this->forward = glm::normalize(this->lookAt - this->position);

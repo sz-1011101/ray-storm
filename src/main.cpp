@@ -1,3 +1,4 @@
+#include "utility/common.hpp"
 #include "scene/Scene.h"
 #include "geometry/Sphere.hpp"
 #include "geometry/Plane.hpp"
@@ -15,21 +16,36 @@ int main(int argc, char* argv[])
   scene::ScenePtr scene(new scene::Scene());
 
   // camera
-  camera::AbstractCameraPtr camera(new camera::PinholeCamera(glm::vec3(-7,5,5), glm::vec3(0,0,0), glm::vec3(0, 1, 0), 1.0f, 75.0f));
-  
+  camera::AbstractCameraPtr camera(new camera::PinholeCamera(
+    glm::vec3(3,3,3), glm::vec3(0,0,0), glm::vec3(0, 1, 0), 1.0f, 75.0f));
+
   // materials
-  materials::AbstractMaterialPtr mat1(new materials::Lambertian(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr mat2(new materials::Lambertian(glm::vec3(0.4f), glm::vec3(10.0f)));
-  materials::AbstractMaterialPtr mat3(new materials::Lambertian(glm::vec3(1.0f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr eMat(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(10.0f)));
+  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(1), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matR(new materials::Lambertian(glm::vec3(1, 0, 0), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matG(new materials::Lambertian(glm::vec3(0, 1, 0), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matB(new materials::Lambertian(glm::vec3(0, 0, 1), glm::vec3(0.0f)));
 
   // scene objects
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 0.0, 0.0f), 1.0f, mat1));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-0.5f, 0.0f, 0.0f), 0.25f, mat2));
-  geometry::ObjectPtr plane = geometry::ObjectPtr(new geometry::Plane(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0, 1, 0), mat3));
+  geometry::ObjectPtr sphereX = geometry::ObjectPtr(
+    new geometry::Sphere(glm::vec3(1.0f, 0.0, 0.0f), 0.5f, matR));
+  geometry::ObjectPtr sphereY = geometry::ObjectPtr(
+    new geometry::Sphere(glm::vec3(0.0f, 1.0, 0.0f), 0.5f, matG));
+  geometry::ObjectPtr sphereZ = geometry::ObjectPtr(
+    new geometry::Sphere(glm::vec3(0.0f, 0.0, 1.0f), 0.5f, matB));
+  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(
+    new geometry::Sphere(glm::vec3(-0.0f, 0.0f, 0.0f), 0.5f, eMat));
+  geometry::ObjectPtr plane1 = geometry::ObjectPtr(
+    new geometry::Plane(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0, 1, 0), matWhite));
+  geometry::ObjectPtr plane2 = geometry::ObjectPtr(
+    new geometry::Plane(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0, 0, 1), matR));
 
-  scene->add(sphere1);
-  scene->add(sphere2);
-  scene->add(plane);
+  scene->add(sphereX);
+  scene->add(sphereY);
+  scene->add(sphereZ);
+  scene->add(sphereLight);
+  scene->add(plane1);
+  scene->add(plane2);
   scene->finalize();
 
   utility::RenderedDataPtr rd(new utility::RenderedData());
