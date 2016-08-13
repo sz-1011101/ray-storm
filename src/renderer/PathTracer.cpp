@@ -6,7 +6,7 @@
 using namespace ray_storm::renderer;
 
 const uint BOUNCES = 4;
-const uint SAMPLES = 128;
+const uint SAMPLES = 1000;
 
 PathTracer::PathTracer()
 {
@@ -47,6 +47,12 @@ void PathTracer::render()
   this->renderedImage = cv::Mat::zeros(cv::Size(width, height), CV_32FC3);
 
   random::RandomizationHelper::MTEngine engine[maxThreads];
+  for (int e = 0; e < maxThreads; e++)
+  {
+    engine[e] = random::RandomizationHelper::MTEngine();
+  }
+
+
 #pragma omp parallel for schedule(dynamic)
   for (uint x = 0; x < width; x++)
   {

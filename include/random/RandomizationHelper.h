@@ -15,7 +15,9 @@ namespace ray_storm
     {
     private:
       
-      RandomizationHelper();
+      RandomizationHelper() {};
+
+      static glm::vec3 transform(const glm::vec3 &n, const glm::vec3 &vector);
       
     public:
 
@@ -35,12 +37,16 @@ namespace ray_storm
 
       static glm::vec3 drawUniformRandomSphereDirection(MTEngine &engine);
 
-      static glm::vec3 drawUniformRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &normal);
+      static glm::vec3 drawUniformRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n);
 
-      static float uniformRandomHemispherePDF()
+      static glm::vec3 drawCosineWeightedRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n, float e);
+
+      static float uniformRandomHemisphereInversePDF()
       {
         return 2.0f/M_PI;
       }
+
+      static float cosineRandomHemisphereInversePDF(float cosTheta, float e);
 
     };
   }
