@@ -3,7 +3,7 @@
 using namespace ray_storm::renderer;
 
 const uint BOUNCES = 4;
-const uint SAMPLES = 256;
+const uint SAMPLES = 32;
 
 PathTracer::PathTracer()
 {

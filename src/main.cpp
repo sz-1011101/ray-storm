@@ -2,6 +2,7 @@
 #include "scene/Scene.h"
 #include "geometry/Sphere.hpp"
 #include "geometry/Plane.hpp"
+#include "geometry/Rectangle.hpp"
 #include "camera/PinholeCamera.h"
 #include "materials/Lambertian.hpp"
 #include "renderer/PathTracer.h"
@@ -35,10 +36,10 @@ int main(int argc, char* argv[])
     new geometry::Sphere(glm::vec3(0.0f, 0.0, 1.0f), 0.5f, matB));
   geometry::ObjectPtr sphereLight = geometry::ObjectPtr(
     new geometry::Sphere(glm::vec3(3.0f, 0.0f, 0.0f), 0.5f, eMat));
-  geometry::ObjectPtr plane1 = geometry::ObjectPtr(
+  geometry::ObjectPtr plane = geometry::ObjectPtr(
     new geometry::Plane(glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0, 1, 0), matWhite));
-  geometry::ObjectPtr plane2 = geometry::ObjectPtr(
-    new geometry::Plane(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0, 0, 1), matR));
+  geometry::ObjectPtr rect = geometry::ObjectPtr(
+    new geometry::Rectangle(glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 2.0f, 1.0f, matR));
 
   scene->setSky(glm::vec3(0.0f));
   // build scene
@@ -46,8 +47,8 @@ int main(int argc, char* argv[])
   scene->add(sphereY);
   scene->add(sphereZ);
   scene->add(sphereLight);
-  scene->add(plane1);
-  scene->add(plane2);
+  scene->add(plane);
+  scene->add(rect);
   scene->finalize();
 
   utility::RenderedDataPtr rd(new utility::RenderedData());
