@@ -6,8 +6,8 @@
 
 using namespace ray_storm::renderer;
 
-const uint BOUNCES = 4;
-const uint SAMPLES = 128;
+const uint BOUNCES = 5;
+const uint SAMPLES = 1000;
 
 PathTracer::PathTracer()
 {

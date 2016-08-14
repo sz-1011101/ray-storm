@@ -3,6 +3,7 @@
 #include "geometry/Plane.hpp"
 #include "geometry/Rectangle.hpp"
 #include "materials/Lambertian.hpp"
+#include "materials/Mirror.hpp"
 
 using namespace ray_storm::scene;
 
@@ -50,47 +51,52 @@ ScenePtr TestSceneFactory::createCornellBox()
   ScenePtr scene(new scene::Scene());
 
   // materials
-  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(30.0f)));
-  materials::AbstractMaterialPtr matRed(new materials::Lambertian(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matGreen(new materials::Lambertian(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matBlue(new materials::Lambertian(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(1.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matYellow(new materials::Lambertian(glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f)));
-
+  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(100.0f)));
+  materials::AbstractMaterialPtr matRed(new materials::Lambertian(glm::vec3(1.0f, 0.3f, 0.3f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matGreen(new materials::Lambertian(glm::vec3(0.3f, 1.0f, 0.3f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matBlue(new materials::Lambertian(glm::vec3(0.3f, 0.3f, 1.0f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(0.7f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matYellow(new materials::Lambertian(glm::vec3(0.6f, 0.6f, 0.2f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matMirror(new materials::Mirror(glm::vec3(1.0f)));
   // cornell box walls
 
   // floor
-  geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 10.0f);
+  geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
   geometry::ObjectPtr floor = geometry::ObjectPtr(new geometry::Rectangle(floorRp, matWhite));
 
   // ceiling
-  geometry::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 10.0f);
+  geometry::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
   geometry::ObjectPtr ceiling = geometry::ObjectPtr(new geometry::Rectangle(ceilingRp, matWhite));
 
   // left wall
-  geometry::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 5.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  geometry::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
   geometry::ObjectPtr leftWall = geometry::ObjectPtr(new geometry::Rectangle(leftWallRp, matRed));
 
   // right wall
-  geometry::Rectangle::RectParams rightWallRp(glm::vec3(5.0f, 10.0f, 5.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  geometry::Rectangle::RectParams rightWallRp(glm::vec3(5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
   geometry::ObjectPtr rightWall = geometry::ObjectPtr(new geometry::Rectangle(rightWallRp, matBlue));
 
   // back wall
   geometry::Rectangle::RectParams backWallRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
   geometry::ObjectPtr backWall = geometry::ObjectPtr(new geometry::Rectangle(backWallRp, matYellow));
 
+  // front wall
+  geometry::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
+
   // light
-  geometry::Rectangle::RectParams lightRp(glm::vec3(-2.5f, 9.99f, -2.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 5.0f, 5.0f);
+  geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 2.0f, 1.0f), 2.0f, matGreen));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 2.0f, -1.0f), 2.0f, matWhite));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 2.0f, -1.0f), 2.0f, matMirror));
   // build scene
   scene->add(floor);
   scene->add(ceiling);
   scene->add(leftWall);
   scene->add(rightWall);
   scene->add(backWall);
+  scene->add(frontWall);
   scene->add(light);
   scene->add(sphere1);
   scene->add(sphere2);

@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
   // camera
   camera::AbstractCameraPtr camera(new camera::PinholeCamera(
-    glm::vec3(0, 5, 11), glm::vec3(0, 5, -5), glm::vec3(0, 1, 0), 1.0f, 65.0f));
+    glm::vec3(0, 5, 9.5f), glm::vec3(0, 5, -5), glm::vec3(0, 1, 0), 1.0f, 65.0f));
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 

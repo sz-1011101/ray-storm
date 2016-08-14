@@ -18,15 +18,15 @@ namespace ray_storm
     {
 
     public:
-
+      // brdf assumes vectors point towards the "source"
       virtual ~AbstractMaterial() {};
 
-      virtual glm::vec3 evaluateBRDF(const glm::vec3 &v, 
-        const glm::vec3 &n, const glm::vec3 &l) = 0;
+      virtual glm::vec3 evaluateBRDF(const glm::vec3 &omegaIn, 
+        const glm::vec3 &n, const glm::vec3 &omegaOut) = 0;
 
       virtual glm::vec3 getEmittance() = 0;
 
-      virtual void drawReflectedRay(const glm::vec3 &v, const glm::vec3 &position, const glm::vec3 &n, 
+      virtual void drawReflectedRay(const glm::vec3 &omegaIn, const glm::vec3 &position, const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, random::RandomRay &randRay) = 0;
 
     };

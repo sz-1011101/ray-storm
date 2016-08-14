@@ -21,7 +21,8 @@ namespace ray_storm
         this->emittance = emittance;
       }
 
-      glm::vec3 evaluateBRDF(const glm::vec3 &v, const glm::vec3 &n, const glm::vec3 &l)
+      glm::vec3 evaluateBRDF(const glm::vec3 &omegaIn, 
+        const glm::vec3 &n, const glm::vec3 &omegaOut)
       {
         // lambertian is constant!
         return this->constBrdf;
@@ -31,20 +32,21 @@ namespace ray_storm
         return this->emittance;
       }
 
-      void drawReflectedRay(const glm::vec3 &v, const glm::vec3 &position, const glm::vec3 &n, 
+      void drawReflectedRay(const glm::vec3 &omegaIn, const glm::vec3 &position, const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, random::RandomRay &randRay)
       {
-        // uniform sampling
-        //randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(engine, n);
-        //randRay.ray.origin = position;
-        //randRay.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
 
-        // cosine weighted sampling!
+      #ifdef UNIFORM_SAMPLING // uniform sampling
+        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
+        randRay.ray.origin = position;
+        randRay.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
+      #else // cosine weighted sampling!
         const float e = 1.0f;
         randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, e);
         randRay.ray.origin = position;
         randRay.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(n, randRay.ray.direction), e);
-        
+      #endif
+
       }
     
     private:
