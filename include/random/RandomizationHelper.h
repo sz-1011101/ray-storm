@@ -29,6 +29,11 @@ namespace ray_storm
 
       };
 
+      inline float drawUniformRandom()
+      {
+        return this->engine.draw();
+      }
+
       glm::vec3 drawUniformRandomSphereDirection();
 
       glm::vec3 drawUniformRandomHemisphereDirection(const glm::vec3 &n);
@@ -37,7 +42,7 @@ namespace ray_storm
 
       float uniformRandomHemisphereInversePDF()
       {
-        return 2.0f/M_PI;
+        return 2.0f*M_PI;
       }
 
       float cosineRandomHemisphereInversePDF(float cosTheta, float e);

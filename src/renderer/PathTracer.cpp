@@ -117,13 +117,24 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     geometry::SimpleIntersection iSmpl = intersection.intersection;
     materials::AbstractMaterial *iMat = iObj->getMaterial();
 
+    // emittance of the intersected object
+    emittance[b] = iMat->getEmittance();
+
     random::RandomRay randRay;
     iMat->drawReflectedRay(-ray.direction, iSmpl.position + iSmpl.normal*0.001f, iSmpl.normal, randHelper, randRay);
-    const glm::vec3 brdf = iMat->evaluateBRDF(-ray.direction, iSmpl.normal, randRay.ray.direction);
+
+    const float cosTheta = glm::dot(iSmpl.normal, randRay.ray.direction);
+
+    // early termination in case of impossible ray
+    if (cosTheta < 0.001f)
+    {
+      break;
+    }
+    const glm::vec3 brdf = iMat->evaluateBRDF(randRay.ray.direction, iSmpl.normal, -ray.direction);
 
     // brdf times inverse PDF times cos weighting
-    weights[b] = brdf*randRay.inversePDF*glm::dot(iSmpl.normal, randRay.ray.direction);
-    emittance[b] = iMat->getEmittance();
+    weights[b] = brdf*randRay.inversePDF*cosTheta;
+    
 
     ray = randRay.ray;
   }

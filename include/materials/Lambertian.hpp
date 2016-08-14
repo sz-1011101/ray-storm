@@ -21,8 +21,8 @@ namespace ray_storm
         this->emittance = emittance;
       }
 
-      glm::vec3 evaluateBRDF(const glm::vec3 &omegaIn, 
-        const glm::vec3 &n, const glm::vec3 &omegaOut)
+      glm::vec3 evaluateBRDF(const glm::vec3 &l, 
+        const glm::vec3 &n, const glm::vec3 &v)
       {
         // lambertian is constant!
         return this->constBrdf;
@@ -33,10 +33,10 @@ namespace ray_storm
         return this->emittance;
       }
 
-      void drawReflectedRay(const glm::vec3 &omegaIn, const glm::vec3 &position, const glm::vec3 &n, 
+      void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, random::RandomRay &randRay)
       {
-
+      //#define UNIFORM_SAMPLING
       #ifdef UNIFORM_SAMPLING // uniform sampling
         randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
         randRay.ray.origin = position;

@@ -52,16 +52,17 @@ ScenePtr TestSceneFactory::createCornellBox()
   ScenePtr scene(new scene::Scene());
 
   // materials
-  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(100.0f)));
-  materials::AbstractMaterialPtr matRed(new materials::Lambertian(glm::vec3(1.0f, 0.3f, 0.3f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matGreen(new materials::Lambertian(glm::vec3(0.3f, 1.0f, 0.3f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matBlue(new materials::Lambertian(glm::vec3(0.3f, 0.3f, 1.0f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(0.7f), glm::vec3(0.0f)));
-  materials::AbstractMaterialPtr matYellow(new materials::Lambertian(glm::vec3(0.6f, 0.6f, 0.2f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matLight(new materials::Lambertian(glm::vec3(0.0f), glm::vec3(12.0f)));
+  materials::AbstractMaterialPtr matRed(new materials::Lambertian(glm::vec3(0.75f,0.25f,0.25f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matGreen(new materials::Lambertian(glm::vec3(0.25f, 0.75f, 0.25f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matBlue(new materials::Lambertian(glm::vec3(0.25f, 0.25f, 0.75f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(0.75f), glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matYellow(new materials::Lambertian(glm::vec3(0.75f, 0.75f, 0.25f), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matMirror(new materials::Mirror(glm::vec3(1.0f)));
-  materials::AbstractMaterialPtr matMetal1(new materials::Phong(glm::vec3(0.25f), glm::vec3(0.75f), 10.0f, glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matMetal1(new materials::Phong(glm::vec3(0.6f), glm::vec3(0.1f), 2.0f, glm::vec3(0.0f)));
+  materials::AbstractMaterialPtr matMetal2(new materials::Phong(glm::vec3(0.8f), glm::vec3(0.2f), 150.0f, glm::vec3(0.0f)));
 
-  // cornell box walls
+  // cornell box walls, colors stolen from http://www.kevinbeason.com/smallpt/
 
   // floor
   geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
@@ -92,7 +93,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 2.0f, 1.0f), 2.0f, matMetal1));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 2.0f, -1.0f), 2.0f, matMirror));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 2.0f, -1.0f), 2.0f, matMetal2));
   // build scene
   scene->add(floor);
   scene->add(ceiling);
