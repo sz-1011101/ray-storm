@@ -39,7 +39,7 @@ namespace ray_storm
       glm::vec3 sky;
 
       glm::vec3 walkPath(const geometry::Ray &initialRay, 
-        random::RandomizationHelper::MTEngine &engine);
+        random::RandomizationHelper &randHelper);
       
     };
   }

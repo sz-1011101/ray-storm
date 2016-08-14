@@ -13,12 +13,6 @@ namespace ray_storm
 
     class RandomizationHelper
     {
-    private:
-      
-      RandomizationHelper() {};
-
-      static glm::vec3 transform(const glm::vec3 &n, const glm::vec3 &vector);
-      
     public:
 
       struct MTEngine
@@ -35,18 +29,25 @@ namespace ray_storm
 
       };
 
-      static glm::vec3 drawUniformRandomSphereDirection(MTEngine &engine);
+      glm::vec3 drawUniformRandomSphereDirection();
 
-      static glm::vec3 drawUniformRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n);
+      glm::vec3 drawUniformRandomHemisphereDirection(const glm::vec3 &n);
 
-      static glm::vec3 drawCosineWeightedRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n, float e);
+      glm::vec3 drawCosineWeightedRandomHemisphereDirection(const glm::vec3 &n, float e);
 
-      static float uniformRandomHemisphereInversePDF()
+      float uniformRandomHemisphereInversePDF()
       {
         return 2.0f/M_PI;
       }
 
-      static float cosineRandomHemisphereInversePDF(float cosTheta, float e);
+      float cosineRandomHemisphereInversePDF(float cosTheta, float e);
+
+    private:
+
+      // the engine of this helper
+      MTEngine engine;
+      
+      glm::vec3 transform(const glm::vec3 &n, const glm::vec3 &vector);
 
     };
   }

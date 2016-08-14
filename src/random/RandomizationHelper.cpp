@@ -2,11 +2,11 @@
 
 using namespace ray_storm::random;
 
-glm::vec3 RandomizationHelper::drawUniformRandomSphereDirection(MTEngine &engine) 
+glm::vec3 RandomizationHelper::drawUniformRandomSphereDirection() 
 {
   // sphere point picking, see http://mathworld.wolfram.com/SpherePointPicking.html
-  const float u = engine.draw();
-  const float v = engine.draw();
+  const float u = this->engine.draw();
+  const float v = this->engine.draw();
 
   const float theta = 2.0f*M_PI*u;
   const float phi = std::acos(2.0f*v - 1.0f);
@@ -19,9 +19,9 @@ glm::vec3 RandomizationHelper::drawUniformRandomSphereDirection(MTEngine &engine
   return glm::vec3(cosTheta*sinPhi, sinTheta*sinPhi, cosPhi);
 }
 
-glm::vec3 RandomizationHelper::drawUniformRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n)
+glm::vec3 RandomizationHelper::drawUniformRandomHemisphereDirection(const glm::vec3 &n)
 {
-  glm::vec3 sphereDir = RandomizationHelper::drawUniformRandomSphereDirection(engine);
+  glm::vec3 sphereDir = this->drawUniformRandomSphereDirection();
 
   // flip around if below hemisphere
   if (glm::dot(n, sphereDir) < 0.0f) {
@@ -31,10 +31,10 @@ glm::vec3 RandomizationHelper::drawUniformRandomHemisphereDirection(MTEngine &en
   return sphereDir;
 }
 
-glm::vec3 RandomizationHelper::drawCosineWeightedRandomHemisphereDirection(MTEngine &engine, const glm::vec3 &n, float e)
+glm::vec3 RandomizationHelper::drawCosineWeightedRandomHemisphereDirection(const glm::vec3 &n, float e)
 {
-  const float u = engine.draw();
-  const float v = engine.draw();
+  const float u = this->engine.draw();
+  const float v = this->engine.draw();
 
   glm::vec3 dir;
 

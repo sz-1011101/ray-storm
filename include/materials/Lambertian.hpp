@@ -32,18 +32,18 @@ namespace ray_storm
       }
 
       void drawReflectedRay(const glm::vec3 &v, const glm::vec3 &position, const glm::vec3 &n, 
-        random::RandomizationHelper::MTEngine &engine, random::RandomRay &randRay)
+        random::RandomizationHelper &randHelper, random::RandomRay &randRay)
       {
         // uniform sampling
-        //randRay.ray.direction = random::RandomizationHelper::drawUniformRandomHemisphereDirection(engine, n);
+        //randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(engine, n);
         //randRay.ray.origin = position;
-        //randRay.inversePDF = random::RandomizationHelper::uniformRandomHemisphereInversePDF();
+        //randRay.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
 
         // cosine weighted sampling!
         const float e = 1.0f;
-        randRay.ray.direction = random::RandomizationHelper::drawCosineWeightedRandomHemisphereDirection(engine, n, e);
+        randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, e);
         randRay.ray.origin = position;
-        randRay.inversePDF = random::RandomizationHelper::cosineRandomHemisphereInversePDF(dot(n, randRay.ray.direction), e);
+        randRay.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(n, randRay.ray.direction), e);
         
       }
     

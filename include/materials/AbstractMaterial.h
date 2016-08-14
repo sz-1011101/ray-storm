@@ -27,7 +27,7 @@ namespace ray_storm
       virtual glm::vec3 getEmittance() = 0;
 
       virtual void drawReflectedRay(const glm::vec3 &v, const glm::vec3 &position, const glm::vec3 &n, 
-        random::RandomizationHelper::MTEngine &engine, random::RandomRay &randRay) = 0;
+        random::RandomizationHelper &randHelper, random::RandomRay &randRay) = 0;
 
     };
 
