@@ -6,8 +6,9 @@
 
 using namespace ray_storm::renderer;
 
-const uint BOUNCES = 5;
-const uint SAMPLES = 1000;
+const float RUSSIAN_ROULETTE_ALPHA = 0.75f;
+const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
+const uint32_t SAMPLES = 5000;
 
 PathTracer::PathTracer()
 {
@@ -95,15 +96,16 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
 {
   geometry::Ray ray = intialRay;
   // path tracing vars
-  glm::vec3 weights[BOUNCES];
-  glm::vec3 emittance[BOUNCES];
+  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
+  glm::vec3 weights[maxBounces];
+  glm::vec3 emittance[maxBounces];
 
   int depth = 0;
 
   geometry::Intersection<geometry::Object> intersection;
   
   // light path reverse traversal
-  for (uint b = 0; b < BOUNCES; b++)
+  for (uint32_t b = 0; b < maxBounces; b++)
   {
     depth = b;
     // we hit the sky...
@@ -132,10 +134,15 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     }
     const glm::vec3 brdf = iMat->evaluateBRDF(randRay.ray.direction, iSmpl.normal, -ray.direction);
 
-    // brdf times inverse PDF times cos weighting
-    weights[b] = brdf*randRay.inversePDF*cosTheta;
-    
+    const float beta = randHelper.drawUniformRandom();
 
+    if (beta > RUSSIAN_ROULETTE_ALPHA)
+    {
+      break;
+    }
+
+    // inverse russian roulette prob times brdf times inverse PDF times cos weighting
+    weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*brdf*randRay.inversePDF*cosTheta;
     ray = randRay.ray;
   }
 
