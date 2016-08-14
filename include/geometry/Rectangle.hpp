@@ -40,7 +40,7 @@ namespace ray_storm
         }
       };
 
-      Rectangle(const RectParams &rectParams, materials::AbstractMaterialPtr &material) :
+      Rectangle(const RectParams &rectParams, materials::MaterialPtr &material) :
         Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal(), material)
       {
         this->normal = rectParams.calcNormal();

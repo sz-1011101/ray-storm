@@ -12,7 +12,7 @@ namespace ray_storm
     {
     public:
 
-      Plane(const glm::vec3 &point, const glm::vec3 &normal, materials::AbstractMaterialPtr &material) : Object(material)
+      Plane(const glm::vec3 &point, const glm::vec3 &normal, materials::MaterialPtr &material) : Object(material)
       {
         this->point = point;
         this->normal = glm::normalize(normal);

@@ -13,7 +13,7 @@ namespace ray_storm
 
     public:
 
-      Sphere(const glm::vec3 &position, float radius, materials::AbstractMaterialPtr &material) : Object(material) {
+      Sphere(const glm::vec3 &position, float radius, materials::MaterialPtr &material) : Object(material) {
         this->position = position;
         this->radius = radius;
       }

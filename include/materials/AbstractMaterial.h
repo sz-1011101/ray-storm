@@ -4,10 +4,7 @@
 #include <memory>
 
 #include "utility/linear_alg.hpp"
-#include "geometry/Ray.hpp"
-#include "geometry/SimpleIntersection.hpp"
-#include "random/RandomRay.hpp"
-#include "random/RandomizationHelper.h"
+#include "materials/AbstractBRDF.h"
 
 namespace ray_storm
 {
@@ -28,6 +25,14 @@ namespace ray_storm
 
       virtual void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, random::RandomRay &randRay) = 0;
+
+      virtual float getFresnelReflectedRatio() = 0;
+
+      virtual float getFresnelRefractedRatio() = 0;
+
+    private:
+
+      std::unique_ptr<AbstractBRDF> brdf;
 
     };
 

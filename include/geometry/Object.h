@@ -15,7 +15,7 @@ namespace ray_storm
     {
     public:
 
-      Object(materials::AbstractMaterialPtr &material) : Renderable(material)
+      Object(materials::MaterialPtr &material) : Renderable(material)
       {
         
       }

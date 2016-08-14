@@ -12,8 +12,6 @@ namespace ray_storm
 
     public:
 
-      static ScenePtr createDefaultScene();
-
       static ScenePtr createCornellBox();
 
     private:

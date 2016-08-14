@@ -117,7 +117,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
 
     geometry::Object *iObj = intersection.intersected;
     geometry::SimpleIntersection iSmpl = intersection.intersection;
-    materials::AbstractMaterial *iMat = iObj->getMaterial();
+    materials::Material *iMat = iObj->getMaterial();
 
     // emittance of the intersected object
     emittance[b] = iMat->getEmittance();

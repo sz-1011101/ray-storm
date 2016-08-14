@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "materials/AbstractMaterial.h"
+#include "materials/Material.h"
 
 namespace ray_storm
 {
@@ -14,18 +14,18 @@ namespace ray_storm
 
     public:
 
-      Renderable(materials::AbstractMaterialPtr &material) : material(material)
+      Renderable(materials::MaterialPtr &material) : material(material)
       {
 
       }
 
       virtual ~Renderable() {};
 
-      materials::AbstractMaterial *getMaterial();
+      materials::Material *getMaterial();
 
     protected:
 
-      materials::AbstractMaterialPtr material;
+      materials::MaterialPtr material;
       
     };
   }

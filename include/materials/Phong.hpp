@@ -1,18 +1,18 @@
 #ifndef PHONG_H_
 #define PHONG_H_
 
-#include "materials/AbstractMaterial.h"
+#include "materials/AbstractBRDF.h"
 
 namespace ray_storm
 {
   namespace materials
   {
-    class Phong : public AbstractMaterial
+    class Phong : public AbstractBRDF
     {
 
     public:
 
-      Phong(const glm::vec3 &kD, const glm::vec3 &kS, float e, const glm::vec3 &emittance)
+      Phong(const glm::vec3 &kD, const glm::vec3 &kS, float e)
       {
         // the famous three phong parameters
         this->kD = kD;
@@ -21,20 +21,13 @@ namespace ray_storm
 
         this->lambertian = this->kD/static_cast<float>(M_PI);
         this->specular = this->kS*(this->e + 2.0f)/(2.0f*static_cast<float>(M_PI));
-        
-        this->emittance = emittance;
       }
 
-      glm::vec3 evaluateBRDF(const glm::vec3 &l, 
+      glm::vec3 evaluate(const glm::vec3 &l, 
         const glm::vec3 &n, const glm::vec3 &v)
       {
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
         return this->lambertian + this->specular*std::max(0.0f, std::pow(dot(r, v), this->e))/glm::dot(n, l);
-      }
-
-      glm::vec3 getEmittance()
-      {
-        return this->emittance;
       }
 
       void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
@@ -62,9 +55,6 @@ namespace ray_storm
 
       glm::vec3 lambertian;
       glm::vec3 specular;
-
-      glm::vec3 emittance;
-
       
     };
   }
