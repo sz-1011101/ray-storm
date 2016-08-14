@@ -1,38 +1,26 @@
 #include "utility/RenderedData.h"
 #include "utility/Window.h"
-#include "utility/ColorTools.hpp"
 
 using namespace ray_storm::utility;
 
-RenderedData::RenderedData()
+RenderedData::RenderedData(uint32_t width, uint32_t height) : data(width, height)
 {
   this->window = nullptr;
-}
-
-RenderedData::RenderedData(uint width, uint height)
-{
-  this->window = nullptr;
-  this->initialize(width, height);
-}
-
-void RenderedData::initialize(uint width, uint height)
-{
-  this->data = cv::Mat::zeros(cv::Size(width, height), CV_32FC3);
 }
 
 void RenderedData::setPixel(int x, int y, const glm::vec3 &rgb)
 {
-  cv::Vec3f &pixel = this->data.at<cv::Vec3f>(cv::Point(x, y));
-
-  // open cv uses BGR
-  pixel[0] = rgb.b;
-  pixel[1] = rgb.g;
-  pixel[2] = rgb.r;
+  this->data.setPixel(x, y, rgb);
 }
 
 void RenderedData::setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear)
 {
-  this->setPixel(x, y, ColorTools::linearToSRGB(rgbLinear));
+  this->data.setPixelSRGB(x, y, rgbLinear);
+}
+
+void RenderedData::setTile(int xOrg, int yOrg, Image &tile)
+{
+  tile.image.copyTo(this->data.image(cv::Rect(xOrg, yOrg, tile.image.cols, tile.image.rows)));
 }
 
 void RenderedData::setWindow(Window *window)
@@ -40,7 +28,7 @@ void RenderedData::setWindow(Window *window)
   this->window = window;
 }
 
-const cv::Mat &RenderedData::getData()
+const ray_storm::utility::Image &RenderedData::getData()
 {
   return this->data;
 }
@@ -53,12 +41,12 @@ void RenderedData::signalChanged()
   }
 }
 
-uint RenderedData::getWidth() const
+uint32_t RenderedData::getWidth() const
 {
-  return this->data.cols;
+  return this->data.image.cols;
 }
 
-uint RenderedData::getHeight() const
+uint32_t RenderedData::getHeight() const
 {
-  return this->data.rows;
+  return this->data.image.rows;
 }

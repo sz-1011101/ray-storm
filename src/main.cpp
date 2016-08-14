@@ -18,12 +18,10 @@ int main(int argc, char* argv[])
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 
-  utility::RenderedDataPtr rd(new utility::RenderedData());
+  utility::RenderedDataPtr rd(new utility::RenderedData(512, 512));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
-
-  rd->initialize(512, 512);
 
   renderer::PathTracer pt(scene, camera);
   pt.setRenderedData(rd);

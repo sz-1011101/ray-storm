@@ -7,6 +7,7 @@
 
 #include "utility/common.hpp"
 #include "utility/linear_alg.hpp"
+#include "utility/Image.hpp"
 
 namespace ray_storm
 {
@@ -20,29 +21,27 @@ namespace ray_storm
 
     public:
 
-      RenderedData();
-
-      RenderedData(uint width, uint height);
-
-      void initialize(uint width, uint height);
+      RenderedData(uint32_t width, uint32_t height);
 
       void setPixel(int x, int y, const glm::vec3 &rgb);
 
       void setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear);
 
+      void setTile(int xOrg, int yOrg, Image &tile);
+
       void setWindow(Window *window);
 
-      const cv::Mat &getData();
+      const ray_storm::utility::Image &getData();
 
-      uint getWidth() const;
+      uint32_t getWidth() const;
 
-      uint getHeight() const;
+      uint32_t getHeight() const;
 
       void signalChanged();
 
     private:
 
-      cv::Mat data;
+      Image data;
       
       Window *window;
 

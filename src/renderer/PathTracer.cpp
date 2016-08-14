@@ -2,6 +2,7 @@
 
 #include "renderer/PathTracer.h"
 #include "random/RandomRay.hpp"
+#include "renderer/RenderJobHelper.h"
 
 using namespace ray_storm::renderer;
 
@@ -32,45 +33,60 @@ void PathTracer::setCamera(camera::AbstractCameraPtr &camera)
 void PathTracer::render()
 {
   // TODO: more informative error handling
-  if (this->scene == nullptr || this->camera == nullptr)
+  if (this->scene == nullptr || this->camera == nullptr || this->renderedData == nullptr)
   {
     return;
   }
+
+  const uint32_t width = this->renderedData->getWidth();
+  const uint32_t height = this->renderedData->getHeight();
 
   const int maxThreads = omp_get_max_threads();
 
   printf("rendering with %d threads...\n", maxThreads);
 
-  const uint width = this->renderedData->getWidth();
-  const uint height = this->renderedData->getHeight();
+  RenderJobVector jobs;
+  RenderJobHelper::makeRenderJobs(width, height, static_cast<uint32_t>(maxThreads), jobs);
 
-  this->renderedImage = cv::Mat::zeros(cv::Size(width, height), CV_32FC3);
+  printf("rendering %zu jobs...\n", jobs.size());
 
   // every thread should have its own source for random numbers
   random::RandomizationHelper randHelpers[maxThreads];
 
 #pragma omp parallel for schedule(dynamic)
-  for (uint x = 0; x < width; x++)
+  for (std::size_t j = 0; j < jobs.size(); j++)
   {
+    RenderJob &job = jobs[j];
+    printf("rendering job %u [xy: %u, %u; wh: %u, %u]\n", job.id, job.xOrigin, job.yOrigin, job.width, job.height);
+
     // current thread id used to id different random engines
     const int currentThread = omp_get_thread_num();
 
-    for (uint y = 0; y < height; y++)
+    for (uint32_t x = 0; x < job.width; x++)
     {
-      glm::vec3 radianceSum(0.0f);
-      geometry::Ray ray;
-      camera->spawnRay(static_cast<float>(x)/width, static_cast<float>(y)/height, ray);
-
-      for (uint s = 0; s < SAMPLES; s++)
+      for (uint32_t y = 0; y < job.height; y++)
       {
-        // we can reuse the first ray
-        radianceSum += walkPath(ray, randHelpers[currentThread]);
+        glm::vec3 radianceSum(0.0f);
+        geometry::Ray ray;
+        camera->spawnRay(static_cast<float>(job.xOrigin + x)/width, static_cast<float>(job.yOrigin + y)/height, ray);
+
+        for (uint32_t s = 0; s < SAMPLES; s++)
+        {
+          // we can reuse the first ray
+          radianceSum += walkPath(ray, randHelpers[currentThread]);
+        }
+
+        job.setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
       }
-      this->renderedData->setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
+    }
+
+    // job done -> update window
+    #pragma omp critical
+    {
+      this->renderedData->setTile(job.xOrigin, job.yOrigin, job.tile);
+      this->renderedData->signalChanged();
     }
   }
-
-  this->renderedData->signalChanged();
 
   puts("done!");
 }
