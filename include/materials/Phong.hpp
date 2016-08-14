@@ -29,7 +29,7 @@ namespace ray_storm
         const glm::vec3 &n, const glm::vec3 &v)
       {
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        return this->lambertian + this->specular*std::max(0.0f, std::pow(dot(r, v), this->e));
+        return this->lambertian + this->specular*std::max(0.0f, std::pow(dot(r, v), this->e))/glm::dot(n, l);
       }
 
       glm::vec3 getEmittance()

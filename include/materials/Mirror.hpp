@@ -20,7 +20,7 @@ namespace ray_storm
         const glm::vec3 &n, const glm::vec3 &v)
       {
         const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(-l, n));
-        return glm::all(glm::equal(mirrorDirection, v)) ? this->reflectance : glm::vec3(0.0f);
+        return glm::all(glm::equal(mirrorDirection, v)) ? this->reflectance/glm::dot(n, l) : glm::vec3(0.0f);
       }
 
       glm::vec3 getEmittance()
