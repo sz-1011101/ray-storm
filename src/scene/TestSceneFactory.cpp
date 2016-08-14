@@ -4,6 +4,7 @@
 #include "geometry/Rectangle.hpp"
 #include "materials/Lambertian.hpp"
 #include "materials/Mirror.hpp"
+#include "materials/Phong.hpp"
 
 using namespace ray_storm::scene;
 
@@ -58,6 +59,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::AbstractMaterialPtr matWhite(new materials::Lambertian(glm::vec3(0.7f), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matYellow(new materials::Lambertian(glm::vec3(0.6f, 0.6f, 0.2f), glm::vec3(0.0f)));
   materials::AbstractMaterialPtr matMirror(new materials::Mirror(glm::vec3(1.0f)));
+  materials::AbstractMaterialPtr matMetal1(new materials::Phong(glm::vec3(0.25f), glm::vec3(0.75f), 10.0f, glm::vec3(0.0f)));
+
   // cornell box walls
 
   // floor
@@ -88,7 +91,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 2.0f, 1.0f), 2.0f, matGreen));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 2.0f, 1.0f), 2.0f, matMetal1));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 2.0f, -1.0f), 2.0f, matMirror));
   // build scene
   scene->add(floor);

@@ -23,7 +23,8 @@ namespace ray_storm
         return glm::all(glm::equal(mirrorDirection, omegaOut)) ? this->reflectance : glm::vec3(0.0f);
       }
 
-      glm::vec3 getEmittance() {
+      glm::vec3 getEmittance()
+      {
         // mirrors can't ever emit
         return glm::vec3(0.0f);
       }

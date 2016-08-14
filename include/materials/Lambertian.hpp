@@ -28,7 +28,8 @@ namespace ray_storm
         return this->constBrdf;
       }
 
-      glm::vec3 getEmittance() {
+      glm::vec3 getEmittance()
+      {
         return this->emittance;
       }
 
