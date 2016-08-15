@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "renderer/RenderJobHelper.h"
 
 using namespace ray_storm::renderer;
@@ -30,5 +32,8 @@ void RenderJobHelper::makeRenderJobs(uint32_t width, uint32_t height, uint32_t j
       jobs.emplace_back(job);
     }
   }
+
+  // shuffle (why not?)
+  std::random_shuffle(jobs.begin(), jobs.end());
 
 }

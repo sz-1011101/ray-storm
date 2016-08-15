@@ -30,13 +30,13 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float reflectance = 1.0f,
-        float indexOfRefraction = 1.0f,
+        float indexOfRefraction,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
       Material(
         AbstractBRDFPtr &brdf,
+        float indexOfRefraction,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
@@ -60,7 +60,7 @@ namespace ray_storm
         // light emission
         result.emittance = this->emittance;
         // reflecting...
-        if (randHelper.drawUniformRandom() < this->reflectance)
+        if (randHelper.drawUniformRandom() < this->computeFresnelReflection(-v, n))
         {
           if (this->brdf == nullptr)
           {
@@ -100,9 +100,45 @@ namespace ray_storm
 
       glm::vec3 emittance;
 
-      float reflectance;
-
       float indexOfRefraction;
+
+      inline float computeFresnelReflection(const glm::vec3 &in, const glm::vec3 &n)
+      {
+        // see http://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
+        // and https://en.wikipedia.org/wiki/Fresnel_equations
+        float eta1 = 1.0f;
+        float eta2 = this->indexOfRefraction;
+
+        float cosIn = glm::dot(in, n);
+        if (cosIn > 0.0f)
+        {
+          eta1 = this->indexOfRefraction;
+          eta2 = 1.0f;
+        }
+
+        float sinTr = eta1/eta2*std::sqrt(1.0f - cosIn*cosIn);
+
+        if (sinTr >= 1.0f) // internal reflection
+        {
+          return 1.0f;
+        }
+        else // transmission possible
+        {
+          float cosTr = sqrt(std::max(0.0f, 1.0f - sinTr*sinTr));
+          cosIn = std::abs(cosIn);
+          // fresnel equations
+          const float eta1CosIn = eta1*cosIn;
+          const float eta2CosIn = eta2*cosIn;
+          const float eta1CosTr = eta1*cosTr;
+          const float eta2CosTr = eta2*cosTr;
+
+          float Rs = (eta1CosIn - eta2CosTr)/(eta1CosIn + eta2CosTr);
+          float Rp = (eta1CosTr - eta2CosIn)/(eta1CosTr + eta2CosIn);
+
+          return (Rs*Rs + Rp*Rp)*0.5f; // average
+        }
+
+      }
 
     };
 

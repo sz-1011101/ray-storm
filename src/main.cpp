@@ -14,11 +14,11 @@ int main(int argc, char* argv[])
 
   // camera
   camera::AbstractCameraPtr camera(new camera::PinholeCamera(
-    glm::vec3(0, 5, 9.5f), glm::vec3(0, 5, -5), glm::vec3(0, 1, 0), 1.0f, 65.0f));
+    glm::vec3(0, 5.0f, 9.5f), glm::vec3(0, 5, -10), glm::vec3(0, 1, 0), 1.0f, 75.0f));
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 
-  utility::RenderedDataPtr rd(new utility::RenderedData(128, 128));
+  utility::RenderedDataPtr rd(new utility::RenderedData(512, 512));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);

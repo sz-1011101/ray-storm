@@ -20,29 +20,30 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::AbstractBRDFPtr lambertianBlue(new materials::Lambertian(glm::vec3(0.25f, 0.25f, 0.75f)));
   materials::AbstractBRDFPtr lambertianYellow(new materials::Lambertian(glm::vec3(0.75f, 0.75f, 0.25f)));
   materials::AbstractBRDFPtr lambertianGreen(new materials::Lambertian(glm::vec3(0.25f, 0.75f, 0.25f)));
-  materials::AbstractBRDFPtr phongMetal1(new materials::Phong(glm::vec3(0.6f), glm::vec3(0.1f), 2.0f));
-  materials::AbstractBRDFPtr phongMetal2(new materials::Phong(glm::vec3(0.8f), glm::vec3(0.2f), 150.0f));
+  materials::AbstractBRDFPtr phongMetal1(new materials::Phong(glm::vec3(0.4f), glm::vec3(0.6f), 5.0f));
+  materials::AbstractBRDFPtr phongMetal2(new materials::Phong(glm::vec3(0.8f), glm::vec3(0.2f), 50.0f));
+  materials::AbstractBRDFPtr phongWhite(new materials::Phong(glm::vec3(0.5f), glm::vec3(0.5f), 150.0f));
 
   materials::AbstractBTDFPtr transparent(new materials::Glass(glm::vec3(1.0f)));
   materials::AbstractBTDFPtr milky(new materials::ScatteringGlass(glm::vec3(1.0f), 150.0f));
 
   // materials
-  materials::MaterialPtr matLight(new materials::Material(lambertianWhite, glm::vec3(12.0f)));
-  materials::MaterialPtr matWhite(new materials::Material(lambertianWhite));
-  materials::MaterialPtr matRed(new materials::Material(lambertianRed));
-  materials::MaterialPtr matBlue(new materials::Material(lambertianBlue));
-  materials::MaterialPtr matYellow(new materials::Material(lambertianYellow));
-  materials::MaterialPtr matGreen(new materials::Material(lambertianGreen));
-  materials::MaterialPtr matMetal1(new materials::Material(phongMetal1));
-  materials::MaterialPtr matMetal2(new materials::Material(phongMetal2));
+  materials::MaterialPtr matLight(new materials::Material(lambertianWhite, 3.0f, glm::vec3(50.0f, 50.0f, 50.0f)));
+  materials::MaterialPtr matWhite(new materials::Material(lambertianWhite, 3.0f));
+  materials::MaterialPtr matRed(new materials::Material(lambertianRed, 3.0f));
+  materials::MaterialPtr matBlue(new materials::Material(lambertianBlue, 3.0f));
+  materials::MaterialPtr matYellow(new materials::Material(lambertianYellow, 3.0f));
+  materials::MaterialPtr matGreen(new materials::Material(lambertianGreen, 3.0f));
+  materials::MaterialPtr matMetal1(new materials::Material(phongMetal1, 1.3f));
+  materials::MaterialPtr matMetal2(new materials::Material(phongMetal2, 1.3f));
   materials::MaterialPtr matGlass(new materials::Material(transparent, 1.5f));
-  materials::MaterialPtr matMilkyGlass(new materials::Material(milky, 1.5f));
+  materials::MaterialPtr matMilkyGlass(new materials::Material(phongWhite, milky, 1.35f));
 
   // cornell box walls, 
 
   // floor
   geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  geometry::ObjectPtr floor = geometry::ObjectPtr(new geometry::Rectangle(floorRp, matGreen));
+  geometry::ObjectPtr floor = geometry::ObjectPtr(new geometry::Rectangle(floorRp, matMetal1));
 
   // ceiling
   geometry::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
@@ -68,8 +69,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 6.0f, 1.0f), 2.0f, matMilkyGlass));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 3.0f, -3.0f), 2.0f, matMetal2));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.5f, 1.0f), 1.5f, matGlass));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 1.5f, -3.0f), 1.5f, matMetal2));
   // build scene
   scene->add(floor);
   scene->add(ceiling);
