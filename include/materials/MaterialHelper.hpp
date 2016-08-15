@@ -1,6 +1,8 @@
 #ifndef MATERIAL_HELPER_H_
 #define MATERIAL_HELPER_H_
 
+#include "utility/linear_alg.hpp"
+
 namespace ray_storm
 {
   namespace materials
@@ -36,6 +38,7 @@ namespace ray_storm
         // total inner reflection
         if (innerC2 < 0.0f)
         {
+          r = glm::reflect(in, nRef);
           return false;
         }
         const float c2 = std::sqrt(innerC2);

@@ -2,7 +2,6 @@
 #define GLASS_H_
 
 #include "materials/AbstractBTDF.h"
-#include "materials/MaterialHelper.hpp"
 
 namespace ray_storm
 {
@@ -18,20 +17,20 @@ namespace ray_storm
       }
 
       glm::vec3 evaluate(const glm::vec3 &l, 
-        const glm::vec3 &n, const glm::vec3 &v)
+        const glm::vec3 &n, const glm::vec3 &v, const glm::vec3 &r)
       {
-        return this->color/std::abs(glm::dot(n, l));
+        return this->color/std::abs(glm::dot(-n, l));
       }
 
-      bool drawRefractedDirection(
+      void drawRefractedDirection(
         const glm::vec3 &in,
-        const glm::vec3 &n, 
-        float indexOfRefreaction,
+        const glm::vec3 &n,
+        const glm::vec3 &r,
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
         randDir.inversePDF = 1.0f;
-        return MaterialHelper::refract(1.0f, indexOfRefreaction, in, n, randDir.direction);
+        randDir.direction = r;
       }
 
     private:

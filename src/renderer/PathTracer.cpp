@@ -6,9 +6,9 @@
 
 using namespace ray_storm::renderer;
 
-const float RUSSIAN_ROULETTE_ALPHA = 0.9f;
+const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 500;
+const uint32_t SAMPLES = 1000;
 
 PathTracer::PathTracer()
 {

@@ -6,6 +6,7 @@
 #include "materials/Mirror.hpp"
 #include "materials/Phong.hpp"
 #include "materials/Glass.hpp"
+#include "materials/ScatteringGlass.hpp"
 
 using namespace ray_storm::scene;
 
@@ -23,6 +24,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::AbstractBRDFPtr phongMetal2(new materials::Phong(glm::vec3(0.8f), glm::vec3(0.2f), 150.0f));
 
   materials::AbstractBTDFPtr transparent(new materials::Glass(glm::vec3(1.0f)));
+  materials::AbstractBTDFPtr milky(new materials::ScatteringGlass(glm::vec3(1.0f), 150.0f));
 
   // materials
   materials::MaterialPtr matLight(new materials::Material(lambertianWhite, glm::vec3(12.0f)));
@@ -34,6 +36,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::MaterialPtr matMetal1(new materials::Material(phongMetal1));
   materials::MaterialPtr matMetal2(new materials::Material(phongMetal2));
   materials::MaterialPtr matGlass(new materials::Material(transparent, 1.5f));
+  materials::MaterialPtr matMilkyGlass(new materials::Material(milky, 1.5f));
 
   // cornell box walls, 
 
@@ -65,7 +68,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 3.0f, 1.0f), 2.0f, matGlass));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 6.0f, 1.0f), 2.0f, matMilkyGlass));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 3.0f, -3.0f), 2.0f, matMetal2));
   // build scene
   scene->add(floor);

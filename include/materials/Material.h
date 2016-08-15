@@ -5,6 +5,7 @@
 #include "materials/AbstractBRDF.h"
 #include "materials/AbstractBTDF.h"
 #include "geometry/Ray.hpp"
+#include "materials/MaterialHelper.hpp"
 
 namespace ray_storm
 {
@@ -59,16 +60,18 @@ namespace ray_storm
 
         // light emission
         result.emittance = this->emittance;
-
         // reflecting...
         if (randHelper.drawUniformRandom() < this->reflectance)
         {
-          if (!this->reflectAndEvaluateBRDF(v, n, bsdf, randHelper, randDir))
+          if (this->brdf == nullptr)
           {
             return false;
           }
-          cosTheta = std::max(0.0f, glm::dot(n, randDir.direction));
+
+          this->brdf->drawReflectedDirection(-v, n, randHelper, randDir);
           result.ray.origin = x + 0.001f*n;
+          bsdf = this->brdf->evaluate(randDir.direction, n, v);
+          cosTheta = std::max(0.0f, glm::dot(n, randDir.direction));
         }
         else // refracting...
         {
@@ -76,23 +79,17 @@ namespace ray_storm
           {
             return false;
           }
-          // refracting or total inner reflection?
-          if (this->btdf->drawRefractedDirection(-v, n, this->indexOfRefraction, randHelper, randDir))
-          {
-            cosTheta = std::abs(glm::dot(n, randDir.direction));
-            bsdf = this->btdf->evaluate(v, n, randDir.direction);
-            result.ray.origin = x + 0.001f*randDir.direction;
-          } // try reflecting internally
-          else if (this->reflectAndEvaluateBRDF(v, -n, bsdf, randHelper, randDir))
-          {
-            cosTheta = std::max(0.0f, glm::dot(-n, randDir.direction));
-            result.ray.origin = x - 0.001f*n;
-          }
-          else
-          {
-            return false;
-          }
+          glm::vec3 idealRefractionV;
+          MaterialHelper::refract(1.0f, this->indexOfRefraction, -v, n, idealRefractionV);
+
+          this->btdf->drawRefractedDirection(-v, n, idealRefractionV, randHelper, randDir);
+          result.ray.origin = x + 0.001f*randDir.direction;
+          glm::vec3 idealRefractionL;
+          MaterialHelper::refract(this->indexOfRefraction, 1.0f, -randDir.direction, -n, idealRefractionL);
+          bsdf = this->btdf->evaluate(randDir.direction, n, v, idealRefractionL);
+          cosTheta = 1.0f;//std::abs(glm::dot(n, randDir.direction));
         }
+
         result.ray.direction = randDir.direction;
         result.weight = cosTheta*bsdf*randDir.inversePDF;
         return true;
@@ -109,23 +106,6 @@ namespace ray_storm
       float reflectance;
 
       float indexOfRefraction;
-
-      inline bool reflectAndEvaluateBRDF(
-        const glm::vec3 &v,
-        const glm::vec3 &n,
-        glm::vec3 &result,
-        random::RandomizationHelper &randHelper,
-        random::RandomDirection &randDir
-      )
-      {
-        if (this->brdf == nullptr)
-        {
-          return false;
-        }
-        this->brdf->drawReflectedDirection(-v, n, randHelper, randDir);
-        result = this->brdf->evaluate(v, n, randDir.direction);
-        return true;
-      }
 
     };
 
