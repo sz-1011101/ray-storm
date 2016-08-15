@@ -65,8 +65,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3.0f, 3.0f, 1.0f), 2.0f, matGlass));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0.0f, 3.0f, -3.0f), 0.5f, matMetal2));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 3.0f, 1.0f), 2.0f, matGlass));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 3.0f, -3.0f), 2.0f, matMetal2));
   // build scene
   scene->add(floor);
   scene->add(ceiling);
