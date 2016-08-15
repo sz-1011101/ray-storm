@@ -3,7 +3,6 @@
 
 #include "utility/common.hpp"
 #include "materials/AbstractBRDF.h"
-#include "random/RandomizationHelper.h"
 
 namespace ray_storm
 {
@@ -27,19 +26,20 @@ namespace ray_storm
         return this->constBrdf;
       }
 
-      void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
-        random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      void drawReflectedDirection(
+        const glm::vec3 &in,
+        const glm::vec3 &n, 
+        random::RandomizationHelper &randHelper, 
+        random::RandomDirection &randDir)
       {
       //#define UNIFORM_SAMPLING
       #ifdef UNIFORM_SAMPLING // uniform sampling
-        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        randRay.ray.origin = position;
-        randRay.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
+        randDir.direction = randHelper.drawUniformRandomHemisphereDirection(n);
+        randDir.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
       #else // cosine weighted sampling!
         const float e = 1.0f;
-        randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, e);
-        randRay.ray.origin = position;
-        randRay.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(n, randRay.ray.direction), e);
+        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, e);
+        randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(n, randDir.direction), e);
       #endif
 
       }

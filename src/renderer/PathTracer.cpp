@@ -6,9 +6,9 @@
 
 using namespace ray_storm::renderer;
 
-const float RUSSIAN_ROULETTE_ALPHA = 0.75f;
+const float RUSSIAN_ROULETTE_ALPHA = 0.9f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 5000;
+const uint32_t SAMPLES = 500;
 
 PathTracer::PathTracer()
 {
@@ -101,7 +101,6 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
   glm::vec3 emittance[maxBounces];
 
   int depth = 0;
-
   geometry::Intersection<geometry::Object> intersection;
   
   // light path reverse traversal
@@ -112,38 +111,26 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     if (!scene->intersect(ray, intersection))
     {
       emittance[b] = this->scene->getSky();
-      continue;
+      break;
     }
 
     geometry::Object *iObj = intersection.intersected;
     geometry::SimpleIntersection iSmpl = intersection.intersection;
     materials::Material *iMat = iObj->getMaterial();
 
-    // emittance of the intersected object
-    emittance[b] = iMat->getEmittance();
+    materials::Material::LightInteraction lightInteraction;
+    bool bounceOn = iMat->computeLightInteraction(-ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
+    emittance[b] = lightInteraction.emittance;
 
-    random::RandomRay randRay;
-    iMat->drawReflectedRay(-ray.direction, iSmpl.position + iSmpl.normal*0.001f, iSmpl.normal, randHelper, randRay);
-
-    const float cosTheta = glm::dot(iSmpl.normal, randRay.ray.direction);
-
-    // early termination in case of impossible ray
-    if (cosTheta < 0.001f)
-    {
-      break;
-    }
-    const glm::vec3 brdf = iMat->evaluateBRDF(randRay.ray.direction, iSmpl.normal, -ray.direction);
-
-    const float beta = randHelper.drawUniformRandom();
-
-    if (beta > RUSSIAN_ROULETTE_ALPHA)
+    // russsian roulette!
+    if (!bounceOn || randHelper.drawUniformRandom() > RUSSIAN_ROULETTE_ALPHA)
     {
       break;
     }
 
-    // inverse russian roulette prob times brdf times inverse PDF times cos weighting
-    weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*brdf*randRay.inversePDF*cosTheta;
-    ray = randRay.ray;
+    // inverse russian roulette prob times bsdf times inverse PDF times cos weighting
+    weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightInteraction.weight;
+    ray = lightInteraction.ray;
   }
 
   // accumulate radiance according to rendering equation

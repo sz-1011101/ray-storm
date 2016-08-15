@@ -30,19 +30,20 @@ namespace ray_storm
         return this->lambertian + this->specular*std::max(0.0f, std::pow(dot(r, v), this->e))/glm::dot(n, l);
       }
 
-      void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
-        random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      void drawReflectedDirection(
+        const glm::vec3 &in,
+        const glm::vec3 &n, 
+        random::RandomizationHelper &randHelper, 
+        random::RandomDirection &randDir)
       {
 //#define UNIFORM_SAMPLING
 #ifdef UNIFORM_SAMPLING
-        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        randRay.ray.origin = position;
-        randRay.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
+        randDir.direction = randHelper.drawUniformRandomHemisphereDirection(n);
+        randDir.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
 #else 
-        glm::vec3 r = glm::normalize(glm::reflect(-in, n));
-        randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->e);
-        randRay.ray.origin = position;
-        randRay.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(r, randRay.ray.direction), this->e);
+        glm::vec3 r = glm::normalize(glm::reflect(in, n));
+        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->e);
+        randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(r, randDir.direction), this->e);
 #endif
 
       }

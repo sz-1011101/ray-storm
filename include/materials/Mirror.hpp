@@ -23,14 +23,16 @@ namespace ray_storm
         return glm::all(glm::equal(mirrorDirection, v)) ? this->reflectance/glm::dot(n, l) : glm::vec3(0.0f);
       }
 
-      void drawReflectedRay(const glm::vec3 &in, const glm::vec3 &position, const glm::vec3 &n, 
-        random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      void drawReflectedDirection(
+        const glm::vec3 &in,
+        const glm::vec3 &n, 
+        random::RandomizationHelper &randHelper, 
+        random::RandomDirection &randDir)
       {
-        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(-in, n));
+        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(in, n));
 
-        randRay.ray.origin = position;
-        randRay.ray.direction = mirrorDirection;
-        randRay.inversePDF = 1.0f;
+        randDir.direction = mirrorDirection;
+        randDir.inversePDF = 1.0f;
       }
 
     private:
