@@ -23,7 +23,7 @@ namespace ray_storm
         const glm::vec3 &n, const glm::vec3 &v)
       {
         // lambertian is constant!
-        return this->constBrdf;
+        return this->constBrdf*std::max(0.0f, glm::dot(n, l));
       }
 
       void drawReflectedDirection(

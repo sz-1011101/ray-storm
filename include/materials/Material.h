@@ -54,7 +54,6 @@ namespace ray_storm
         LightInteraction &result
       )
       {
-        float cosTheta = 0.0f;
         glm::vec3 bsdf(0.0f);
         random::RandomDirection randDir;
 
@@ -71,7 +70,6 @@ namespace ray_storm
           this->brdf->drawReflectedDirection(-v, n, randHelper, randDir);
           result.ray.origin = x + 0.001f*n;
           bsdf = this->brdf->evaluate(randDir.direction, n, v);
-          cosTheta = std::max(0.0f, glm::dot(n, randDir.direction));
         }
         else // refracting...
         {
@@ -87,11 +85,10 @@ namespace ray_storm
           glm::vec3 idealRefractionL;
           MaterialHelper::refract(this->indexOfRefraction, 1.0f, -randDir.direction, -n, idealRefractionL);
           bsdf = this->btdf->evaluate(randDir.direction, n, v, idealRefractionL);
-          cosTheta = 1.0f;//std::abs(glm::dot(n, randDir.direction));
         }
 
         result.ray.direction = randDir.direction;
-        result.weight = cosTheta*bsdf*randDir.inversePDF;
+        result.weight = bsdf*randDir.inversePDF;
         return true;
       }
 

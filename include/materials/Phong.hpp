@@ -27,7 +27,8 @@ namespace ray_storm
         const glm::vec3 &n, const glm::vec3 &v)
       {
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        return this->lambertian + this->specular*std::pow(std::max(0.0f, dot(r, v)), this->e)/glm::dot(n, l);
+        return this->lambertian*std::max(0.0f, glm::dot(n, l)) + 
+          this->specular*std::pow(std::max(0.0f, dot(r, v)), this->e);
       }
 
       void drawReflectedDirection(
