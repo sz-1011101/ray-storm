@@ -79,7 +79,7 @@ namespace ray_storm
           // refracting or total inner reflection?
           if (this->btdf->drawRefractedDirection(-v, n, this->indexOfRefraction, randHelper, randDir))
           {
-            cosTheta = 1.0f;//std::abs(glm::dot(n, randDir.direction));
+            cosTheta = std::abs(glm::dot(n, randDir.direction));
             bsdf = this->btdf->evaluate(v, n, randDir.direction);
             result.ray.origin = x + 0.001f*randDir.direction;
           } // try reflecting internally
