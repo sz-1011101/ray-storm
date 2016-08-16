@@ -44,12 +44,15 @@ namespace ray_storm
         Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {
         this->normal = rectParams.calcNormal();
+        this->wSide = rectParams.wAxis*rectParams.width;
+        this->hSide = rectParams.hAxis*rectParams.height;
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection)
       {
         Intersection<Plane> pInters;
 
+        // only intersect on one side, other side is invisible
         if (!this->plane.intersect(ray, pInters))
         {
           return false;
@@ -83,14 +86,23 @@ namespace ray_storm
       {
         float u = randHelper.drawUniformRandom();
         float v = randHelper.drawUniformRandom();
-        const RectParams &rp = this->rectParams;
-        return  rp.origin + u*rp.wAxis*rp.width + v*rp.hAxis*rp.height;
+        return  this->rectParams.origin + u*this->wSide + v*this->hSide;
+      }
+
+      float getInversePDF()
+      {
+        // from http://www.cs.utah.edu/~shirley/papers/tog94.pdf
+        return glm::length(glm::cross(this->wSide, this->hSide))/2.0f;
       }
 
     private:
 
       RectParams rectParams;
       glm::vec3 normal;
+
+      // side vectors
+      glm::vec3 wSide;
+      glm::vec3 hSide;
 
       // the rectangle's plane
       Plane plane;

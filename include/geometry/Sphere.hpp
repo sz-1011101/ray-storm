@@ -57,7 +57,12 @@ namespace ray_storm
 
       glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
       {
-        return this->position + randHelper.drawUniformRandomSphereDirection();
+        return this->position + randHelper.drawUniformRandomSphereDirection()*this->radius;
+      }
+
+      float getInversePDF()
+      {
+        return this->getSurfaceArea();
       }
 
     protected:

@@ -134,7 +134,7 @@ namespace ray_storm
           return false;
         }
 
-        interaction.ray = geometry::Ray(x + offset*0.001f*nRef, randDir.direction);
+        interaction.ray = geometry::Ray(x + offset*RAY_OFFSET_EPSILON*nRef, randDir.direction);
         interaction.weight *= randDir.inversePDF; // inverse sampling pdf!
 
         return true;
@@ -147,6 +147,8 @@ namespace ray_storm
 
 
     private:
+
+      const float RAY_OFFSET_EPSILON = 0.00001f;
 
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;

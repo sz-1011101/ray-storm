@@ -17,15 +17,15 @@ bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry:
 
 bool Scene::drawRandomEmittingObject(random::RandomizationHelper &randHelper, LightSource &light)
 {
-
-  if (this->lights.size() == 0)
+  const size_t lCnt = this->lights.size();
+  if (lCnt == 0)
   {
     return false;
   }
 
-  const int objIndex = randHelper.drawUniformRandom(0, static_cast<int>(this->lights.size()));
+  const int objIndex = randHelper.drawUniformRandom(0, static_cast<int>(lCnt));
   light.object = this->lights.at(objIndex).get();
-  light.emittance = light.object->getMaterial()->getEmittance()/light.object->getSurfaceArea();
+  light.emittance = light.object->getMaterial()->getEmittance();
   light.lightPos = light.object->drawRandomSurfacePoint(randHelper);
   return true;
 }

@@ -20,7 +20,7 @@ namespace ray_storm
         std::mt19937 mtEngine;
         std::uniform_real_distribution<float> distribution;
 
-        MTEngine() : distribution(0.0f, 1.0f) {};
+        MTEngine() : distribution(0.0f, 0.9999f) {};
 
         float draw()
         {
@@ -31,7 +31,7 @@ namespace ray_storm
         {
           const float u = this->draw();
           const int range = max - min;
-          return min + static_cast<int>(u*range); // r in [a, b)
+          return min + std::floor(u*range); // r in [a, b)
         }
 
       };

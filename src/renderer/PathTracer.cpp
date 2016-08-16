@@ -8,7 +8,7 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 500;
+const uint32_t SAMPLES = 64;
 
 PathTracer::PathTracer()
 {
@@ -74,7 +74,7 @@ void PathTracer::render()
         for (uint32_t s = 0; s < SAMPLES; s++)
         {
           // we can reuse the first ray
-          radianceSum += walkPath(ray, randHelpers[currentThread]);
+          radianceSum += this->walkPathShadowRays(ray, randHelpers[currentThread]);
         }
 
         job.setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
@@ -112,7 +112,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     // we hit the sky...
     if (!this->scene->intersect(ray, intersection))
     {
-      emittance[b] = this->scene->getSky();
+      emittance[b] = glm::vec3(0.0f);//this->scene->getSky();
       break;
     }
 
@@ -132,6 +132,13 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
 
     // inverse russian roulette prob times bsdf times inverse PDF times cos weighting
     weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightInteraction.weight;
+
+    // early termination as we will not accumulate more radiance 
+    if (glm::all(glm::lessThanEqual(weights[b], glm::vec3(0.0f))))
+    {
+      break;
+    }
+
     ray = lightInteraction.ray;
   }
 
@@ -172,36 +179,52 @@ glm::vec3 PathTracer::walkPathShadowRays(const geometry::Ray &intialRay, random:
     geometry::SimpleIntersection iSmpl = intersection.intersection;
     materials::Material *iMat = iObj->getMaterial();
 
+    // hack
+    if (b == 0)
+    {
+      emittance[b] = iMat->getEmittance();
+    }
+
     materials::Material::LightInteraction lightInteraction;
-    bool bounceOn = iMat->computeLightInteraction(-ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
+    bool bounceOn = iMat->computeLightInteraction(ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
     // russsian roulette!
     if (!bounceOn || randHelper.drawUniformRandom() > RUSSIAN_ROULETTE_ALPHA)
     {
       break;
     }
 
-    weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightInteraction.weight;
-
+    weights[b] = lightInteraction.weight*(1.0f/RUSSIAN_ROULETTE_ALPHA);
     // shadow ray
     scene::Scene::LightSource lightSrc;
     this->scene->drawRandomEmittingObject(randHelper, lightSrc);
-    if (lightSrc.object == iObj) // I'm the light source!
-    {
-      emittance[b] = iMat->getEmittance();
-    }
-    else
+
+    if (lightSrc.object != iObj)
     {
       const glm::vec3 &shadowRayOrigin = lightInteraction.ray.origin; // reuse, already offset
       geometry::Ray shadowRay(shadowRayOrigin, glm::normalize(lightSrc.lightPos - shadowRayOrigin));
 
       geometry::Intersection<geometry::Object> shadowRayIntersection;// TODO: could reuse
-      if (
+      if (glm::dot(iSmpl.normal, shadowRay.direction) >= 0.0f && // light visible?
         this->scene->intersect(shadowRay, shadowRayIntersection) &&  // we hit the object? (we should...)
         shadowRayIntersection.intersected == lightSrc.object && // we hit the light source?
-        glm::distance(shadowRayIntersection.intersection.position, lightSrc.lightPos) <= 0.01f) // we are very close to the point?
+        glm::distance(shadowRayIntersection.intersection.position, lightSrc.lightPos) <= 0.001f) // we are very close to the point?
       {
-        emittance[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightSrc.emittance*glm::vec3(0.75, 0.25f, 0.25f)/static_cast<float>(M_PI)*glm::dot(iSmpl.normal, shadowRay.direction);
+        glm::vec3 bsdf(0.0f);
+        if (!iMat->evaluateBSDF(shadowRay.direction, iSmpl.normal, -ray.direction, bsdf))
+        {
+          break;
+        }
+        float distanceToLight = glm::distance(iSmpl.position, lightSrc.lightPos);
+        emittance[b] += lightSrc.emittance*bsdf*lightSrc.object->getInversePDF()*
+          dot(-shadowRay.direction, shadowRayIntersection.intersection.normal)/(distanceToLight*distanceToLight)*
+          (1.0f/RUSSIAN_ROULETTE_ALPHA);
       }
+    }
+
+    // early termination as we will not accumulate more radiance 
+    if (glm::all(glm::lessThanEqual(weights[b], glm::vec3(0.0f))))
+    {
+      break;
     }
 
     // bounce on
@@ -209,8 +232,8 @@ glm::vec3 PathTracer::walkPathShadowRays(const geometry::Ray &intialRay, random:
   }
 
   // accumulate radiance according to rendering equation
-  glm::vec3 radiance = emittance[depth];
-  for (int b = depth - 1; b >= 0; b--)
+  glm::vec3 radiance = glm::vec3(0.0f);
+  for (int b = depth; b >= 0; b--)
   {
     radiance = (emittance[b] + weights[b]*radiance);
   }

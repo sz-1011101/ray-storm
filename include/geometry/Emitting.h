@@ -16,6 +16,8 @@ namespace ray_storm
       virtual float getSurfaceArea() = 0;
 
       virtual glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper) = 0;
+
+      virtual float getInversePDF() = 0;
     };
   }
 }
