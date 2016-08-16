@@ -27,11 +27,23 @@ namespace ray_storm
           return this->distribution(this->mtEngine);
         }
 
+        int draw(int min, int max)
+        {
+          const float u = this->draw();
+          const int range = max - min;
+          return min + static_cast<int>(u*range); // r in [a, b)
+        }
+
       };
 
       inline float drawUniformRandom()
       {
         return this->engine.draw();
+      }
+
+      inline int drawUniformRandom(int min, int max)
+      {
+        return this->engine.draw(min, max);
       }
 
       glm::vec3 drawUniformRandomSphereDirection();

@@ -17,14 +17,18 @@ namespace ray_storm
 
     public:
 
+      enum LIGHT_INTERACTION_TYPE
+      {
+        REFLECTION = 0,
+        REFRACTION
+      };
+
       struct LightInteraction
       {
         // next ray direction
         geometry::Ray ray;
         // weight of that direction
         glm::vec3 weight;
-        // emission from this material
-        glm::vec3 emittance;
       };
 
       Material(
@@ -46,30 +50,25 @@ namespace ray_storm
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
-      inline bool computeLightInteraction(
-        const glm::vec3 &v,
-        const glm::vec3 &x,
+      inline bool computeLightDirection(
+        const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper,
-        LightInteraction &result
+        random::RandomDirection &randDir,
+        LIGHT_INTERACTION_TYPE &type
       )
       {
-        glm::vec3 bsdf(0.0f);
-        random::RandomDirection randDir;
-
-        // light emission
-        result.emittance = this->emittance;
+        const float reflectFresnel = this->computeFresnelReflection(in, n);
         // reflecting...
-        if (randHelper.drawUniformRandom() < this->computeFresnelReflection(-v, n))
+        if (randHelper.drawUniformRandom() < reflectFresnel)
         {
           if (this->brdf == nullptr)
           {
             return false;
           }
 
-          this->brdf->drawReflectedDirection(-v, n, randHelper, randDir);
-          result.ray.origin = x + 0.001f*n;
-          bsdf = this->brdf->evaluate(randDir.direction, n, v);
+          this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
+          type = REFLECTION;
         }
         else // refracting...
         {
@@ -77,19 +76,73 @@ namespace ray_storm
           {
             return false;
           }
-          glm::vec3 idealRefractionV;
-          MaterialHelper::refract(1.0f, this->indexOfRefraction, -v, n, idealRefractionV);
+          this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
+          type = REFRACTION;
+        }
+        return true;
+      }
 
-          this->btdf->drawRefractedDirection(-v, n, idealRefractionV, randHelper, randDir);
-          result.ray.origin = x + 0.001f*randDir.direction;
-          glm::vec3 idealRefractionL;
-          MaterialHelper::refract(this->indexOfRefraction, 1.0f, -randDir.direction, -n, idealRefractionL);
-          bsdf = this->btdf->evaluate(randDir.direction, n, v, idealRefractionL);
+      inline bool evaluateBSDF(
+        const glm::vec3 &l,
+        const glm::vec3 &n,
+        const glm::vec3 &v,
+        glm::vec3 &result
+      )
+      {
+        result = glm::vec3(0.0f);
+        LIGHT_INTERACTION_TYPE type = glm::dot(l, n) >= 0.0f ? REFLECTION : REFRACTION;
+
+        if ((type == REFLECTION && this->brdf == nullptr) || (type == REFRACTION && this->btdf == nullptr)) 
+        {
+          return false;
         }
 
-        result.ray.direction = randDir.direction;
-        result.weight = bsdf*randDir.inversePDF;
+        const float reflectFresnel = this->computeFresnelReflection(-l, n);
+
+        if (type == REFLECTION)
+        {
+          result = reflectFresnel*this->brdf->evaluate(l, n, v);
+        }
+        else if (type == REFRACTION)
+        {
+          result = (1.0f - reflectFresnel)*this->btdf->evaluate(l, n, v);
+        }
+        
         return true;
+      }
+
+      inline bool computeLightInteraction(
+        const glm::vec3 &in,
+        const glm::vec3 &x,
+        const glm::vec3 &n,
+        random::RandomizationHelper &randHelper,
+        LightInteraction &interaction
+      )
+      {
+        random::RandomDirection randDir;
+        LIGHT_INTERACTION_TYPE type;
+
+        if (!this->computeLightDirection(in, n, randHelper, randDir, type))
+        {
+          return false;
+        }
+
+        const glm::vec3 nRef = (type == REFRACTION && glm::dot(in, n) > 0.0f) ? -n : n;
+        const int offset = type == REFRACTION ? -1 : 1; 
+        if (!this->evaluateBSDF(randDir.direction, nRef, -in, interaction.weight))
+        {
+          return false;
+        }
+
+        interaction.ray = geometry::Ray(x + offset*0.001f*nRef, randDir.direction);
+        interaction.weight *= randDir.inversePDF; // inverse sampling pdf!
+
+        return true;
+      }
+
+      inline glm::vec3 getEmittance()
+      {
+        return this->emittance;
       }
 
 
@@ -104,6 +157,7 @@ namespace ray_storm
 
       inline float computeFresnelReflection(const glm::vec3 &in, const glm::vec3 &n)
       {
+        return 1.0f; // FIXME disabled for now
         // see http://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
         // and https://en.wikipedia.org/wiki/Fresnel_equations
         float eta1 = 1.0f;

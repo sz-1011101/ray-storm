@@ -11,31 +11,36 @@ namespace ray_storm
     {
     public:
 
-      Glass(const glm::vec3 &color)
+      Glass(const glm::vec3 &color, float indexOfRefraction = 1.5f)
       {
         this->color = color;
+        this->indexOfRefraction = indexOfRefraction;
       }
 
-      glm::vec3 evaluate(const glm::vec3 &l, 
-        const glm::vec3 &n, const glm::vec3 &v, const glm::vec3 &r)
+      glm::vec3 evaluate(
+        const glm::vec3 &l,
+        const glm::vec3 &n,
+        const glm::vec3 &v
+      )
       {
-        return this->color/std::abs(glm::dot(-n, l));
+        return this->color;
       }
 
       void drawRefractedDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
-        const glm::vec3 &r,
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
+        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, randDir.direction);
         randDir.inversePDF = 1.0f;
-        randDir.direction = r;
       }
 
     private:
 
       glm::vec3 color;
+
+      float indexOfRefraction;
       
     };
   }

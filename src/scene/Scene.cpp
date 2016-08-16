@@ -15,10 +15,32 @@ bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry:
   return this->dataStruct->intersect(ray, intersection);
 }
 
+bool Scene::drawRandomEmittingObject(random::RandomizationHelper &randHelper, LightSource &light)
+{
+
+  if (this->lights.size() == 0)
+  {
+    return false;
+  }
+
+  const int objIndex = randHelper.drawUniformRandom(0, static_cast<int>(this->lights.size()));
+  light.object = this->lights.at(objIndex).get();
+  light.emittance = light.object->getMaterial()->getEmittance()/light.object->getSurfaceArea();
+  light.lightPos = light.object->drawRandomSurfacePoint(randHelper);
+  return true;
+}
+
 void Scene::add(geometry::ObjectPtr &object)
 {
   this->objects.push_back(object);
   puts("Object added");
+  // if the objects' material is emitting in some channel it is a light source
+  if (object->getMaterial() != nullptr &&
+    glm::any(glm::greaterThan(object->getMaterial()->getEmittance(), glm::vec3(0.0f))))
+  {
+    this->lights.push_back(object);
+    puts("Light added");
+  }
 }
 
 void Scene::finalize()

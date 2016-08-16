@@ -50,6 +50,16 @@ namespace ray_storm
         return true;
       }
 
+      float getSurfaceArea()
+      {
+        return 4.0f*static_cast<float>(M_PI)*this->radius*this->radius;
+      }
+
+      glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
+      {
+        return this->position + randHelper.drawUniformRandomSphereDirection();
+      }
+
     protected:
 
       glm::vec3 position;

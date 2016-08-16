@@ -41,14 +41,14 @@ namespace ray_storm
       };
 
       Rectangle(const RectParams &rectParams, materials::MaterialPtr &material) :
-        Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal(), material)
+        Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {
         this->normal = rectParams.calcNormal();
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection)
       {
-        Intersection<Object> pInters;
+        Intersection<Plane> pInters;
 
         if (!this->plane.intersect(ray, pInters))
         {
@@ -67,19 +67,30 @@ namespace ray_storm
           return false;
         }
         
-        intersection = pInters;
+        intersection.intersection = pInters.intersection;
+        intersection.t = pInters.t;
         intersection.intersected = this;
 
         return true;
+      }
+
+      float getSurfaceArea()
+      {
+        return this->rectParams.width*this->rectParams.height;
+      }
+
+      glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
+      {
+        float u = randHelper.drawUniformRandom();
+        float v = randHelper.drawUniformRandom();
+        const RectParams &rp = this->rectParams;
+        return  rp.origin + u*rp.wAxis*rp.width + v*rp.hAxis*rp.height;
       }
 
     private:
 
       RectParams rectParams;
       glm::vec3 normal;
-
-      float width;
-      float height;
 
       // the rectangle's plane
       Plane plane;

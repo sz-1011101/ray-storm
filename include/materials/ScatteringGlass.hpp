@@ -11,24 +11,29 @@ namespace ray_storm
     {
     public:
 
-      ScatteringGlass(const glm::vec3 &color, float e)
+      ScatteringGlass(const glm::vec3 &color, float e, float indexOfRefraction = 1.35f)
       {
         this->color = color;
         this->e = e;
+        this->indexOfRefraction = indexOfRefraction;
         // Phong like specular transmission
         this->specular = this->color*(this->e + 2.0f)/(2.0f*static_cast<float>(M_PI));
       }
 
-      glm::vec3 evaluate(const glm::vec3 &l, 
-        const glm::vec3 &n, const glm::vec3 &v, const glm::vec3 &r)
+      glm::vec3 evaluate(
+        const glm::vec3 &l, 
+        const glm::vec3 &n,
+        const glm::vec3 &v
+      )
       {
-        return this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(r, v)), this->e));
+        glm::vec3 t;
+        MaterialHelper::refract(this->indexOfRefraction, 1.0f, -l, -n, t);
+        return this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(t, v)), this->e));
       }
 
       void drawRefractedDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
-        const glm::vec3 &r, // ideal reflection of in
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
@@ -38,8 +43,10 @@ namespace ray_storm
         randDir.direction = randHelper.drawUniformRandomHemisphereDirection(nRef);
         randDir.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
 #else
-        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->e);
-        randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(r, randDir.direction), this->e);
+        glm::vec3 t;
+        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, t);
+        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(t, this->e);
+        randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(t, randDir.direction), this->e);
 #endif
       }
 
@@ -48,6 +55,8 @@ namespace ray_storm
       glm::vec3 color;
 
       float e;
+
+      float indexOfRefraction;
 
       glm::vec3 specular;
       

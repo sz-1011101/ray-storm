@@ -8,7 +8,7 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 10000;
+const uint32_t SAMPLES = 500;
 
 PathTracer::PathTracer()
 {
@@ -107,8 +107,10 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
   for (uint32_t b = 0; b < maxBounces; b++)
   {
     depth = b;
+    emittance[b] = glm::vec3(0.0f);
+    weights[b] = glm::vec3(0.0f);
     // we hit the sky...
-    if (!scene->intersect(ray, intersection))
+    if (!this->scene->intersect(ray, intersection))
     {
       emittance[b] = this->scene->getSky();
       break;
@@ -119,8 +121,8 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
     materials::Material *iMat = iObj->getMaterial();
 
     materials::Material::LightInteraction lightInteraction;
-    bool bounceOn = iMat->computeLightInteraction(-ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
-    emittance[b] = lightInteraction.emittance;
+    bool bounceOn = iMat->computeLightInteraction(ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
+    emittance[b] = iMat->getEmittance();
 
     // russsian roulette!
     if (!bounceOn || randHelper.drawUniformRandom() > RUSSIAN_ROULETTE_ALPHA)
@@ -141,4 +143,78 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &intialRay, random::Randomiza
   }
 
   return radiance;
+}
+
+glm::vec3 PathTracer::walkPathShadowRays(const geometry::Ray &intialRay, random::RandomizationHelper &randHelper)
+{
+  geometry::Ray ray = intialRay;
+  // path tracing vars
+  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
+  glm::vec3 weights[maxBounces];
+  glm::vec3 emittance[maxBounces];
+
+  int depth = 0;
+  geometry::Intersection<geometry::Object> intersection;
+  
+  // light path reverse traversal
+  for (uint32_t b = 0; b < maxBounces; b++)
+  {
+    depth = b;
+    emittance[b] = glm::vec3(0.0f);
+    weights[b] = glm::vec3(0.0f);
+    // we hit the sky...
+    if (!this->scene->intersect(ray, intersection))
+    {
+      break;
+    }
+
+    geometry::Object *iObj = intersection.intersected;
+    geometry::SimpleIntersection iSmpl = intersection.intersection;
+    materials::Material *iMat = iObj->getMaterial();
+
+    materials::Material::LightInteraction lightInteraction;
+    bool bounceOn = iMat->computeLightInteraction(-ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
+    // russsian roulette!
+    if (!bounceOn || randHelper.drawUniformRandom() > RUSSIAN_ROULETTE_ALPHA)
+    {
+      break;
+    }
+
+    weights[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightInteraction.weight;
+
+    // shadow ray
+    scene::Scene::LightSource lightSrc;
+    this->scene->drawRandomEmittingObject(randHelper, lightSrc);
+    if (lightSrc.object == iObj) // I'm the light source!
+    {
+      emittance[b] = iMat->getEmittance();
+    }
+    else
+    {
+      const glm::vec3 &shadowRayOrigin = lightInteraction.ray.origin; // reuse, already offset
+      geometry::Ray shadowRay(shadowRayOrigin, glm::normalize(lightSrc.lightPos - shadowRayOrigin));
+
+      geometry::Intersection<geometry::Object> shadowRayIntersection;// TODO: could reuse
+      if (
+        this->scene->intersect(shadowRay, shadowRayIntersection) &&  // we hit the object? (we should...)
+        shadowRayIntersection.intersected == lightSrc.object && // we hit the light source?
+        glm::distance(shadowRayIntersection.intersection.position, lightSrc.lightPos) <= 0.01f) // we are very close to the point?
+      {
+        emittance[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*lightSrc.emittance*glm::vec3(0.75, 0.25f, 0.25f)/static_cast<float>(M_PI)*glm::dot(iSmpl.normal, shadowRay.direction);
+      }
+    }
+
+    // bounce on
+    ray = lightInteraction.ray;
+  }
+
+  // accumulate radiance according to rendering equation
+  glm::vec3 radiance = emittance[depth];
+  for (int b = depth - 1; b >= 0; b--)
+  {
+    radiance = (emittance[b] + weights[b]*radiance);
+  }
+
+  return radiance;
+
 }

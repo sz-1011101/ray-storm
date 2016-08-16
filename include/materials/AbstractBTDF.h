@@ -16,13 +16,15 @@ namespace ray_storm
 
       virtual ~AbstractBTDF() {};
 
-      virtual glm::vec3 evaluate(const glm::vec3 &l, 
-        const glm::vec3 &n, const glm::vec3 &v, const glm::vec3 &r) = 0;
+      virtual glm::vec3 evaluate(
+        const glm::vec3 &l,
+        const glm::vec3 &n,
+        const glm::vec3 &v
+      ) = 0;
 
       virtual void drawRefractedDirection(
         const glm::vec3 &in,
-        const glm::vec3 &n, 
-        const glm::vec3 &r,
+        const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir
       ) = 0;

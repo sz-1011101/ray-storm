@@ -28,7 +28,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::AbstractBTDFPtr milky(new materials::ScatteringGlass(glm::vec3(1.0f), 150.0f));
 
   // materials
-  materials::MaterialPtr matLight(new materials::Material(lambertianWhite, 3.0f, glm::vec3(50.0f, 50.0f, 50.0f)));
+  materials::MaterialPtr matLight(new materials::Material(lambertianWhite, 3.0f, glm::vec3(12.0f, 12.0f, 12.0f)));
   materials::MaterialPtr matWhite(new materials::Material(lambertianWhite, 3.0f));
   materials::MaterialPtr matRed(new materials::Material(lambertianRed, 3.0f));
   materials::MaterialPtr matBlue(new materials::Material(lambertianBlue, 3.0f));
@@ -43,7 +43,7 @@ ScenePtr TestSceneFactory::createCornellBox()
 
   // floor
   geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  geometry::ObjectPtr floor = geometry::ObjectPtr(new geometry::Rectangle(floorRp, matMetal1));
+  geometry::ObjectPtr floor = geometry::ObjectPtr(new geometry::Rectangle(floorRp, matWhite));
 
   // ceiling
   geometry::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
@@ -69,7 +69,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::Rectangle::RectParams lightRp(glm::vec3(-1.5f, 9.99f, -1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 3.0f, 3.0f);
   geometry::ObjectPtr light = geometry::ObjectPtr(new geometry::Rectangle(lightRp, matLight));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.5f, 1.0f), 1.5f, matGlass));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.5f, 1.0f), 1.5f, matMetal1));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 1.5f, -3.0f), 1.5f, matMetal2));
   // build scene
   scene->add(floor);

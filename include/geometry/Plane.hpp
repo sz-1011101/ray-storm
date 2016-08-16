@@ -1,24 +1,24 @@
 #ifndef PLANE_H_
 #define PLANE_H_
 
-#include "geometry/Object.h"
+#include "geometry/Intersectable.h"
 
 namespace ray_storm
 {
   namespace geometry
   {
 
-    class Plane : public Object
+    class Plane : public Intersectable<Plane>
     {
     public:
 
-      Plane(const glm::vec3 &point, const glm::vec3 &normal, materials::MaterialPtr &material) : Object(material)
+      Plane(const glm::vec3 &point, const glm::vec3 &normal)
       {
         this->point = point;
         this->normal = glm::normalize(normal);
       }
 
-      inline bool intersect(const Ray &ray, Intersection<Object> &intersection)
+      inline bool intersect(const Ray &ray, Intersection<Plane> &intersection)
       {
 
         const float normalDotDirection = glm::dot(this->normal, ray.direction);
