@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "materials/Material.h"
+#include "materials/Material.hpp"
 
 namespace ray_storm
 {
@@ -16,7 +16,7 @@ namespace ray_storm
 
       Renderable(materials::MaterialPtr &material) : material(material)
       {
-
+        
       }
 
       virtual ~Renderable() {};

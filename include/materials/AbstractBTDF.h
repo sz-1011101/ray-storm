@@ -22,7 +22,7 @@ namespace ray_storm
         const glm::vec3 &v
       ) = 0;
 
-      virtual void drawRefractedDirection(
+      virtual bool drawRefractedDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 

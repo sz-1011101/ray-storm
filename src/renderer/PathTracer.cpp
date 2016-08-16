@@ -8,7 +8,7 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 64;
+const uint32_t SAMPLES = 1000;
 
 PathTracer::PathTracer()
 {
@@ -179,12 +179,6 @@ glm::vec3 PathTracer::walkPathShadowRays(const geometry::Ray &intialRay, random:
     geometry::SimpleIntersection iSmpl = intersection.intersection;
     materials::Material *iMat = iObj->getMaterial();
 
-    // hack
-    if (b == 0)
-    {
-      emittance[b] = iMat->getEmittance();
-    }
-
     materials::Material::LightInteraction lightInteraction;
     bool bounceOn = iMat->computeLightInteraction(ray.direction, iSmpl.position, iSmpl.normal, randHelper, lightInteraction);
     // russsian roulette!
@@ -194,32 +188,43 @@ glm::vec3 PathTracer::walkPathShadowRays(const geometry::Ray &intialRay, random:
     }
 
     weights[b] = lightInteraction.weight*(1.0f/RUSSIAN_ROULETTE_ALPHA);
-    // shadow ray
-    scene::Scene::LightSource lightSrc;
-    this->scene->drawRandomEmittingObject(randHelper, lightSrc);
 
-    if (lightSrc.object != iObj)
+    const bool emitting = glm::any(glm::greaterThan(iMat->getEmittance(), glm::vec3(0.0f)));
+    if (emitting && randHelper.drawUniformRandom() < 0.75f)
     {
-      const glm::vec3 &shadowRayOrigin = lightInteraction.ray.origin; // reuse, already offset
-      geometry::Ray shadowRay(shadowRayOrigin, glm::normalize(lightSrc.lightPos - shadowRayOrigin));
+      emittance[b] = iMat->getEmittance();
+    }
+    else
+    {
+      // shadow ray
+      scene::Scene::LightSource lightSrc;
+      this->scene->drawRandomEmittingObject(randHelper, lightSrc);
 
-      geometry::Intersection<geometry::Object> shadowRayIntersection;// TODO: could reuse
-      if (glm::dot(iSmpl.normal, shadowRay.direction) >= 0.0f && // light visible?
-        this->scene->intersect(shadowRay, shadowRayIntersection) &&  // we hit the object? (we should...)
-        shadowRayIntersection.intersected == lightSrc.object && // we hit the light source?
-        glm::distance(shadowRayIntersection.intersection.position, lightSrc.lightPos) <= 0.001f) // we are very close to the point?
+      if (lightSrc.object != iObj)
       {
-        glm::vec3 bsdf(0.0f);
-        if (!iMat->evaluateBSDF(shadowRay.direction, iSmpl.normal, -ray.direction, bsdf))
+        const glm::vec3 &shadowRayOrigin = lightInteraction.ray.origin; // reuse, already offset
+        geometry::Ray shadowRay(shadowRayOrigin, glm::normalize(lightSrc.lightPos - shadowRayOrigin));
+
+        geometry::Intersection<geometry::Object> shadowRayIntersection;// TODO: could reuse
+        if (glm::dot(iSmpl.normal, shadowRay.direction) >= 0.0f && // light visible?
+          this->scene->intersect(shadowRay, shadowRayIntersection) &&  // we hit the object? (we should...)
+          shadowRayIntersection.intersected == lightSrc.object && // we hit the light source?
+          glm::distance(shadowRayIntersection.intersection.position, lightSrc.lightPos) <= 0.001f) // we are very close to the point?
         {
-          break;
+          glm::vec3 bsdf(0.0f);
+          if (!iMat->evaluateBSDF(shadowRay.direction, iSmpl.normal, -ray.direction, bsdf))
+          {
+            break;
+          }
+          float distanceToLight = glm::distance(iSmpl.position, lightSrc.lightPos);
+          emittance[b] = lightSrc.emittance*bsdf*lightSrc.object->getInversePDF()*
+            dot(-shadowRay.direction, shadowRayIntersection.intersection.normal)/(distanceToLight*distanceToLight)*
+            (1.0f/RUSSIAN_ROULETTE_ALPHA)*2.0f;
         }
-        float distanceToLight = glm::distance(iSmpl.position, lightSrc.lightPos);
-        emittance[b] += lightSrc.emittance*bsdf*lightSrc.object->getInversePDF()*
-          dot(-shadowRay.direction, shadowRayIntersection.intersection.normal)/(distanceToLight*distanceToLight)*
-          (1.0f/RUSSIAN_ROULETTE_ALPHA);
       }
     }
+
+
 
     // early termination as we will not accumulate more radiance 
     if (glm::all(glm::lessThanEqual(weights[b], glm::vec3(0.0f))))

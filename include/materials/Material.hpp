@@ -34,21 +34,39 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float indexOfRefraction,
+        float indexOfRefraction = 1.5f,
         const glm::vec3 &emittance = glm::vec3(0.0f)
-      );
+      ) : brdf(brdf), btdf(btdf)
+      {
+        this->indexOfRefraction = indexOfRefraction;
+        this->emittance = emittance;
+        this->useFresnel = false;
+        this->constReflectance = 1.0f;
+      }
 
       Material(
         AbstractBRDFPtr &brdf,
-        float indexOfRefraction,
+        float indexOfRefraction = 1.5f,
         const glm::vec3 &emittance = glm::vec3(0.0f)
-      );
+      ) : brdf(brdf), btdf(nullptr)
+      {
+        this->indexOfRefraction = indexOfRefraction;
+        this->emittance = emittance;
+        this->useFresnel = false;
+        this->constReflectance = 1.0f;
+      }
 
       Material(
         AbstractBTDFPtr &btdf,
-        float indexOfRefraction,
+        float indexOfRefraction = 1.5f,
         const glm::vec3 &emittance = glm::vec3(0.0f)
-      );
+      ) : brdf(nullptr), btdf(btdf)
+      {
+        this->indexOfRefraction = indexOfRefraction;
+        this->emittance = emittance;
+        this->useFresnel = false;
+        this->constReflectance = 1.0f;
+      }
 
       inline bool computeLightDirection(
         const glm::vec3 &in,
@@ -58,7 +76,7 @@ namespace ray_storm
         LIGHT_INTERACTION_TYPE &type
       )
       {
-        const float reflectFresnel = this->computeFresnelReflection(in, n);
+        const float reflectFresnel = this->useFresnel ? this->computeFresnelReflection(in, n) : this->constReflectance;
         // reflecting...
         if (randHelper.drawUniformRandom() < reflectFresnel)
         {
@@ -76,8 +94,14 @@ namespace ray_storm
           {
             return false;
           }
-          this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
-          type = REFRACTION;
+          if (this->btdf->drawRefractedDirection(in, n, randHelper, randDir))
+          {
+            type = REFRACTION;
+          }
+          else
+          {
+            type = REFLECTION;
+          }
         }
         return true;
       }
@@ -97,7 +121,7 @@ namespace ray_storm
           return false;
         }
 
-        const float reflectFresnel = this->computeFresnelReflection(-l, n);
+        const float reflectFresnel = this->useFresnel ? this->computeFresnelReflection(-l, n) : this->constReflectance;
 
         if (type == REFLECTION)
         {
@@ -127,7 +151,8 @@ namespace ray_storm
           return false;
         }
 
-        const glm::vec3 nRef = (type == REFRACTION && glm::dot(in, n) > 0.0f) ? -n : n;
+        const float cosTheta = glm::dot(in, n);
+        const glm::vec3 nRef = (cosTheta > 0.0f) ? -n : n;
         const int offset = type == REFRACTION ? -1 : 1; 
         if (!this->evaluateBSDF(randDir.direction, nRef, -in, interaction.weight))
         {
@@ -138,6 +163,17 @@ namespace ray_storm
         interaction.weight *= randDir.inversePDF; // inverse sampling pdf!
 
         return true;
+      }
+
+      inline void setUseFresnel(bool useFresnel)
+      {
+        this->useFresnel = useFresnel;
+      }
+
+      inline void setConstReflectance(bool constReflectance)
+      {
+        this->useFresnel = false;
+        this->constReflectance = constReflectance;
       }
 
       inline glm::vec3 getEmittance()
@@ -156,10 +192,11 @@ namespace ray_storm
       glm::vec3 emittance;
 
       float indexOfRefraction;
+      bool useFresnel;
+      bool constReflectance;
 
       inline float computeFresnelReflection(const glm::vec3 &in, const glm::vec3 &n)
       {
-        return 1.0f; // FIXME disabled for now
         // see http://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
         // and https://en.wikipedia.org/wiki/Fresnel_equations
         float eta1 = 1.0f;

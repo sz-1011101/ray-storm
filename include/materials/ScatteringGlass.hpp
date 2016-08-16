@@ -21,17 +21,18 @@ namespace ray_storm
       }
 
       glm::vec3 evaluate(
-        const glm::vec3 &l, 
+        const glm::vec3 &l,
         const glm::vec3 &n,
         const glm::vec3 &v
       )
       {
         glm::vec3 t;
         MaterialHelper::refract(this->indexOfRefraction, 1.0f, -l, -n, t);
+
         return this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(t, v)), this->e));
       }
 
-      void drawRefractedDirection(
+      bool drawRefractedDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 
@@ -44,9 +45,11 @@ namespace ray_storm
         randDir.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
 #else
         glm::vec3 t;
-        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, t);
+        const bool refract = MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, t);
         randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(t, this->e);
         randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(t, randDir.direction), this->e);
+
+        return refract;
 #endif
       }
 
