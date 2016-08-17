@@ -71,8 +71,7 @@ glm::vec3 RandomizationHelper::transform(const glm::vec3 &n, const glm::vec3 &ve
   return trans;
 }
 
-float RandomizationHelper::cosineRandomHemisphereInversePDF(float cosTheta, float e)
+float RandomizationHelper::cosineRandomHemispherePDF(float cosTheta, float e)
 {
-  //return 1.0f/(std::pow(cosTheta, e)*(e + 1.0f)/(2.0f*M_PI));
-  return (2.0f*M_PI)/((e + 1.0f) * std::pow(cosTheta, e));
+  return std::pow(cosTheta, e)*(e + 1.0f)/(2.0f*M_PI);
 }

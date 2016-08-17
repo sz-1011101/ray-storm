@@ -33,9 +33,18 @@ namespace ray_storm
         random::RandomDirection &randDir
       )
       {
-        randDir.inversePDF = 1.0f;
         glm::vec3 nRef = n;
         MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, randDir.direction, nRef);
+        randDir.PDF = this->getPDF(in, n, randDir.direction);
+      }
+
+      float getPDF(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        const glm::vec3 &out
+      )
+      {
+        return 1.0f;
       }
 
     private:

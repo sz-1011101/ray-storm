@@ -13,14 +13,14 @@ namespace ray_storm
 
       RandomRay() {};
 
-      RandomRay(const geometry::Ray &ray, float inversePDF)
+      RandomRay(const geometry::Ray &ray, float PDF)
       {
         this->ray = ray;
-        this->inversePDF = inversePDF;
+        this->PDF = PDF;
       }
 
       geometry::Ray ray;
-      float inversePDF;
+      float PDF;
 
     };
 

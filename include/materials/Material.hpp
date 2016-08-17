@@ -141,7 +141,7 @@ namespace ray_storm
 
         randRay.ray.origin = x + RAY_OFFSET_EPSILON*randDir.direction;
         randRay.ray.direction = randDir.direction;
-        randRay.inversePDF = randDir.inversePDF;
+        randRay.PDF = randDir.PDF;
 
         return true;
 

@@ -32,16 +32,17 @@ namespace ray_storm
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
-      //#define UNIFORM_SAMPLING
-      #ifdef UNIFORM_SAMPLING // uniform sampling
-        randDir.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        randDir.inversePDF = randHelper.uniformRandomHemisphereInversePDF();
-      #else // cosine weighted sampling!
-        const float e = 1.0f;
-        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, e);
-        randDir.inversePDF = randHelper.cosineRandomHemisphereInversePDF(dot(n, randDir.direction), e);
-      #endif
+        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
+        randDir.PDF = this->getPDF(in, n, randDir.direction);
+      }
 
+      float getPDF(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        const glm::vec3 &out
+      )
+      {
+        return random::RandomizationHelper::cosineRandomHemispherePDF(dot(n, out), 1.0f);
       }
 
     private:

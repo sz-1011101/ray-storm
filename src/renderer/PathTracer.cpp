@@ -145,7 +145,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
      && iMat->evaluateBSDF(bounceRay.ray.direction, yN, -ray.direction, bsdf))
     {
       const float rrFactor = 1.0f/RUSSIAN_ROULETTE_ALPHA;
-      reflected[b] = bsdf*bounceRay.inversePDF*rrFactor;
+      reflected[b] = bsdf*(1.0f/bounceRay.PDF)*rrFactor;
     }
     else // terminate early
     {
@@ -170,29 +170,5 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
 glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper)
 {
-  /* work in progress
-  // current ray
-  geometry::Ray ray = initialRay;
-
-  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  int depth = 0;
-  glm::vec3 reflected[maxBounces];
-  glm::vec3 emitted[maxBounces];
-
-  // we are currently at the camera
-  reflected[0] = glm::vec3(1.0f);
-  emitted[0] = glm::vec3(0.0f);
-
-  for (uint32_t b = 1; b < maxBounces; b++) // hard limit will bias the result in theory...
-  {
-    depth = b;
-    reflected[b] = glm::vec3(0.0f);
-    emitted[b] = glm::vec3(0.0f);
-
-    
-
-  }
-  */
   return glm::vec3(0.0f);
-
 }

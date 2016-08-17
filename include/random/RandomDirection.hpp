@@ -10,7 +10,7 @@ namespace ray_storm
     struct RandomDirection
     {
       glm::vec3 direction;
-      float inversePDF;
+      float PDF;
     };
   }
 }

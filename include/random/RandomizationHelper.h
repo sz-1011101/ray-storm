@@ -52,12 +52,12 @@ namespace ray_storm
 
       glm::vec3 drawCosineWeightedRandomHemisphereDirection(const glm::vec3 &n, float e);
 
-      float uniformRandomHemisphereInversePDF()
+      static float uniformRandomHemisphereIPDF()
       {
-        return 2.0f*M_PI;
+        return 1.0f/(2.0f*M_PI);
       }
 
-      float cosineRandomHemisphereInversePDF(float cosTheta, float e);
+      static float cosineRandomHemispherePDF(float cosTheta, float e);
 
     private:
 

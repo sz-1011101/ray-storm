@@ -28,6 +28,12 @@ namespace ray_storm
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir
       ) = 0;
+
+      virtual float getPDF(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        const glm::vec3 &out
+      ) = 0;
       
     };
 
