@@ -28,7 +28,7 @@ namespace ray_storm
         // next ray direction
         geometry::Ray ray;
         // weight of that direction
-        glm::vec3 weight;
+        glm::vec3 bsdf;
       };
 
       Material(
@@ -154,13 +154,13 @@ namespace ray_storm
         const float cosTheta = glm::dot(in, n);
         const glm::vec3 nRef = (cosTheta > 0.0f) ? -n : n;
         const int offset = type == REFRACTION ? -1 : 1; 
-        if (!this->evaluateBSDF(randDir.direction, nRef, -in, interaction.weight))
+        if (!this->evaluateBSDF(randDir.direction, nRef, -in, interaction.bsdf))
         {
           return false;
         }
 
         interaction.ray = geometry::Ray(x + offset*RAY_OFFSET_EPSILON*nRef, randDir.direction);
-        interaction.weight *= randDir.inversePDF; // inverse sampling pdf!
+        interaction.bsdf *= randDir.inversePDF; // inverse sampling pdf!
 
         return true;
       }
