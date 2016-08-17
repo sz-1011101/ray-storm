@@ -209,16 +209,6 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
     const glm::vec3 &xOffset = bounceRay.ray.origin;
     const float &pdfBSDFBounce = bounceRay.PDF;
 
-    // we have the next ray, intersect
-    geometry::Intersection<geometry::Object> intersectY;
-    bool yHit = this->scene->intersect(bounceRay.ray, intersectY);
-
-    glm::vec3 bounceBSDF(0.0f);
-    if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
-    {
-      break;
-    }
-
     // directly sample the light sources
     scene::Scene::LuminaireSample lumSmpl;
     if (!this->scene->drawLuminareSample(randHelper, lumSmpl))
@@ -229,8 +219,6 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
 
     // compute direct lighting
     geometry::Ray shadowRay(xOffset, lumSmplDir);
-    glm::vec3 reflY = glm::vec3(0.0f);
-    glm::vec3 reflL = glm::vec3(0.0f);
 
     geometry::Intersection<geometry::Object> intersectL;
     if (glm::dot(lumSmplDir, xN) > 0.0f
@@ -240,29 +228,30 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
     )
     {
       glm::vec3 lightBSDF(0.0f);
-      float pdfBSDFLight = 0.0f;
       float pdfLumL = this->scene->getLuminarePDF(intersectL.intersected);
-      if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF)
-        || !xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
+      if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF))
       {
         break;
       }
-      reflL = lightBSDF*intersectL.intersected->getEmittance()/(pdfLumL + pdfBSDFLight);
+
+      direct[b] = lightBSDF*intersectL.intersected->getEmittance()
+        *dot(-lumSmplDir, intersectL.intersection.normal)
+        *(1.0f/std::pow(glm::length(lumSmpl.position - x), 2.0f))
+        /pdfLumL;
     }
 
-    // we can get radiance via the y bounce
-    if (yHit)
-    {
-      geometry::Object *yObj = intersectY.intersected;
-      const float pdfLumY = this->scene->getLuminarePDF(yObj);
-      reflY = bounceBSDF*yObj->getEmittance()/(pdfLumY + pdfBSDFBounce);
-    }
-
-    direct[b] = (reflL + reflY);
+    // we have the next ray, intersect
+    geometry::Intersection<geometry::Object> intersectY;
+    bool yHit = this->scene->intersect(bounceRay.ray, intersectY);
 
     // termination
     if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
     {
+      glm::vec3 bounceBSDF(0.0f);
+      if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
+      {
+        break;
+      }
       reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
     }
     else
