@@ -16,7 +16,7 @@ namespace ray_storm
     {
     public:
 
-      Object(materials::MaterialPtr &material) : Renderable(material)
+      Object(materials::MaterialPtr &material, const glm::vec3 &emittance) : Renderable(material), Emitting(emittance)
       {
         
       }
@@ -26,6 +26,8 @@ namespace ray_storm
       virtual bool intersect(const Ray &ray, Intersection<Object> &intersection) = 0;
 
       virtual float getSurfaceArea() = 0;
+
+      virtual float getPDF() = 0;
 
       virtual glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper) = 0;
       

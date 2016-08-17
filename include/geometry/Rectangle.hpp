@@ -40,8 +40,11 @@ namespace ray_storm
         }
       };
 
-      Rectangle(const RectParams &rectParams, materials::MaterialPtr &material) :
-        Object(material), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
+      Rectangle(
+        const RectParams &rectParams,
+        materials::MaterialPtr &material,
+        const glm::vec3 &emittance = glm::vec3(0.0f)
+      ) : Object(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {
         this->normal = rectParams.calcNormal();
         this->wSide = rectParams.wAxis*rectParams.width;
@@ -89,10 +92,10 @@ namespace ray_storm
         return  this->rectParams.origin + u*this->wSide + v*this->hSide;
       }
 
-      float getInversePDF()
+      float getPDF()
       {
         // from http://www.cs.utah.edu/~shirley/papers/tog94.pdf
-        return glm::length(glm::cross(this->wSide, this->hSide))/2.0f;
+        return 2.0f/glm::length(glm::cross(this->wSide, this->hSide));
       }
 
     private:

@@ -49,9 +49,3 @@ ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
   glass->setConstReflectance(0.0f);
   return glass;
 }
-
-ray_storm::materials::MaterialPtr MaterialFactory::createSimpleLight(const glm::vec3 &emission)
-{
-  materials::AbstractBRDFPtr lambertianBRDF(new materials::Lambertian(glm::vec3(0.25f)));
-  return MaterialPtr(new Material(lambertianBRDF, 1.5f, emission));
-}

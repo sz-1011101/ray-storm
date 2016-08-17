@@ -15,7 +15,7 @@ bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry:
   return this->dataStruct->intersect(ray, intersection);
 }
 
-bool Scene::drawRandomEmittingObject(random::RandomizationHelper &randHelper, LightSource &light)
+bool Scene::drawLuminareSample(random::RandomizationHelper &randHelper, LuminaireSample &light)
 {
   const size_t lCnt = this->lights.size();
   if (lCnt == 0)
@@ -25,9 +25,15 @@ bool Scene::drawRandomEmittingObject(random::RandomizationHelper &randHelper, Li
 
   const int objIndex = randHelper.drawUniformRandom(0, static_cast<int>(lCnt));
   light.object = this->lights.at(objIndex).get();
-  light.emittance = light.object->getMaterial()->getEmittance();
   light.lightPos = light.object->drawRandomSurfacePoint(randHelper);
+  light.PDF = (1.0f/lCnt)*light.object->getPDF(); // no idea what im doing ;_;
   return true;
+}
+
+bool Scene::getLuminarePDF(geometry::ObjectPtr &object, float &pdf)
+{
+  // TODO implement
+  return false;
 }
 
 void Scene::add(geometry::ObjectPtr &object)
@@ -36,7 +42,7 @@ void Scene::add(geometry::ObjectPtr &object)
   puts("Object added");
   // if the objects' material is emitting in some channel it is a light source
   if (object->getMaterial() != nullptr &&
-    glm::any(glm::greaterThan(object->getMaterial()->getEmittance(), glm::vec3(0.0f))))
+    glm::any(glm::greaterThan(object->getEmittance(), glm::vec3(0.0f))))
   {
     this->lights.push_back(object);
     puts("Light added");

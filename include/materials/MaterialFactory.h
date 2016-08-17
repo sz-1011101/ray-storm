@@ -31,10 +31,6 @@ namespace ray_storm
         const glm::vec3 &color,
         float indexOfRefraction
       );
-
-      static MaterialPtr createSimpleLight(
-        const glm::vec3 &emission
-      );
       
     };
   }

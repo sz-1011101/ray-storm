@@ -122,10 +122,11 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
 
     const glm::vec3 &y = intersectY.intersection.position;
     const glm::vec3 &yN = intersectY.intersection.normal;
+    geometry::Object *iObj = intersectY.intersected;
     materials::Material *iMat = intersectY.intersected->getMaterial();
 
     // current object emittance handling
-    emitted[b] = iMat->getEmittance();
+    emitted[b] = iObj->getEmittance();
 
     // get a reflection by sampling the bsdf
     random::RandomRay bounceRay;

@@ -18,19 +18,19 @@ namespace ray_storm
 
     public:
 
-      struct LightSource
+      struct LuminaireSample
       {
         // object that is emitting
         geometry::Object *object;
-        // emittance according to monte carlo estimation, don't use material emittance directly
-        glm::vec3 emittance;
         // surface point that emitts
         glm::vec3 lightPos;
 
-        LightSource()
+        float PDF;
+
+        LuminaireSample()
         {
           this->object = nullptr;
-          this->emittance = glm::vec3(0.0f);
+          this->PDF = 1.0f;
         }
       };
 
@@ -38,7 +38,9 @@ namespace ray_storm
 
       bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
 
-      bool drawRandomEmittingObject(random::RandomizationHelper &randHelper, LightSource &light);
+      bool drawLuminareSample(random::RandomizationHelper &randHelper, LuminaireSample &light);
+
+      bool getLuminarePDF(geometry::ObjectPtr &object, float &pdf);
 
       void add(geometry::ObjectPtr &object);
 

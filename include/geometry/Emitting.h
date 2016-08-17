@@ -11,13 +11,27 @@ namespace ray_storm
     {
     public:
 
+      Emitting(const glm::vec3 &emittance)
+      {
+        this->emittance = emittance;
+      }
+
       virtual ~Emitting() {};
 
       virtual float getSurfaceArea() = 0;
 
       virtual glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper) = 0;
 
-      virtual float getInversePDF() = 0;
+      virtual float getPDF() = 0;
+
+      virtual glm::vec3 getEmittance()
+      {
+        return this->emittance;
+      }
+
+    private:
+
+      glm::vec3 emittance;
     };
   }
 }

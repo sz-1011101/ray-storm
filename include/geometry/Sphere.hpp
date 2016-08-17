@@ -13,7 +13,12 @@ namespace ray_storm
 
     public:
 
-      Sphere(const glm::vec3 &position, float radius, materials::MaterialPtr &material) : Object(material) {
+      Sphere(
+        const glm::vec3 &position, 
+        float radius, materials::MaterialPtr &material,
+        const glm::vec3 &emittance = glm::vec3(0.0f)
+      ) : Object(material, emittance)
+      {
         this->position = position;
         this->radius = radius;
       }
@@ -60,9 +65,9 @@ namespace ray_storm
         return this->position + randHelper.drawUniformRandomSphereDirection()*this->radius;
       }
 
-      float getInversePDF()
+      float getPDF()
       {
-        return this->getSurfaceArea();
+        return 1.0f/this->getSurfaceArea();
       }
 
     protected:

@@ -21,36 +21,30 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float indexOfRefraction = 1.5f,
-        const glm::vec3 &emittance = glm::vec3(0.0f)
+        float indexOfRefraction = 1.5f
       ) : brdf(brdf), btdf(btdf)
       {
         this->indexOfRefraction = indexOfRefraction;
-        this->emittance = emittance;
         this->useFresnel = false;
         this->constReflectance = 1.0f;
       }
 
       Material(
         AbstractBRDFPtr &brdf,
-        float indexOfRefraction = 1.5f,
-        const glm::vec3 &emittance = glm::vec3(0.0f)
+        float indexOfRefraction = 1.5f
       ) : brdf(brdf), btdf(nullptr)
       {
         this->indexOfRefraction = indexOfRefraction;
-        this->emittance = emittance;
         this->useFresnel = false;
         this->constReflectance = 1.0f;
       }
 
       Material(
         AbstractBTDFPtr &btdf,
-        float indexOfRefraction = 1.5f,
-        const glm::vec3 &emittance = glm::vec3(0.0f)
+        float indexOfRefraction = 1.5f
       ) : brdf(nullptr), btdf(btdf)
       {
         this->indexOfRefraction = indexOfRefraction;
-        this->emittance = emittance;
         this->useFresnel = false;
         this->constReflectance = 1.0f;
       }
@@ -183,20 +177,12 @@ namespace ray_storm
         this->constReflectance = constReflectance;
       }
 
-      inline glm::vec3 getEmittance()
-      {
-        return this->emittance;
-      }
-
-
     private:
 
       const float RAY_OFFSET_EPSILON = 0.0001f;
 
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;
-
-      glm::vec3 emittance;
 
       float indexOfRefraction;
       bool useFresnel;
