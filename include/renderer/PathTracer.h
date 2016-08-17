@@ -40,6 +40,9 @@ namespace ray_storm
 
       glm::vec3 walkPath(const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper);
+
+      glm::vec3 walkPathDirectLighting(const geometry::Ray &initialRay, 
+        random::RandomizationHelper &randHelper);
       
     };
   }

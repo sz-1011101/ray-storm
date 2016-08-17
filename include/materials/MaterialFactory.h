@@ -32,12 +32,6 @@ namespace ray_storm
         float indexOfRefraction
       );
 
-      static MaterialPtr createDiffuseGlass(
-        const glm::vec3 &color,
-        float scattering,
-        float indexOfRefraction
-      );
-
       static MaterialPtr createSimpleLight(
         const glm::vec3 &emission
       );

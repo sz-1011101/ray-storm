@@ -6,6 +6,7 @@
 #include "materials/AbstractBTDF.h"
 #include "geometry/Ray.hpp"
 #include "materials/MaterialHelper.hpp"
+#include "random/RandomRay.hpp"
 
 namespace ray_storm
 {
@@ -21,14 +22,6 @@ namespace ray_storm
       {
         REFLECTION = 0,
         REFRACTION
-      };
-
-      struct LightInteraction
-      {
-        // next ray direction
-        geometry::Ray ray;
-        // weight of that direction
-        glm::vec3 bsdf;
       };
 
       Material(
@@ -68,44 +61,6 @@ namespace ray_storm
         this->constReflectance = 1.0f;
       }
 
-      inline bool computeLightDirection(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        random::RandomizationHelper &randHelper,
-        random::RandomDirection &randDir,
-        LIGHT_INTERACTION_TYPE &type
-      )
-      {
-        const float reflectFresnel = this->useFresnel ? this->computeFresnelReflection(in, n) : this->constReflectance;
-        // reflecting...
-        if (randHelper.drawUniformRandom() < reflectFresnel)
-        {
-          if (this->brdf == nullptr)
-          {
-            return false;
-          }
-
-          this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
-          type = REFLECTION;
-        }
-        else // refracting...
-        {
-          if (this->btdf == nullptr)
-          {
-            return false;
-          }
-          if (this->btdf->drawRefractedDirection(in, n, randHelper, randDir))
-          {
-            type = REFRACTION;
-          }
-          else
-          {
-            type = REFLECTION;
-          }
-        }
-        return true;
-      }
-
       inline bool evaluateBSDF(
         const glm::vec3 &l,
         const glm::vec3 &n,
@@ -114,55 +69,82 @@ namespace ray_storm
       )
       {
         result = glm::vec3(0.0f);
-        LIGHT_INTERACTION_TYPE type = glm::dot(l, n) >= 0.0f ? REFLECTION : REFRACTION;
+        // decide if we have a refraction or reflection based on the given situation
+        float cosL = dot(n, l);
+        float cosV = dot(n, v);
+        // we have a reflection if both cosines are greater zero or both are smaller zero (reflection at the anti normal)
+        const LIGHT_INTERACTION_TYPE type = ((cosL >= 0 && cosV >= 0) || (cosL <= 0 && cosV <= 0)) ? REFLECTION : REFRACTION;
 
         if ((type == REFLECTION && this->brdf == nullptr) || (type == REFRACTION && this->btdf == nullptr)) 
         {
           return false;
         }
 
-        const float reflectFresnel = this->useFresnel ? this->computeFresnelReflection(-l, n) : this->constReflectance;
+        const float reflectivity = this->useFresnel ? this->computeFresnelReflection(-l, n) : this->constReflectance;
 
         if (type == REFLECTION)
         {
-          result = reflectFresnel*this->brdf->evaluate(l, n, v);
+          // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
+          glm::vec3 nRefl = cosL < 0.0f ? -n : n;
+          result = reflectivity*this->brdf->evaluate(l, nRefl, v);
         }
         else if (type == REFRACTION)
         {
-          result = (1.0f - reflectFresnel)*this->btdf->evaluate(l, n, v);
+          // conservation of energy applies here, we also use the intersection normal to flip the IORs later
+          result = (1.0f - reflectivity)*this->btdf->evaluate(l, n, v);
         }
         
         return true;
       }
 
-      inline bool computeLightInteraction(
+      inline bool sampleBSDF(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        random::RandomizationHelper &randHelper,
+        random::RandomDirection &randDir
+      )
+      {
+        const float reflectivity = this->useFresnel ? this->computeFresnelReflection(in, n) : this->constReflectance;
+
+        // reflect with probabilty proportional to reflectivity
+        if (reflectivity > randHelper.drawUniformRandom())
+        {
+          if (this->brdf == nullptr) // nothing reflects of this since there is no brdf
+          {
+            return false;
+          }
+          this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
+          return true;
+        }
+        else if (this->btdf != nullptr) // transmission is happening, if btdf available
+        {
+          this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
+          return true;
+        }
+
+        return false;
+      }
+
+      inline bool sampleBSDF(
         const glm::vec3 &in,
         const glm::vec3 &x,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper,
-        LightInteraction &interaction
+        random::RandomRay &randRay
       )
       {
         random::RandomDirection randDir;
-        LIGHT_INTERACTION_TYPE type;
-
-        if (!this->computeLightDirection(in, n, randHelper, randDir, type))
+        if (!this->sampleBSDF(in, n, randHelper, randDir))
         {
           return false;
         }
 
-        const float cosTheta = glm::dot(in, n);
-        const glm::vec3 nRef = (cosTheta > 0.0f) ? -n : n;
-        const int offset = type == REFRACTION ? -1 : 1; 
-        if (!this->evaluateBSDF(randDir.direction, nRef, -in, interaction.bsdf))
-        {
-          return false;
-        }
-
-        interaction.ray = geometry::Ray(x + offset*RAY_OFFSET_EPSILON*nRef, randDir.direction);
-        interaction.bsdf *= randDir.inversePDF; // inverse sampling pdf!
+        randRay.ray.origin = x + RAY_OFFSET_EPSILON*randDir.direction;
+        randRay.ray.direction = randDir.direction;
+        randRay.inversePDF = randDir.inversePDF;
 
         return true;
+
       }
 
       inline void setUseFresnel(bool useFresnel)

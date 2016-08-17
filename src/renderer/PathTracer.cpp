@@ -124,17 +124,28 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
     const glm::vec3 &yN = intersectY.intersection.normal;
     materials::Material *iMat = intersectY.intersected->getMaterial();
 
-    materials::Material::LightInteraction lightInter;
+    // current object emittance handling
     emitted[b] = iMat->getEmittance();
-    // this computes a reflected ray and evaluates the bsdf of it
+
+    // get a reflection by sampling the bsdf
+    random::RandomRay bounceRay;
+    if (!iMat->sampleBSDF(ray.direction, y, yN, randHelper, bounceRay))
+    {
+      break;
+    }
     
-    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA // here we do russian roulette termination
-                                                                // and try to evaluate bsdf (together with inverse pdf) 
-                                                                // and get next direction
-     && iMat->computeLightInteraction(ray.direction, y, yN, randHelper, lightInter)) 
+    glm::vec3 bsdf(0.0f);
+    // here we do russian roulette termination
+    // and try to evaluate bsdf (together with inverse pdf) 
+    // and get next direction
+    // l is the direction we are going in next
+    // n is the normal of the current intersection
+    // v is the direction we are coming from
+    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA
+     && iMat->evaluateBSDF(bounceRay.ray.direction, yN, -ray.direction, bsdf))
     {
       const float rrFactor = 1.0f/RUSSIAN_ROULETTE_ALPHA;
-      reflected[b] = lightInter.bsdf*rrFactor;
+      reflected[b] = bsdf*bounceRay.inversePDF*rrFactor;
     }
     else // terminate early
     {
@@ -142,9 +153,10 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
     }
 
     // go on with reflected ray
-    ray = lightInter.ray;
+    ray = bounceRay.ray;
   }
 
+  // walk the recusion backwards to accumulate radiance
   glm::vec3 radiance(0.0f);
   for (int b = depth; b >= 0; b--)
   {
@@ -152,5 +164,35 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
   }
 
   return radiance;
+
+}
+
+glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay, 
+        random::RandomizationHelper &randHelper)
+{
+  /* work in progress
+  // current ray
+  geometry::Ray ray = initialRay;
+
+  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
+  int depth = 0;
+  glm::vec3 reflected[maxBounces];
+  glm::vec3 emitted[maxBounces];
+
+  // we are currently at the camera
+  reflected[0] = glm::vec3(1.0f);
+  emitted[0] = glm::vec3(0.0f);
+
+  for (uint32_t b = 1; b < maxBounces; b++) // hard limit will bias the result in theory...
+  {
+    depth = b;
+    reflected[b] = glm::vec3(0.0f);
+    emitted[b] = glm::vec3(0.0f);
+
+    
+
+  }
+  */
+  return glm::vec3(0.0f);
 
 }

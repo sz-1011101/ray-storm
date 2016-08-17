@@ -26,14 +26,16 @@ namespace ray_storm
         return this->color;
       }
 
-      bool drawRefractedDirection(
+      void drawRefractedDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir)
+        random::RandomDirection &randDir
+      )
       {
         randDir.inversePDF = 1.0f;
-        return MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, randDir.direction);
+        glm::vec3 nRef = n;
+        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, randDir.direction, nRef);
       }
 
     private:
