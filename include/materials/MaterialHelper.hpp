@@ -2,6 +2,7 @@
 #define MATERIAL_HELPER_H_
 
 #include "utility/linear_alg.hpp"
+#include "materials/LIGHT_INTERACTION_TYPE.h"
 
 namespace ray_storm
 {
@@ -10,6 +11,14 @@ namespace ray_storm
     class MaterialHelper
     {
     public:
+
+      static LIGHT_INTERACTION_TYPE determineType(const glm::vec3 &l, const glm::vec3 &n, const glm::vec3 &v)
+      {
+        float cosL = dot(n, l);
+        float cosV = dot(n, v);
+        // we have a reflection if both cosines are greater zero or both are smaller zero (reflection at the anti normal)
+        return ((cosL >= 0 && cosV >= 0) || (cosL <= 0 && cosV <= 0)) ? REFLECTION : REFRACTION;
+      }
 
       static void correctRefractSituation(const glm::vec3 &in, float &eta1, float &eta2, glm::vec3 &n)
       {

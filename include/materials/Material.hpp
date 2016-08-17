@@ -18,12 +18,6 @@ namespace ray_storm
 
     public:
 
-      enum LIGHT_INTERACTION_TYPE
-      {
-        REFLECTION = 0,
-        REFRACTION
-      };
-
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
@@ -70,10 +64,7 @@ namespace ray_storm
       {
         result = glm::vec3(0.0f);
         // decide if we have a refraction or reflection based on the given situation
-        float cosL = dot(n, l);
-        float cosV = dot(n, v);
-        // we have a reflection if both cosines are greater zero or both are smaller zero (reflection at the anti normal)
-        const LIGHT_INTERACTION_TYPE type = ((cosL >= 0 && cosV >= 0) || (cosL <= 0 && cosV <= 0)) ? REFLECTION : REFRACTION;
+        const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(l, n, v);
 
         if ((type == REFLECTION && this->brdf == nullptr) || (type == REFRACTION && this->btdf == nullptr)) 
         {
@@ -85,7 +76,7 @@ namespace ray_storm
         if (type == REFLECTION)
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
-          glm::vec3 nRefl = cosL < 0.0f ? -n : n;
+          glm::vec3 nRefl = dot(n, l) < 0.0f ? -n : n;
           result = reflectivity*this->brdf->evaluate(l, nRefl, v);
         }
         else if (type == REFRACTION)
@@ -144,7 +135,6 @@ namespace ray_storm
         randRay.PDF = randDir.PDF;
 
         return true;
-
       }
 
       inline void setUseFresnel(bool useFresnel)
