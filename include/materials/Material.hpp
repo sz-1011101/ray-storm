@@ -55,6 +55,15 @@ namespace ray_storm
         this->constReflectance = 1.0f;
       }
 
+      inline bool checkAvailable(LIGHT_INTERACTION_TYPE type)
+      {
+        if ((type == REFLECTION && this->brdf == nullptr) || (type == REFRACTION && this->btdf == nullptr)) 
+        {
+          return false;
+        }
+        return true;
+      }
+
       inline bool evaluateBSDF(
         const glm::vec3 &l,
         const glm::vec3 &n,
@@ -66,7 +75,7 @@ namespace ray_storm
         // decide if we have a refraction or reflection based on the given situation
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(l, n, v);
 
-        if ((type == REFLECTION && this->brdf == nullptr) || (type == REFRACTION && this->btdf == nullptr)) 
+        if (!this->checkAvailable(type))
         {
           return false;
         }
@@ -135,6 +144,32 @@ namespace ray_storm
         randRay.PDF = randDir.PDF;
 
         return true;
+      }
+
+      inline bool getPDF(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        const glm::vec3 &out,
+        float &PDF
+      )
+      {
+        const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
+        if (!this->checkAvailable(type))
+        {
+          return false;
+        }
+
+        if (type == REFLECTION)
+        {
+          PDF = this->brdf->getPDF(in, n, out);
+          return true;
+        }
+        else if (type == REFRACTION)
+        {
+          PDF = this->btdf->getPDF(in, n, out);
+          return true;
+        }
+        return false;
       }
 
       inline void setUseFresnel(bool useFresnel)
