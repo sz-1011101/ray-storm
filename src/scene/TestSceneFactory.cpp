@@ -42,10 +42,10 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
 
   // light
-  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0, 8, 0), 1.5f, matWhite, glm::vec3(5.0f)));
+  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0, 9, 0), 0.5f, matWhite, glm::vec3(3.0f)));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.5f, 1.0f), 1.5f, matGlass));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 1.5f, -3.0f), 1.5f, matMetal));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 1.5f, -3.0f), 1.5f, matBlue));
   geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 1.5f, 1.0f), 1.5f, matMirror));
   // build scene
   scene->add(floor);
@@ -55,9 +55,9 @@ ScenePtr TestSceneFactory::createCornellBox()
   scene->add(backWall);
   scene->add(frontWall);
   scene->add(sphereLight);
-  scene->add(sphere1);
+  //scene->add(sphere1);
   scene->add(sphere2);
-  scene->add(sphere3);
+  //scene->add(sphere3);
   scene->finalize();
 
   // TODO: implement

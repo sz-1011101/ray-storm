@@ -74,7 +74,7 @@ void PathTracer::render()
         for (uint32_t s = 0; s < SAMPLES; s++)
         {
           // we can reuse the first ray
-          radianceSum += this->walkPath(ray, randHelpers[currentThread]);
+          radianceSum += this->walkPathDirectLighting(ray, randHelpers[currentThread]);
         }
 
         job.setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
@@ -114,7 +114,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
     reflected[b] = glm::vec3(0.0f);
     emitted[b] = glm::vec3(0.0f);
 
-    geometry::Intersection<geometry::Object> intersectY; // this is where will will continue our walk
+    geometry::Intersection<geometry::Object> intersectY; // this is where we will continue our walk
     if (!this->scene->intersect(ray, intersectY)) //trace ray
     {
       break;
@@ -171,5 +171,117 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
 glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper)
 {
-  return glm::vec3(0.0f);
+
+  // current ray
+  geometry::Ray ray = initialRay;
+
+  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
+  int depth = 0;
+  glm::vec3 reflected[maxBounces];
+  glm::vec3 direct[maxBounces];
+
+  geometry::Intersection<geometry::Object> intersectX;
+  if (!this->scene->intersect(ray, intersectX))
+  {
+    return glm::vec3(0.0f);
+  }
+  // emittance of the first intersected object after the camera
+  const glm::vec3 emitted = intersectX.intersected->getEmittance();
+
+  // we found our first intersection! lets go on...
+  for (uint32_t b = 0; b < maxBounces; b++) // hard limit will bias the result in theory...
+  {
+    depth = b;
+    reflected[b] = glm::vec3(0.0f);
+    direct[b] = glm::vec3(0.0f);
+
+    const glm::vec3 &x = intersectX.intersection.position;
+    const glm::vec3 &xN = intersectX.intersection.normal;
+    geometry::Object *xObj = intersectX.intersected;
+    materials::Material *xMat = xObj->getMaterial();
+
+    // get a reflection by sampling the bsdf
+    random::RandomRay bounceRay;
+    if (!xMat->sampleBSDF(ray.direction, x, xN, randHelper, bounceRay))
+    {
+      break;
+    }
+    const glm::vec3 &xOffset = bounceRay.ray.origin;
+    const float &pdfBSDFBounce = bounceRay.PDF;
+
+    // we have the next ray, intersect
+    geometry::Intersection<geometry::Object> intersectY;
+    bool yHit = this->scene->intersect(bounceRay.ray, intersectY);
+
+    glm::vec3 bounceBSDF(0.0f);
+    if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
+    {
+      break;
+    }
+
+    // directly sample the light sources
+    scene::Scene::LuminaireSample lumSmpl;
+    if (!this->scene->drawLuminareSample(randHelper, lumSmpl))
+    {
+      break;
+    }
+    const glm::vec3 lumSmplDir = glm::normalize(lumSmpl.position - x);
+
+    // compute direct lighting
+    geometry::Ray shadowRay(xOffset, lumSmplDir);
+    glm::vec3 reflY = glm::vec3(0.0f);
+    glm::vec3 reflL = glm::vec3(0.0f);
+
+    geometry::Intersection<geometry::Object> intersectL;
+    if (glm::dot(lumSmplDir, xN) > 0.0f
+      && this->scene->intersect(shadowRay, intersectL)
+      && intersectL.intersected == lumSmpl.object
+      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
+    )
+    {
+      glm::vec3 lightBSDF(0.0f);
+      float pdfBSDFLight = 0.0f;
+      float pdfLumL = this->scene->getLuminarePDF(intersectL.intersected);
+      if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF)
+        || !xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
+      {
+        break;
+      }
+      reflL = lightBSDF*intersectL.intersected->getEmittance()/(pdfLumL + pdfBSDFLight);
+    }
+
+    // we can get radiance via the y bounce
+    if (yHit)
+    {
+      geometry::Object *yObj = intersectY.intersected;
+      const float pdfLumY = this->scene->getLuminarePDF(yObj);
+      reflY = bounceBSDF*yObj->getEmittance()/(pdfLumY + pdfBSDFBounce);
+    }
+
+    direct[b] = (reflL + reflY);
+
+    // termination
+    if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
+    {
+      reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
+    }
+    else
+    {
+      break;
+    }
+
+    // go on with reflected ray
+    ray = bounceRay.ray;
+    intersectX = intersectY; // advance one step
+  }
+
+  // walk the recusion backwards to accumulate radiance
+  glm::vec3 reflectedRadiance(1.0f);
+  for (int b = depth; b >= 0; b--)
+  {
+    reflectedRadiance = (direct[b] + reflected[b]*reflectedRadiance);
+  }
+
+  return emitted + reflectedRadiance;
+
 }

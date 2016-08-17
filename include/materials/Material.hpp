@@ -133,7 +133,7 @@ namespace ray_storm
           return false;
         }
 
-        randRay.ray.origin = x + RAY_OFFSET_EPSILON*randDir.direction;
+        randRay.ray.origin = x + offset(in, n, randDir.direction);
         randRay.ray.direction = randDir.direction;
         randRay.PDF = randDir.PDF;
 
@@ -164,6 +164,24 @@ namespace ray_storm
           return true;
         }
         return false;
+      }
+
+      inline glm::vec3 offset(
+        const glm::vec3 &in,
+        const glm::vec3 &n,
+        const glm::vec3 &out
+      )
+      {
+        const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
+        switch (type)
+        {
+          case REFLECTION:
+            return glm::dot(n, in) > 0.0f ? -RAY_OFFSET_EPSILON*n : RAY_OFFSET_EPSILON*n;
+          case REFRACTION:
+            return glm::dot(n, in) > 0.0f ? RAY_OFFSET_EPSILON*n : -RAY_OFFSET_EPSILON*n;
+          default:
+            return glm::vec3(0.0f);
+        }
       }
 
       inline void setUseFresnel(bool useFresnel)

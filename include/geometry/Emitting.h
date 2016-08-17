@@ -29,6 +29,16 @@ namespace ray_storm
         return this->emittance;
       }
 
+      virtual bool isEmitting()
+      {
+        if (glm::any(glm::greaterThan(this->emittance, glm::vec3(0.0f))))
+        {
+          return true;
+        }
+
+        return false;
+      }
+
     private:
 
       glm::vec3 emittance;

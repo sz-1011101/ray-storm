@@ -23,7 +23,7 @@ namespace ray_storm
         // object that is emitting
         geometry::Object *object;
         // surface point that emitts
-        glm::vec3 lightPos;
+        glm::vec3 position;
 
         float PDF;
 
@@ -40,7 +40,7 @@ namespace ray_storm
 
       bool drawLuminareSample(random::RandomizationHelper &randHelper, LuminaireSample &light);
 
-      bool getLuminarePDF(geometry::ObjectPtr &object, float &pdf);
+      float getLuminarePDF(geometry::Object *object);
 
       void add(geometry::ObjectPtr &object);
 

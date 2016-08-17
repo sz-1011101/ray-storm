@@ -17,7 +17,7 @@ bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry:
 
 bool Scene::drawLuminareSample(random::RandomizationHelper &randHelper, LuminaireSample &light)
 {
-  const size_t lCnt = this->lights.size();
+  const std::size_t lCnt = this->lights.size();
   if (lCnt == 0)
   {
     return false;
@@ -25,15 +25,19 @@ bool Scene::drawLuminareSample(random::RandomizationHelper &randHelper, Luminair
 
   const int objIndex = randHelper.drawUniformRandom(0, static_cast<int>(lCnt));
   light.object = this->lights.at(objIndex).get();
-  light.lightPos = light.object->drawRandomSurfacePoint(randHelper);
-  light.PDF = (1.0f/lCnt)*light.object->getPDF(); // no idea what im doing ;_;
+  light.position = light.object->drawRandomSurfacePoint(randHelper);
+  light.PDF = this->getLuminarePDF(light.object);
   return true;
 }
 
-bool Scene::getLuminarePDF(geometry::ObjectPtr &object, float &pdf)
+float Scene::getLuminarePDF(geometry::Object *object)
 {
-  // TODO implement
-  return false;
+  if (object->isEmitting())
+  {
+    // PDF from http://cg.informatik.uni-freiburg.de/course_notes/graphics2_09_pathTracing.pdf
+    return object->getPDF()/this->lights.size();
+  }
+  return 0.0f;
 }
 
 void Scene::add(geometry::ObjectPtr &object)
@@ -41,8 +45,7 @@ void Scene::add(geometry::ObjectPtr &object)
   this->objects.push_back(object);
   puts("Object added");
   // if the objects' material is emitting in some channel it is a light source
-  if (object->getMaterial() != nullptr &&
-    glm::any(glm::greaterThan(object->getEmittance(), glm::vec3(0.0f))))
+  if (object->isEmitting())
   {
     this->lights.push_back(object);
     puts("Light added");
