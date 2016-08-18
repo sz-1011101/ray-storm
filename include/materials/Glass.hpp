@@ -23,7 +23,10 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        return this->color;
+        glm::vec3 nRef = n;
+        glm::vec3 t;
+        MaterialHelper::refract(1.0f, this->indexOfRefraction, -l, n, t, nRef);
+        return dot(v, t) > 0.999f ? this->color : glm::vec3(0.0f);
       }
 
       void drawRefractedDirection(

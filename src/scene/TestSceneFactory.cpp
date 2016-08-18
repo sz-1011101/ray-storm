@@ -55,9 +55,9 @@ ScenePtr TestSceneFactory::createCornellBox()
   scene->add(backWall);
   scene->add(frontWall);
   scene->add(sphereLight);
-  //scene->add(sphere1);
+  scene->add(sphere1);
   scene->add(sphere2);
-  //scene->add(sphere3);
+  scene->add(sphere3);
   scene->finalize();
 
   // TODO: implement

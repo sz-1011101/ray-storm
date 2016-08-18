@@ -32,7 +32,7 @@ bool Scene::drawLuminareSample(random::RandomizationHelper &randHelper, Luminair
 
 float Scene::getLuminarePDF(geometry::Object *object)
 {
-  if (object->isEmitting())
+  if (object != nullptr && object->isEmitting())
   {
     // PDF from http://cg.informatik.uni-freiburg.de/course_notes/graphics2_09_pathTracing.pdf
     return object->getPDF()/this->lights.size();

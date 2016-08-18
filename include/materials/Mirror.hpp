@@ -19,7 +19,8 @@ namespace ray_storm
       glm::vec3 evaluate(const glm::vec3 &l, 
         const glm::vec3 &n, const glm::vec3 &v)
       {
-        return this->reflectance;
+        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(-l, n));
+        return glm::dot(mirrorDirection, v) >= 0.9999f ? this->reflectance : glm::vec3(0.0f);
       }
 
       void drawReflectedDirection(
