@@ -42,11 +42,11 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
 
   // light
-  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0, 8, 0), 1.0f, matWhite, glm::vec3(3.0f)));
+  geometry::ObjectPtr sphereLight = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0, 8, 0), 1.0f, matWhite, glm::vec3(5.0f)));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.5f, 1.0f), 1.5f, matGlass));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(1.0f, 1.5f, -3.0f), 1.5f, matBlue));
-  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 1.5f, 1.0f), 1.5f, matMirror));
+  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 1.5f, 1.0f), 1.5f, matMetal));
   // build scene
   scene->add(floor);
   scene->add(ceiling);

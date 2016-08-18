@@ -18,9 +18,26 @@ namespace ray_storm
 
     public:
 
-      PathTracer();
+      enum METHOD
+      {
+        NAIVE = 0,
+        DIRECT,
+        DIRECT_BOUNCE
+      };
 
-      PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera);
+      struct Settings
+      {
+        uint32_t samples;
+        METHOD method;
+
+        Settings(uint32_t samples = 64, METHOD method = DIRECT_BOUNCE)
+        {
+          this->samples = samples;
+          this->method = method;
+        }
+      };
+
+      PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera, const Settings &settings);
 
       void setScene(scene::ScenePtr &scene);
 
@@ -29,6 +46,8 @@ namespace ray_storm
       void render();
 
     private:
+
+      Settings settings;
 
       cv::Mat renderedImage;
 

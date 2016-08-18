@@ -8,17 +8,11 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const uint32_t SAMPLES = 1000;
 
-PathTracer::PathTracer()
-{
-
-}
-
-PathTracer::PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera) : 
+PathTracer::PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera, const Settings &settings) : 
   scene(scene), camera(camera)
 {
-
+  this->settings = settings;
 }
 
 void PathTracer::setScene(scene::ScenePtr &scene)
@@ -70,14 +64,25 @@ void PathTracer::render()
         glm::vec3 radianceSum(0.0f);
         geometry::Ray ray;
         camera->spawnRay(static_cast<float>(job.xOrigin + x)/width, static_cast<float>(job.yOrigin + y)/height, ray);
-
-        for (uint32_t s = 0; s < SAMPLES; s++)
+        uint32_t _samples = this->settings.samples;
+        for (uint32_t s = 0; s < _samples; s++)
         {
           // we can reuse the first ray
-          radianceSum += this->walkPathDirectLighting2(ray, randHelpers[currentThread]);
+          switch (this->settings.method)
+          { 
+            case NAIVE:
+            radianceSum += this->walkPath(ray, randHelpers[currentThread]);
+            break;
+            case DIRECT:
+            radianceSum += this->walkPathDirectLighting(ray, randHelpers[currentThread]);
+            break;
+            case DIRECT_BOUNCE:
+            radianceSum += this->walkPathDirectLighting2(ray, randHelpers[currentThread]);
+            break;
+          }
         }
 
-        job.setPixelSRGB(x, y, radianceSum/static_cast<float>(SAMPLES));
+        job.setPixelSRGB(x, y, radianceSum/static_cast<float>(_samples));
       }
     }
 
@@ -341,12 +346,12 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
     if (glm::dot(lumSmplDir, xN) > 0.0f
       && this->scene->intersect(shadowRay, intersectL)
       && intersectL.intersected == lumSmpl.object
-      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
+      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.01f
     )
     {
       glm::vec3 lightBSDF(0.0f);
       float pdfBSDFLight = 0.0f;
-      float pdfLumL = this->scene->getLuminarePDF(intersectL.intersected);
+      const float pdfLumL = lumSmpl.PDF;
       if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF)
         || !xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
       {
@@ -363,7 +368,8 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
     {
       geometry::Object *yObj = intersectY.intersected;
       const float pdfLumY = this->scene->getLuminarePDF(yObj);
-      reflY = bounceBSDF*yObj->getEmittance()/(pdfLumY + pdfBSDFBounce);
+      reflY = bounceBSDF*yObj->getEmittance()
+      /(pdfLumY + pdfBSDFBounce);
     }
 
     direct[b] = (reflL + reflY);
