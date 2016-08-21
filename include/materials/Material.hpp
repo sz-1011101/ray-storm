@@ -108,19 +108,11 @@ namespace ray_storm
             return false;
           }
           this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
-          if (randDir.PDF < PDF_FAILURE_CUTOFF)
-          {
-            return false;
-          }
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
           this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
-          if (randDir.PDF < PDF_FAILURE_CUTOFF)
-          {
-            return false;
-          }
           return true;
         }
 
@@ -164,19 +156,11 @@ namespace ray_storm
         if (type == REFLECTION)
         {
           PDF = this->brdf->getPDF(in, n, out);
-          if (PDF < PDF_FAILURE_CUTOFF)
-          {
-            return false;
-          }
           return true;
         }
         else if (type == REFRACTION)
         {
           PDF = this->btdf->getPDF(in, n, out);
-          if (PDF < PDF_FAILURE_CUTOFF)
-          {
-            return false;
-          }
           return true;
         }
         return false;
@@ -214,8 +198,6 @@ namespace ray_storm
     private:
 
       const float RAY_OFFSET_EPSILON = 0.001f;
-
-      const float PDF_FAILURE_CUTOFF = 0.001f;
 
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;

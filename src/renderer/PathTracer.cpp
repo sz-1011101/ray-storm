@@ -6,7 +6,7 @@
 
 using namespace ray_storm::renderer;
 
-const float RUSSIAN_ROULETTE_ALPHA = 0.7;
+const float RUSSIAN_ROULETTE_ALPHA = 0.85f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
 
 PathTracer::PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera, const Settings &settings) : 
@@ -247,9 +247,9 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
       }
 
       direct[b] = lightBSDF*intersectL.intersected->getEmittance()
-        *dot(-lumSmplDir, intersectL.intersection.normal)
-        *(1.0f/std::pow(glm::length(lumSmpl.position - x), 2.0f))
-        /pdfLumL;
+        /(pdfLumL*(std::pow(glm::length(lumSmpl.position - x), 2.0f)
+        /dot(-lumSmplDir, intersectL.intersection.normal)));
+
     }
 
     // we have the next ray, intersect
@@ -357,7 +357,7 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
     if (glm::dot(lumSmplDir, xN) > 0.0f
       && this->scene->intersect(shadowRay, intersectL)
       && intersectL.intersected == lumSmpl.object
-      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.01f
+      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
     )
     {
       glm::vec3 lightBSDF(0.0f);
@@ -369,18 +369,20 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
         break;
       }
       reflL = lightBSDF*intersectL.intersected->getEmittance()
-        *dot(-lumSmplDir, intersectL.intersection.normal)
-        *(1.0f/std::pow(glm::length(lumSmpl.position - x), 2.0f))
-        /(pdfLumL + pdfBSDFLight);
+        /(pdfLumL*(std::pow(glm::length(lumSmpl.position - x), 2.0f)
+        /dot(-lumSmplDir, intersectL.intersection.normal))
+        + pdfBSDFLight);
     }
 
     // we can get radiance via the y bounce
-    if (yHit)
+    if (yHit && intersectY.intersected->isEmitting())
     {
       geometry::Object *yObj = intersectY.intersected;
       const float pdfLumY = this->scene->getLuminarePDF(yObj);
       reflY = bounceBSDF*yObj->getEmittance()
-      /(pdfLumY + pdfBSDFBounce);
+        /(pdfLumY*(std::pow(glm::length(intersectY.intersection.position - x), 2.0f)
+        /dot(-bounceRay.ray.direction, intersectY.intersection.normal))
+        + pdfBSDFBounce);
     }
 
     direct[b] = (reflL + reflY);
