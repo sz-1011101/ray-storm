@@ -35,6 +35,9 @@ void PathTracer::render()
 
   const uint32_t width = this->renderedData->getWidth();
   const uint32_t height = this->renderedData->getHeight();
+  const uint32_t _samples = this->settings.samples;
+  const float xSSoffset = (1.0f/width)/3.0f;
+  const float ySSoffset = (1.0f/height)/3.0f;
 
   const int maxThreads = omp_get_max_threads();
 
@@ -61,28 +64,36 @@ void PathTracer::render()
     {
       for (uint32_t y = 0; y < job.height; y++)
       {
-        glm::vec3 radianceSum(0.0f);
-        geometry::Ray ray;
-        camera->spawnRay(static_cast<float>(job.xOrigin + x)/width, static_cast<float>(job.yOrigin + y)/height, ray);
-        uint32_t _samples = this->settings.samples;
-        for (uint32_t s = 0; s < _samples; s++)
+        glm::vec3 pxlRadianceSum(0.0f);
+        // do some 2x2 supersampling!
+        for (uint32_t subX = 0; subX < 2; subX++)
         {
-          // we can reuse the first ray
-          switch (this->settings.method)
-          { 
-            case NAIVE:
-            radianceSum += this->walkPath(ray, randHelpers[currentThread]);
-            break;
-            case DIRECT:
-            radianceSum += this->walkPathDirectLighting(ray, randHelpers[currentThread]);
-            break;
-            case DIRECT_BOUNCE:
-            radianceSum += this->walkPathDirectLighting2(ray, randHelpers[currentThread]);
-            break;
+          for (uint32_t subY = 0; subY < 2; subY++)
+          {
+            geometry::Ray ray;
+            camera->spawnRay(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
+              static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY, ray);
+
+            for (uint32_t s = 0; s < _samples; s++)
+            {
+              // we can reuse the first ray
+              switch (this->settings.method)
+              { 
+                case NAIVE:
+                pxlRadianceSum += this->walkPath(ray, randHelpers[currentThread]);
+                break;
+                case DIRECT:
+                pxlRadianceSum += this->walkPathDirectLighting(ray, randHelpers[currentThread]);
+                break;
+                case DIRECT_BOUNCE:
+                pxlRadianceSum += this->walkPathDirectLighting2(ray, randHelpers[currentThread]);
+                break;
+              }
+            }
           }
         }
 
-        job.setPixelSRGB(x, y, radianceSum/static_cast<float>(_samples));
+        job.setPixelSRGB(x, y, pxlRadianceSum/static_cast<float>(_samples*4.0f));
       }
     }
 

@@ -18,12 +18,12 @@ int main(int argc, char* argv[])
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 
-  utility::RenderedDataPtr rd(new utility::RenderedData(256, 256));
+  utility::RenderedDataPtr rd(new utility::RenderedData(700, 700));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
 
-  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(1000, renderer::PathTracer::METHOD::DIRECT_BOUNCE));
+  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(128, renderer::PathTracer::METHOD::DIRECT_BOUNCE));
   pt.setRenderedData(rd);
 
   pt.render();
