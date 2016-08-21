@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
   window.setRenderedData(rd);
   rd->setWindow(&window);
 
-  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(128, renderer::PathTracer::METHOD::NAIVE));
+  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(1000, renderer::PathTracer::METHOD::DIRECT_BOUNCE));
   pt.setRenderedData(rd);
 
   pt.render();

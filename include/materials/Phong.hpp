@@ -18,9 +18,16 @@ namespace ray_storm
         this->kD = kD;
         this->kS = kS;
         this->e = e;
+        this->samplingExponent = this->e;
 
         this->lambertian = this->kD/static_cast<float>(M_PI);
         this->specular = this->kS*(this->e + 2.0f)/(2.0f*static_cast<float>(M_PI));
+
+        const float ll = glm::length(this->lambertian);
+        const float ls = glm::length(this->specular);
+
+        this->specProb = std::min(0.85f, ls/(ll + ls));
+        this->diffProb = 1.0f - this->specProb;
       }
 
       glm::vec3 evaluate(
@@ -29,8 +36,13 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
+        float cosTerm = glm::dot(n, l);
+        if (cosTerm < 0.0f)
+        {
+          return glm::vec3(0.0f);
+        }
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        return this->lambertian*std::max(0.0f, glm::dot(n, l)) + 
+        return this->lambertian*cosTerm + 
           this->specular*std::pow(std::max(0.0f, dot(r, v)), this->e);
       }
 
@@ -40,9 +52,19 @@ namespace ray_storm
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
+        // MIS the phong brdf
+        const float prob = randHelper.drawUniformRandom();
 
-        glm::vec3 r = glm::normalize(glm::reflect(in, n));
-        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->e);
+        if (prob < this->specProb)
+        {
+          glm::vec3 r = glm::normalize(glm::reflect(in, n));
+          randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->samplingExponent);
+        }
+        else
+        {
+          randDir.direction = randHelper.drawUniformRandomHemisphereDirection(n);
+        }
+
         randDir.PDF = this->getPDF(in, n, randDir.direction);
       }
 
@@ -53,7 +75,10 @@ namespace ray_storm
       )
       {
         glm::vec3 r = glm::normalize(glm::reflect(in, n));
-        return random::RandomizationHelper::cosineRandomHemispherePDF(dot(r, out), this->e);
+
+        // specular pdf + diffuse pdf
+        return this->specProb*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(r, out), this->samplingExponent) +
+          this->diffProb*random::RandomizationHelper::uniformRandomHemispherePDF();
       }
 
     private:
@@ -64,6 +89,10 @@ namespace ray_storm
 
       glm::vec3 lambertian;
       glm::vec3 specular;
+
+      float samplingExponent;
+      float specProb;
+      float diffProb;
       
     };
   }

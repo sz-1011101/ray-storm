@@ -6,7 +6,7 @@
 
 using namespace ray_storm::renderer;
 
-const float RUSSIAN_ROULETTE_ALPHA = 0.8f;
+const float RUSSIAN_ROULETTE_ALPHA = 0.7;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
 
 PathTracer::PathTracer(scene::ScenePtr &scene, camera::AbstractCameraPtr &camera, const Settings &settings) : 
@@ -140,7 +140,7 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
     // we have the next ray, intersect
     geometry::Intersection<geometry::Object> intersectY;
     // termination
-    if (this->scene->intersect(bounceRay.ray, intersectY) && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
+    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA && this->scene->intersect(bounceRay.ray, intersectY))
     {
       glm::vec3 bounceBSDF(0.0f);
       if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))

@@ -79,7 +79,7 @@ namespace ray_storm
         if (type == REFLECTION)
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
-          glm::vec3 nRefl = dot(n, l) < 0.0f ? -n : n;
+          glm::vec3 nRefl = glm::dot(n, l) < 0.0f ? -n : n;
           result = reflectivity*this->brdf->evaluate(l, nRefl, v);
         }
         else if (type == REFRACTION)
@@ -108,11 +108,19 @@ namespace ray_storm
             return false;
           }
           this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
+          if (randDir.PDF < PDF_FAILURE_CUTOFF)
+          {
+            return false;
+          }
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
           this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
+          if (randDir.PDF < PDF_FAILURE_CUTOFF)
+          {
+            return false;
+          }
           return true;
         }
 
@@ -133,7 +141,7 @@ namespace ray_storm
           return false;
         }
 
-        randRay.ray.origin = x + offset(in, n, randDir.direction);
+        randRay.ray.origin = x + this->offset(in, n, randDir.direction);
         randRay.ray.direction = randDir.direction;
         randRay.PDF = randDir.PDF;
 
@@ -156,11 +164,19 @@ namespace ray_storm
         if (type == REFLECTION)
         {
           PDF = this->brdf->getPDF(in, n, out);
+          if (PDF < PDF_FAILURE_CUTOFF)
+          {
+            return false;
+          }
           return true;
         }
         else if (type == REFRACTION)
         {
           PDF = this->btdf->getPDF(in, n, out);
+          if (PDF < PDF_FAILURE_CUTOFF)
+          {
+            return false;
+          }
           return true;
         }
         return false;
@@ -197,7 +213,9 @@ namespace ray_storm
 
     private:
 
-      const float RAY_OFFSET_EPSILON = 0.0001f;
+      const float RAY_OFFSET_EPSILON = 0.001f;
+
+      const float PDF_FAILURE_CUTOFF = 0.001f;
 
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;
