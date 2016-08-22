@@ -16,11 +16,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
 
   // light
-  geometry::Rectangle::RectParams ceilLightRp1(glm::vec3(-2.5f, 9.9999f, -2.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 0.5f, 0.5f);
-  geometry::ObjectPtr ceilLight1 = geometry::ObjectPtr(new geometry::Rectangle(ceilLightRp1, matWhite, glm::vec3(150.0f)));
-
-  geometry::Rectangle::RectParams ceilLightRp2(glm::vec3(1.5f, 9.9999f, 1.5f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 1.0f, 1.0f);
-  geometry::ObjectPtr ceilLight2 = geometry::ObjectPtr(new geometry::Rectangle(ceilLightRp2, matWhite, glm::vec3(150.0f)));
+  geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.5f, matWhite, glm::vec3(50.0f)));
+  geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 10, -1), 0.5f, matWhite, glm::vec3(50.0f)));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.0f, 1.0f), 1.0f, matDiffGlass));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 1.0f, 1.0f), 1.0f, matMetal));
@@ -28,8 +25,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0.0f, 1.0f, 2.0f), 1.0f, matGlass));
 
   // add our components
-  scene->add(ceilLight1);
-  scene->add(ceilLight2);
+  scene->add(sphereLight1);
+  scene->add(sphereLight2);
   scene->add(sphere1);
   scene->add(sphere2);
   scene->add(sphere3);

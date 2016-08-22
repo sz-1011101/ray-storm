@@ -50,14 +50,8 @@ namespace ray_storm
         intersection.t = t1 > 0.0f && t2 > 0.0f ? std::min(t1, t2) : std::max(t1, t2);
         intersection.intersected = this;
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
-        glm::vec3 normal = glm::normalize(iPoint - this->position);
-
-        // flipp normal towards ray origin
-        if (glm::dot(normal, ray.direction) > 0.0f)
-        {
-          normal = -normal;
-        }
-        intersection.intersection = SimpleIntersection (iPoint, normal);
+        
+        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position));
         return true;
       }
 
