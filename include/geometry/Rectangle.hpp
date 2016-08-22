@@ -94,8 +94,7 @@ namespace ray_storm
 
       float getPDF()
       {
-        // from http://www.cs.utah.edu/~shirley/papers/tog94.pdf
-        return 2.0f/glm::length(glm::cross(this->wSide, this->hSide));
+        return 1.0f/this->getSurfaceArea();
       }
 
     private:
