@@ -21,6 +21,8 @@ namespace ray_storm
       TestSceneFactory() {};
 
       static ScenePtr buildBox();
+
+      static ScenePtr buildBigWall();
       
     };
   }
