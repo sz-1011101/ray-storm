@@ -66,9 +66,9 @@ void PathTracer::render()
       {
         glm::vec3 pxlRadianceSum(0.0f);
         // do some 2x2 supersampling!
-        for (uint32_t subX = 0; subX < 2; subX++)
+        for (uint32_t subX = 1; subX <= 2; subX++)
         {
-          for (uint32_t subY = 0; subY < 2; subY++)
+          for (uint32_t subY = 1; subY <= 2; subY++)
           {
             geometry::Ray ray;
             camera->spawnRay(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
