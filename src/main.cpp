@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
 
-  utility::RenderedDataPtr rd(new utility::RenderedData(700, 700));
+  utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);

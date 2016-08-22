@@ -4,6 +4,8 @@
 #include "materials/Mirror.hpp"
 #include "materials/Phong.hpp"
 #include "materials/Glass.hpp"
+#include "materials/Material.hpp"
+#include "materials/ScatteringGlass.hpp"
 
 using namespace ray_storm::materials;
 
@@ -48,4 +50,18 @@ ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
   glass->setUseFresnel(false);
   glass->setConstReflectance(0.0f);
   return glass;
+}
+
+ray_storm::materials::MaterialPtr MaterialFactory::createDiffuseGlass(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float scattering, 
+        float indexOfRefraction
+)
+{
+  materials::AbstractBTDFPtr scatteringGlassBTDF(new materials::ScatteringGlass(diffuse, specular, scattering, indexOfRefraction));
+  MaterialPtr sGlass = MaterialPtr(new Material(scatteringGlassBTDF, indexOfRefraction));
+  sGlass->setUseFresnel(false);
+  sGlass->setConstReflectance(0.0f);
+  return sGlass;
 }

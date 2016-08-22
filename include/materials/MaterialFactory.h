@@ -31,6 +31,13 @@ namespace ray_storm
         const glm::vec3 &color,
         float indexOfRefraction
       );
+
+      static MaterialPtr createDiffuseGlass(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float scattering, 
+        float indexOfRefraction
+      );
       
     };
   }
