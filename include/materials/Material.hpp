@@ -72,7 +72,7 @@ namespace ray_storm
           return glm::vec3(0.0f);
         }
 
-        const float reflectivity = this->useFresnel ? this->computeFresnelReflection(-l, n) : this->constReflectance;
+        const float reflectivity = this->useFresnel ? MaterialHelper::computeFresnelReflection(1.0f, this->indexOfRefraction, -l, n) : this->constReflectance;
 
         if (type == REFLECTION)
         {
@@ -85,7 +85,7 @@ namespace ray_storm
           // conservation of energy applies here, we also use the intersection normal to flip the IORs later
           return(1.0f - reflectivity)*this->btdf->evaluate(l, n, v);
         }
-        
+
         return glm::vec3(0.0f);
       }
 
@@ -96,7 +96,7 @@ namespace ray_storm
         random::RandomDirection &randDir
       )
       {
-        const float reflectivity = this->useFresnel ? this->computeFresnelReflection(in, n) : this->constReflectance;
+        const float reflectivity = this->useFresnel ? MaterialHelper::computeFresnelReflection(1.0f, this->indexOfRefraction, in, n) : this->constReflectance;
 
         // reflect with probabilty proportional to reflectivity
         if (reflectivity > randHelper.drawUniformRandom())
@@ -187,7 +187,7 @@ namespace ray_storm
         this->useFresnel = useFresnel;
       }
 
-      inline void setConstReflectance(bool constReflectance)
+      inline void setConstReflectance(float constReflectance)
       {
         this->useFresnel = false;
         this->constReflectance = constReflectance;
@@ -202,45 +202,7 @@ namespace ray_storm
 
       float indexOfRefraction;
       bool useFresnel;
-      bool constReflectance;
-
-      inline float computeFresnelReflection(const glm::vec3 &in, const glm::vec3 &n)
-      {
-        // see http://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
-        // and https://en.wikipedia.org/wiki/Fresnel_equations
-        float eta1 = 1.0f;
-        float eta2 = this->indexOfRefraction;
-
-        float cosIn = glm::dot(in, n);
-        if (cosIn > 0.0f)
-        {
-          eta1 = this->indexOfRefraction;
-          eta2 = 1.0f;
-        }
-
-        float sinTr = eta1/eta2*std::sqrt(1.0f - cosIn*cosIn);
-
-        if (sinTr >= 1.0f) // internal reflection
-        {
-          return 1.0f;
-        }
-        else // transmission possible
-        {
-          float cosTr = sqrt(std::max(0.0f, 1.0f - sinTr*sinTr));
-          cosIn = std::abs(cosIn);
-          // fresnel equations
-          const float eta1CosIn = eta1*cosIn;
-          const float eta2CosIn = eta2*cosIn;
-          const float eta1CosTr = eta1*cosTr;
-          const float eta2CosTr = eta2*cosTr;
-
-          float Rs = (eta1CosIn - eta2CosTr)/(eta1CosIn + eta2CosTr);
-          float Rp = (eta1CosTr - eta2CosIn)/(eta1CosTr + eta2CosIn);
-
-          return (Rs*Rs + Rp*Rp)*0.5f; // average
-        }
-
-      }
+      float constReflectance;
 
     };
 

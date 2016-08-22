@@ -38,6 +38,13 @@ namespace ray_storm
         float scattering, 
         float indexOfRefraction
       );
+
+      static MaterialPtr createShiny(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float shinyness,
+        float indexOfRefraction
+      );
       
     };
   }

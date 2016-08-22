@@ -16,14 +16,15 @@ int main(int argc, char* argv[])
   camera::AbstractCameraPtr camera(new camera::PinholeCamera(
     glm::vec3(0, 5.0f, 9.5f), glm::vec3(0, 5, -10), glm::vec3(0, 1, 0), 1.0f, 75.0f));
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
-
+  //scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
+  scene::ScenePtr scene = scene::TestSceneFactory::createReflectionTest();
+  
   utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
 
-  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(100, renderer::PathTracer::METHOD::DIRECT_BOUNCE));
+  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(100, renderer::PathTracer::METHOD::NAIVE));
   pt.setRenderedData(rd);
 
   pt.render();

@@ -65,3 +65,16 @@ ray_storm::materials::MaterialPtr MaterialFactory::createDiffuseGlass(
   sGlass->setConstReflectance(0.0f);
   return sGlass;
 }
+
+ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
+  const glm::vec3 &diffuse,
+  const glm::vec3 &specular,
+  float shinyness,
+  float indexOfRefraction
+)
+{
+  materials::AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
+  MaterialPtr shiny = MaterialPtr(new Material(phongBRDF, indexOfRefraction));
+  shiny->setUseFresnel(true);
+  return shiny;
+}

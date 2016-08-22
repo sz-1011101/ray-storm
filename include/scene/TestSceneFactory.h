@@ -14,9 +14,13 @@ namespace ray_storm
 
       static ScenePtr createCornellBox();
 
+      static ScenePtr createReflectionTest();
+
     private:
 
       TestSceneFactory() {};
+
+      static ScenePtr buildBox();
       
     };
   }
