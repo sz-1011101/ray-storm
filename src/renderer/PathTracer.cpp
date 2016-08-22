@@ -153,8 +153,8 @@ glm::vec3 PathTracer::walkPath(const geometry::Ray &initialRay,
     // termination
     if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA && this->scene->intersect(bounceRay.ray, intersectY))
     {
-      glm::vec3 bounceBSDF(0.0f);
-      if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
+      glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
       {
         break;
       }
@@ -239,12 +239,8 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
       && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
     )
     {
-      glm::vec3 lightBSDF(0.0f);
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction);
       float pdfLumL = this->scene->getLuminarePDF(intersectL.intersected);
-      if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF))
-      {
-        break;
-      }
 
       direct[b] = lightBSDF*intersectL.intersected->getEmittance()
         /(pdfLumL*(std::pow(glm::length(lumSmpl.position - x), 2.0f)
@@ -259,8 +255,8 @@ glm::vec3 PathTracer::walkPathDirectLighting(const geometry::Ray &initialRay,
     // termination
     if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
     {
-      glm::vec3 bounceBSDF(0.0f);
-      if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
+      glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
       {
         break;
       }
@@ -334,11 +330,7 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
     geometry::Intersection<geometry::Object> intersectY;
     bool yHit = this->scene->intersect(bounceRay.ray, intersectY);
 
-    glm::vec3 bounceBSDF(0.0f);
-    if (!xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction, bounceBSDF))
-    {
-      break;
-    }
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
 
     // directly sample the light sources
     scene::Scene::LuminaireSample lumSmpl;
@@ -360,11 +352,10 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
       && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
     )
     {
-      glm::vec3 lightBSDF(0.0f);
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction);
       float pdfBSDFLight = 0.0f;
       const float pdfLumL = lumSmpl.PDF;
-      if (!xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction, lightBSDF)
-        || !xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
+      if (!xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
       {
         break;
       }
@@ -390,6 +381,10 @@ glm::vec3 PathTracer::walkPathDirectLighting2(const geometry::Ray &initialRay,
     // termination
     if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
     {
+      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+      {
+        break;
+      }
       reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
     }
     else

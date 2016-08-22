@@ -58,20 +58,18 @@ namespace ray_storm
         return true;
       }
 
-      inline bool evaluateBSDF(
+      inline glm::vec3 evaluateBSDF(
         const glm::vec3 &l,
         const glm::vec3 &n,
-        const glm::vec3 &v,
-        glm::vec3 &result
+        const glm::vec3 &v
       )
       {
-        result = glm::vec3(0.0f);
         // decide if we have a refraction or reflection based on the given situation
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(l, n, v);
 
         if (!this->checkAvailable(type))
         {
-          return false;
+          return glm::vec3(0.0f);
         }
 
         const float reflectivity = this->useFresnel ? this->computeFresnelReflection(-l, n) : this->constReflectance;
@@ -80,15 +78,15 @@ namespace ray_storm
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
           glm::vec3 nRefl = glm::dot(n, l) < 0.0f ? -n : n;
-          result = reflectivity*this->brdf->evaluate(l, nRefl, v);
+          return reflectivity*this->brdf->evaluate(l, nRefl, v);
         }
         else if (type == REFRACTION)
         {
           // conservation of energy applies here, we also use the intersection normal to flip the IORs later
-          result = (1.0f - reflectivity)*this->btdf->evaluate(l, n, v);
+          return(1.0f - reflectivity)*this->btdf->evaluate(l, n, v);
         }
         
-        return true;
+        return glm::vec3(0.0f);
       }
 
       inline bool sampleBSDF(
