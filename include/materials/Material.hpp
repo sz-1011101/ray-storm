@@ -21,12 +21,12 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float indexOfRefraction = 1.5f
+        float constReflectance
       ) : brdf(brdf), btdf(btdf)
       {
-        this->indexOfRefraction = indexOfRefraction;
+        this->indexOfRefraction = 1.5f;
         this->useFresnel = false;
-        this->constReflectance = 1.0f;
+        this->constReflectance = constReflectance;
       }
 
       Material(
@@ -195,6 +195,16 @@ namespace ray_storm
       {
         this->useFresnel = false;
         this->constReflectance = constReflectance;
+      }
+
+      inline AbstractBRDFPtr getBRDF()
+      {
+        return this->brdf;
+      }
+
+      inline AbstractBTDFPtr getBTDF()
+      {
+        return this->btdf;
       }
 
     private:

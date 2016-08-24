@@ -15,6 +15,11 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::MaterialPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
   materials::MaterialPtr matMetal = materials::MaterialFactory::createMetal(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.25f, 0.1f), 55.0f);
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
+  
+  materials::AbstractBRDFPtr whiteBRDF = matGlass->getBRDF();
+  materials::AbstractBTDFPtr glassBTDF = matGlass->getBTDF();
+
+  materials::MaterialPtr matTranslucent = materials::MaterialFactory::createCombined(whiteBRDF, glassBTDF, 1.0f);
 
   // light
   geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
@@ -25,7 +30,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matMirror));
   geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matGlass));
 
-  geometry::ObjectPtr box = geometry::ObjectPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matDiffGlass));
+  geometry::ObjectPtr box = geometry::ObjectPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matTranslucent));
 
   // add our components
   scene->add(sphereLight1);

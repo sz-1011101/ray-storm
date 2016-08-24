@@ -78,3 +78,12 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
   shiny->setUseFresnel(true);
   return shiny;
 }
+
+ray_storm::materials::MaterialPtr MaterialFactory::createCombined(
+  AbstractBRDFPtr &brdf,
+  AbstractBTDFPtr &btdf,
+  float constReflectance
+)
+{
+  return MaterialPtr(new Material(brdf, btdf, constReflectance));
+}

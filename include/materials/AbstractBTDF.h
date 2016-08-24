@@ -14,6 +14,11 @@ namespace ray_storm
     {
     public:
 
+      AbstractBTDF(float indexOfRefraction)
+      {
+        this->indexOfRefraction = indexOfRefraction;
+      }
+
       virtual ~AbstractBTDF() {};
 
       virtual glm::vec3 evaluate(
@@ -34,6 +39,10 @@ namespace ray_storm
         const glm::vec3 &n,
         const glm::vec3 &out
       ) = 0;
+
+    protected:
+
+      float indexOfRefraction;
       
     };
 

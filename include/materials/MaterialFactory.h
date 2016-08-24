@@ -45,6 +45,12 @@ namespace ray_storm
         float shinyness,
         float indexOfRefraction
       );
+
+      static MaterialPtr createCombined(
+        AbstractBRDFPtr &brdf,
+        AbstractBTDFPtr &btdf,
+        float constReflectance
+      );
       
     };
   }

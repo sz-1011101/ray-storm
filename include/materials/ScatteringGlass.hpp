@@ -11,13 +11,17 @@ namespace ray_storm
     {
     public:
 
-      ScatteringGlass(const glm::vec3 &kD, const glm::vec3 &kS, float e, float indexOfRefraction = 1.5f)
+      ScatteringGlass(
+        const glm::vec3 &kD,
+        const glm::vec3 &kS,
+        float e,
+        float indexOfRefraction = 1.5f
+      ) : AbstractBTDF(indexOfRefraction)
       {
         this->kD = kD;
         this->kS = kS;
         this->e = e;
         this->samplingExponent = this->e;
-        this->indexOfRefraction = indexOfRefraction;
 
         this->lambertian = this->kD/static_cast<float>(M_PI);
         this->specular = this->kS*(this->e + 2.0f)/(2.0f*static_cast<float>(M_PI));
@@ -91,8 +95,6 @@ namespace ray_storm
       float samplingExponent;
       float specProb;
       float diffProb;
-
-      float indexOfRefraction;
       
     };
   }

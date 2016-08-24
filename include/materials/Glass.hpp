@@ -11,10 +11,12 @@ namespace ray_storm
     {
     public:
 
-      Glass(const glm::vec3 &color, float indexOfRefraction = 1.5f)
+      Glass(
+        const glm::vec3 &color,
+        float indexOfRefraction = 1.5f
+      ) : AbstractBTDF(indexOfRefraction)
       {
         this->color = color;
-        this->indexOfRefraction = indexOfRefraction;
       }
 
       glm::vec3 evaluate(
@@ -56,8 +58,6 @@ namespace ray_storm
     private:
 
       glm::vec3 color;
-
-      float indexOfRefraction;
       
     };
   }
