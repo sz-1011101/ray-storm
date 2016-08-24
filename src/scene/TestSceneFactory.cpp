@@ -1,6 +1,7 @@
 #include "scene/TestSceneFactory.h"
 #include "geometry/Sphere.hpp"
 #include "geometry/Rectangle.hpp"
+#include "geometry/Box.hpp"
 #include "materials/MaterialFactory.h"
 
 using namespace ray_storm::scene;
@@ -19,10 +20,12 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
   geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 10, -1), 0.2f, matWhite, glm::vec3(200.0f)));
 
-  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2.0f, 1.0f, 1.0f), 1.0f, matDiffGlass));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2.0f, 1.0f, 1.0f), 1.0f, matMetal));
-  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0.0f, 1.0f, -2.0f), 1.0f, matMirror));
-  geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(0.0f, 1.0f, 2.0f), 1.0f, matGlass));
+  geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matMetal));
+  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matMirror));
+  geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matGlass));
+
+  geometry::ObjectPtr box = geometry::ObjectPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matDiffGlass));
 
   // add our components
   scene->add(sphereLight1);
@@ -31,6 +34,7 @@ ScenePtr TestSceneFactory::createCornellBox()
   scene->add(sphere2);
   scene->add(sphere3);
   scene->add(sphere4);
+  scene->add(box);
   scene->finalize();
 
   return scene;
