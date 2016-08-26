@@ -46,10 +46,10 @@ ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
 )
 {
   materials::AbstractBTDFPtr glassBTDF(new materials::Glass(color, indexOfRefraction));
-  MaterialPtr glass = MaterialPtr(new Material(glassBTDF));
+  materials::AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
+  MaterialPtr glass = MaterialPtr(new Material(mirrorBRDF, glassBTDF));
   glass->setIndexOfRefraction(indexOfRefraction);
-  glass->setUseFresnel(false);
-  glass->setConstReflectance(0.0f);
+  glass->setUseFresnel(true);
   return glass;
 }
 
@@ -79,6 +79,19 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
   MaterialPtr shiny = MaterialPtr(new Material(phongBRDF));
   shiny->setIndexOfRefraction(indexOfRefraction);
   shiny->setUseFresnel(true);
+  return shiny;
+}
+
+ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
+  const glm::vec3 &diffuse,
+  const glm::vec3 &specular,
+  float shinyness
+)
+{
+  materials::AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
+  MaterialPtr shiny = MaterialPtr(new Material(phongBRDF));
+  shiny->setUseFresnel(false);
+  shiny->setConstReflectance(1.0f);
   return shiny;
 }
 

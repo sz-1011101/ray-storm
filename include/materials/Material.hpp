@@ -21,7 +21,7 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float constReflectance
+        float constReflectance = 0.5f
       ) : brdf(brdf), btdf(btdf)
       {
         this->indexOfRefraction = 1.5f;

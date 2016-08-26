@@ -46,6 +46,12 @@ namespace ray_storm
         float indexOfRefraction
       );
 
+      static MaterialPtr createShiny(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float shinyness
+      );
+
       static MaterialPtr createCombined(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
