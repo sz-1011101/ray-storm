@@ -30,23 +30,21 @@ namespace ray_storm
       }
 
       Material(
-        AbstractBRDFPtr &brdf,
-        float indexOfRefraction = 1.5f
+        AbstractBRDFPtr &brdf
       ) : brdf(brdf), btdf(nullptr)
       {
-        this->indexOfRefraction = indexOfRefraction;
+        this->indexOfRefraction = 1.5f;
         this->useFresnel = false;
         this->constReflectance = 1.0f;
       }
 
       Material(
-        AbstractBTDFPtr &btdf,
-        float indexOfRefraction = 1.5f
+        AbstractBTDFPtr &btdf
       ) : brdf(nullptr), btdf(btdf)
       {
-        this->indexOfRefraction = indexOfRefraction;
+        this->indexOfRefraction = 1.5f;
         this->useFresnel = false;
-        this->constReflectance = 1.0f;
+        this->constReflectance = 0.0f;
       }
 
       inline bool checkAvailable(LIGHT_INTERACTION_TYPE type)
@@ -205,6 +203,11 @@ namespace ray_storm
       inline AbstractBTDFPtr getBTDF()
       {
         return this->btdf;
+      }
+
+      inline void setIndexOfRefraction(float indexOfRefraction)
+      {
+        this->indexOfRefraction = indexOfRefraction;
       }
 
     private:

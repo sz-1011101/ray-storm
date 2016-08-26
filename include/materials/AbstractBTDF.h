@@ -40,6 +40,11 @@ namespace ray_storm
         const glm::vec3 &out
       ) = 0;
 
+      virtual float getIndexOfRefraction()
+      {
+        return this->indexOfRefraction;
+      }
+
     protected:
 
       float indexOfRefraction;

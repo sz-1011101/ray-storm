@@ -46,7 +46,8 @@ ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
 )
 {
   materials::AbstractBTDFPtr glassBTDF(new materials::Glass(color, indexOfRefraction));
-  MaterialPtr glass = MaterialPtr(new Material(glassBTDF, indexOfRefraction));
+  MaterialPtr glass = MaterialPtr(new Material(glassBTDF));
+  glass->setIndexOfRefraction(indexOfRefraction);
   glass->setUseFresnel(false);
   glass->setConstReflectance(0.0f);
   return glass;
@@ -60,7 +61,8 @@ ray_storm::materials::MaterialPtr MaterialFactory::createDiffuseGlass(
 )
 {
   materials::AbstractBTDFPtr scatteringGlassBTDF(new materials::ScatteringGlass(diffuse, specular, scattering, indexOfRefraction));
-  MaterialPtr sGlass = MaterialPtr(new Material(scatteringGlassBTDF, indexOfRefraction));
+  MaterialPtr sGlass = MaterialPtr(new Material(scatteringGlassBTDF));
+  sGlass->setIndexOfRefraction(indexOfRefraction);
   sGlass->setUseFresnel(false);
   sGlass->setConstReflectance(0.0f);
   return sGlass;
@@ -74,7 +76,8 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
 )
 {
   materials::AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  MaterialPtr shiny = MaterialPtr(new Material(phongBRDF, indexOfRefraction));
+  MaterialPtr shiny = MaterialPtr(new Material(phongBRDF));
+  shiny->setIndexOfRefraction(indexOfRefraction);
   shiny->setUseFresnel(true);
   return shiny;
 }
@@ -85,5 +88,8 @@ ray_storm::materials::MaterialPtr MaterialFactory::createCombined(
   float constReflectance
 )
 {
-  return MaterialPtr(new Material(brdf, btdf, constReflectance));
+  MaterialPtr combined = MaterialPtr(new Material(brdf, btdf, constReflectance));
+  combined->setIndexOfRefraction(btdf->getIndexOfRefraction());
+  combined->setUseFresnel(false);
+  return combined;
 }
