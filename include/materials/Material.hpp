@@ -21,9 +21,9 @@ namespace ray_storm
     public:
 
       Material(
-        AbstractBRDFPtr &brdf,
-        AbstractBTDFPtr &btdf,
-        AbstractReflectivityPtr &reflectivity
+        const AbstractBRDFPtr &brdf,
+        const AbstractBTDFPtr &btdf,
+        const AbstractReflectivityPtr &reflectivity
       ) : brdf(brdf), btdf(btdf), reflectivity(reflectivity)
       {
         if (btdf != nullptr) {
@@ -36,7 +36,7 @@ namespace ray_storm
       }
 
       Material(
-        AbstractBRDFPtr &brdf
+        const AbstractBRDFPtr &brdf
       ) : brdf(brdf), btdf(nullptr)
       {
         this->reflectivity = AbstractReflectivityPtr(new ConstantReflectivity(1.0f));
@@ -44,16 +44,16 @@ namespace ray_storm
       }
 
       Material(
-        AbstractBRDFPtr &brdf,
+        const AbstractBRDFPtr &brdf,
         float indexOfRefraction,
-        AbstractReflectivityPtr &reflectivity
+        const AbstractReflectivityPtr &reflectivity
       ) : brdf(brdf), btdf(nullptr), reflectivity(reflectivity)
       {
         this->indexOfRefraction = indexOfRefraction;
       }
 
       Material(
-        AbstractBTDFPtr &btdf
+        const AbstractBTDFPtr &btdf
       ) : brdf(nullptr), btdf(btdf)
       {
         if (btdf != nullptr) {
@@ -176,7 +176,7 @@ namespace ray_storm
         {
           return false;
         }
-        
+
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
 
         const float rfl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, in, n);
