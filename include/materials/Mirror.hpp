@@ -23,7 +23,7 @@ namespace ray_storm
         return glm::dot(mirrorDirection, v) > 0.999f ? this->reflectance : glm::vec3(0.0f);
       }
 
-      void drawReflectedDirection(
+      void drawDirection(
         const glm::vec3 &in,
         const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, 

@@ -93,7 +93,7 @@ namespace ray_storm
         random::RandomDirection &randDir
       )
       {
-        const float reflectivity = this->computeReflectivity(1.0f, this->indexOfRefraction, in, n);
+        const float reflectivity = this->computeReflectivity(this->indexOfRefraction, in, n);
 
         // reflect with probabilty proportional to reflectivity
         if (randHelper.drawUniformRandom() < reflectivity)
@@ -102,13 +102,13 @@ namespace ray_storm
           {
             return false;
           }
-          this->brdf->drawReflectedDirection(in, n, randHelper, randDir);
+          this->brdf->drawDirection(in, n, randHelper, randDir);
           randDir.PDF *= reflectivity; // fresnel sampling pdf
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
-          this->btdf->drawRefractedDirection(in, n, randHelper, randDir);
+          this->btdf->drawDirection(in, n, randHelper, randDir);
           randDir.PDF *= (1.0f - reflectivity); // fresnel sampling pdf
           return true;
         }
@@ -209,6 +209,9 @@ namespace ray_storm
       inline void setIndexOfRefraction(float indexOfRefraction)
       {
         this->indexOfRefraction = indexOfRefraction;
+        if (this->btdf != nullptr) {
+          this->btdf->setIndexOfRefraction(indexOfRefraction);
+        }
       }
 
     private:

@@ -46,7 +46,7 @@ namespace ray_storm
         return this->lambertian*std::abs(glm::dot(n, l)) + this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(t, v)), this->e));
       }
 
-      void drawRefractedDirection(
+      void drawDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 

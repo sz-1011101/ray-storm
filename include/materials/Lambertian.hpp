@@ -19,14 +19,16 @@ namespace ray_storm
         this->constBrdf = this->albedo/static_cast<float>(M_PI);
       }
 
-      glm::vec3 evaluate(const glm::vec3 &l, 
-        const glm::vec3 &n, const glm::vec3 &v)
-      {
+      glm::vec3 evaluate(
+        const glm::vec3 &l, 
+        const glm::vec3 &n,
+        const glm::vec3 &v
+      ){
         // lambertian is constant!
         return this->constBrdf*std::max(0.0f, glm::dot(n, l));
       }
 
-      void drawReflectedDirection(
+      void drawDirection(
         const glm::vec3 &in,
         const glm::vec3 &n, 
         random::RandomizationHelper &randHelper, 

@@ -31,7 +31,7 @@ namespace ray_storm
         return glm::dot(v, t) > 0.999f ? this->color : glm::vec3(0.0f);
       }
 
-      void drawRefractedDirection(
+      void drawDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
         random::RandomizationHelper &randHelper, 
