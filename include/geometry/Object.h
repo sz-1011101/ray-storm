@@ -16,7 +16,7 @@ namespace ray_storm
     {
     public:
 
-      Object(materials::MaterialPtr &material, const glm::vec3 &emittance) : Renderable(material), Emitting(emittance)
+      Object(const materials::MaterialPtr &material, const glm::vec3 &emittance) : Renderable(material), Emitting(emittance)
       {
         
       }
