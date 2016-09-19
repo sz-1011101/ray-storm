@@ -146,7 +146,8 @@ namespace ray_storm
       {
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
 
-        const float reflectivity = this->computeReflectivity(1.0f, this->indexOfRefraction, in, n);
+        //const float reflectivity = this->computeReflectivity(1.0f, this->indexOfRefraction, in, n);
+        const float reflectivity = this->computeReflectivity(this->indexOfRefraction, in, n);
 
         if (!this->checkAvailable(type))
         {
@@ -224,6 +225,11 @@ namespace ray_storm
       inline float computeReflectivity(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
       {
         return this->useFresnel ? MaterialHelper::computeFresnelReflection(eta1, eta2, in, n) : this->constReflectance;
+      }
+
+      inline float computeReflectivity(float ior, const glm::vec3 &in, const glm::vec3 &n)
+      {
+        return this->useFresnel ? MaterialHelper::computeFresnelReflection(ior, in, n) : this->constReflectance;
       }
 
     };

@@ -102,6 +102,29 @@ namespace ray_storm
 
       }
 
+      static float computeFresnelReflection(float ior, const glm::vec3 &in, const glm::vec3 &n)
+      {
+        const glm::vec3 nRef = glm::dot(n, in) < 0.0f ? n : -n;
+        const glm::vec3 r = glm::reflect(in, nRef);
+        const glm::vec3 v = -in;
+        const glm::vec3 h = (r + v)/glm::length(r + v);
+
+        const float c = glm::dot(h, v);
+        const float g = ior*ior + c*c - 1.0f;
+
+        const float g_minus_c = g - c;
+        const float g_plus_c = g + c;
+
+        // first term
+        const float t1 = (g_minus_c*g_minus_c)/(2.0f*g_plus_c*g_plus_c);
+
+        // second term
+        const float td = (c*g_plus_c - 1.0f)/(c*(g_minus_c) + 1.0f);
+        const float t2 = 1.0f + td*td;
+
+        return t1*t2;
+      }
+
     private:
 
       MaterialHelper();
