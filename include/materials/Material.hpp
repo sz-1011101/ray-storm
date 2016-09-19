@@ -27,11 +27,11 @@ namespace ray_storm
       ) : brdf(brdf), btdf(btdf), reflectivity(reflectivity)
       {
         if (btdf != nullptr) {
-          this->indexOfRefraction = btdf->getIndexOfRefraction();
+          this->eta = btdf->getIndexOfRefraction();
         }
         else
         {
-          this->indexOfRefraction = 1.5f;
+          this->eta = 1.5f;
         }
       }
 
@@ -40,16 +40,16 @@ namespace ray_storm
       ) : brdf(brdf), btdf(nullptr)
       {
         this->reflectivity = AbstractReflectivityPtr(new ConstantReflectivity(1.0f));
-        this->indexOfRefraction = 1.5f; // dont care
+        this->eta = 1.0f; // dont care
       }
 
       Material(
         const AbstractBRDFPtr &brdf,
-        float indexOfRefraction,
+        float absorption,
         const AbstractReflectivityPtr &reflectivity
       ) : brdf(brdf), btdf(nullptr), reflectivity(reflectivity)
       {
-        this->indexOfRefraction = indexOfRefraction;
+        this->eta = absorption;
       }
 
       Material(
@@ -57,11 +57,11 @@ namespace ray_storm
       ) : brdf(nullptr), btdf(btdf)
       {
         if (btdf != nullptr) {
-          this->indexOfRefraction = btdf->getIndexOfRefraction();
+          this->eta = btdf->getIndexOfRefraction();
         }
         else
         {
-          this->indexOfRefraction = 1.5f;
+          this->eta = 1.5f;
         }
         this->reflectivity = AbstractReflectivityPtr(new ConstantReflectivity(0.0f));
       }
@@ -85,7 +85,7 @@ namespace ray_storm
         {
           return glm::vec3(0.0f);
         }
-        const float refl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, -v, n);
+        const float refl = this->reflectivity->computeF(1.0f, this->eta, -v, n);
         // decide if we have a refraction or reflection based on the given situation
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(l, n, v);
 
@@ -121,7 +121,7 @@ namespace ray_storm
           return false;
         }
 
-        const float rfl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, in, n);
+        const float rfl = this->reflectivity->computeF(1.0f, this->eta, in, n);
 
         // reflect with probabilty proportional to reflectivity
         if (randHelper.drawUniformRandom() < rfl)
@@ -179,7 +179,7 @@ namespace ray_storm
 
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
 
-        const float rfl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, in, n);
+        const float rfl = this->reflectivity->computeF(1.0f, this->eta, in, n);
 
         if (!this->checkAvailable(type))
         {
@@ -227,11 +227,11 @@ namespace ray_storm
         return this->btdf;
       }
 
-      inline void setIndexOfRefraction(float indexOfRefraction)
+      inline void setEta(float eta)
       {
-        this->indexOfRefraction = indexOfRefraction;
+        this->eta = eta;
         if (this->btdf != nullptr) {
-          this->btdf->setIndexOfRefraction(indexOfRefraction);
+          this->btdf->setIndexOfRefraction(eta);
         }
       }
 
@@ -242,7 +242,7 @@ namespace ray_storm
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;
 
-      float indexOfRefraction;
+      float eta;
       AbstractReflectivityPtr reflectivity;
 
     };
