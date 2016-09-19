@@ -7,6 +7,8 @@
 #include "geometry/Ray.hpp"
 #include "materials/MaterialHelper.hpp"
 #include "random/RandomRay.hpp"
+#include "materials/AbstractReflectivity.hpp"
+#include "materials/ConstantReflectivity.hpp"
 
 namespace ray_storm
 {
@@ -21,30 +23,47 @@ namespace ray_storm
       Material(
         AbstractBRDFPtr &brdf,
         AbstractBTDFPtr &btdf,
-        float constReflectance = 0.5f
-      ) : brdf(brdf), btdf(btdf)
+        AbstractReflectivityPtr &reflectivity
+      ) : brdf(brdf), btdf(btdf), reflectivity(reflectivity)
       {
-        this->indexOfRefraction = 1.5f;
-        this->useFresnel = false;
-        this->constReflectance = constReflectance;
+        if (btdf != nullptr) {
+          this->indexOfRefraction = btdf->getIndexOfRefraction();
+        }
+        else
+        {
+          this->indexOfRefraction = 1.5f;
+        }
       }
 
       Material(
         AbstractBRDFPtr &brdf
       ) : brdf(brdf), btdf(nullptr)
       {
-        this->indexOfRefraction = 1.5f;
-        this->useFresnel = false;
-        this->constReflectance = 1.0f;
+        this->reflectivity = AbstractReflectivityPtr(new ConstantReflectivity(1.0f));
+        this->indexOfRefraction = 1.5f; // dont care
+      }
+
+      Material(
+        AbstractBRDFPtr &brdf,
+        float indexOfRefraction,
+        AbstractReflectivityPtr &reflectivity
+      ) : brdf(brdf), btdf(nullptr), reflectivity(reflectivity)
+      {
+        this->indexOfRefraction = indexOfRefraction;
       }
 
       Material(
         AbstractBTDFPtr &btdf
       ) : brdf(nullptr), btdf(btdf)
       {
-        this->indexOfRefraction = 1.5f;
-        this->useFresnel = false;
-        this->constReflectance = 0.0f;
+        if (btdf != nullptr) {
+          this->indexOfRefraction = btdf->getIndexOfRefraction();
+        }
+        else
+        {
+          this->indexOfRefraction = 1.5f;
+        }
+        this->reflectivity = AbstractReflectivityPtr(new ConstantReflectivity(0.0f));
       }
 
       inline bool checkAvailable(LIGHT_INTERACTION_TYPE type)
@@ -62,7 +81,11 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        const float reflectivity = this->computeReflectivity(1.0f, this->indexOfRefraction, -l, n);
+        if (this->reflectivity == nullptr)
+        {
+          return glm::vec3(0.0f);
+        }
+        const float refl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, -v, n);
         // decide if we have a refraction or reflection based on the given situation
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(l, n, v);
 
@@ -75,12 +98,12 @@ namespace ray_storm
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
           glm::vec3 nRefl = glm::dot(n, l) < 0.0f ? -n : n;
-          return reflectivity*this->brdf->evaluate(l, nRefl, v);
+          return refl*this->brdf->evaluate(l, nRefl, v);
         }
         else if (type == REFRACTION)
         {
           // conservation of energy applies here, we also use the intersection normal to flip the IORs later
-          return (1.0f - reflectivity)*this->btdf->evaluate(l, n, v);
+          return (1.0f - refl)*this->btdf->evaluate(l, n, v);
         }
 
         return glm::vec3(0.0f);
@@ -93,23 +116,28 @@ namespace ray_storm
         random::RandomDirection &randDir
       )
       {
-        const float reflectivity = this->computeReflectivity(this->indexOfRefraction, in, n);
+        if (this->reflectivity == nullptr)
+        {
+          return false;
+        }
+
+        const float rfl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, in, n);
 
         // reflect with probabilty proportional to reflectivity
-        if (randHelper.drawUniformRandom() < reflectivity)
+        if (randHelper.drawUniformRandom() < rfl)
         {
           if (this->brdf == nullptr) // nothing reflects of this since there is no brdf
           {
             return false;
           }
           this->brdf->drawDirection(in, n, randHelper, randDir);
-          randDir.PDF *= reflectivity; // fresnel sampling pdf
+          randDir.PDF *= rfl; // fresnel sampling pdf
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
           this->btdf->drawDirection(in, n, randHelper, randDir);
-          randDir.PDF *= (1.0f - reflectivity); // fresnel sampling pdf
+          randDir.PDF *= (1.0f - rfl); // fresnel sampling pdf
           return true;
         }
 
@@ -144,10 +172,14 @@ namespace ray_storm
         float &PDF
       )
       {
+        if (this->reflectivity == nullptr)
+        {
+          return false;
+        }
+        
         const LIGHT_INTERACTION_TYPE type = MaterialHelper::determineType(out, n, -in);
 
-        //const float reflectivity = this->computeReflectivity(1.0f, this->indexOfRefraction, in, n);
-        const float reflectivity = this->computeReflectivity(this->indexOfRefraction, in, n);
+        const float rfl = this->reflectivity->computeF(1.0f, this->indexOfRefraction, in, n);
 
         if (!this->checkAvailable(type))
         {
@@ -156,12 +188,12 @@ namespace ray_storm
 
         if (type == REFLECTION)
         {
-          PDF = reflectivity*this->brdf->getPDF(in, n, out);
+          PDF = rfl*this->brdf->getPDF(in, n, out);
           return true;
         }
         else if (type == REFRACTION)
         {
-          PDF = (1.0f - reflectivity)*this->btdf->getPDF(in, n, out);
+          PDF = (1.0f - rfl)*this->btdf->getPDF(in, n, out);
           return true;
         }
         return false;
@@ -183,17 +215,6 @@ namespace ray_storm
           default:
             return glm::vec3(0.0f);
         }
-      }
-
-      inline void setUseFresnel(bool useFresnel)
-      {
-        this->useFresnel = useFresnel;
-      }
-
-      inline void setConstReflectance(float constReflectance)
-      {
-        this->useFresnel = false;
-        this->constReflectance = constReflectance;
       }
 
       inline AbstractBRDFPtr getBRDF()
@@ -222,18 +243,7 @@ namespace ray_storm
       AbstractBTDFPtr btdf;
 
       float indexOfRefraction;
-      bool useFresnel;
-      float constReflectance;
-
-      inline float computeReflectivity(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
-      {
-        return this->useFresnel ? MaterialHelper::computeFresnelReflection(eta1, eta2, in, n) : this->constReflectance;
-      }
-
-      inline float computeReflectivity(float ior, const glm::vec3 &in, const glm::vec3 &n)
-      {
-        return this->useFresnel ? MaterialHelper::computeFresnelReflection(ior, in, n) : this->constReflectance;
-      }
+      AbstractReflectivityPtr reflectivity;
 
     };
 
