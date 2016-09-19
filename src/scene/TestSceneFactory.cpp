@@ -13,7 +13,8 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
   materials::MaterialPtr matGlass = materials::MaterialFactory::createGlass(glm::vec3(1.0f), 1.5f);
   materials::MaterialPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
-  materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetal(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.5f, 0.25f, 0.1f), 55.0f);
+  // at 435 nm (green)
+  materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523, 1.8009);
   materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f), 500.0f);
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
 
@@ -44,8 +45,8 @@ ScenePtr TestSceneFactory::createCornellBox()
 ScenePtr TestSceneFactory::createReflectionTest()
 {
   ScenePtr scene = TestSceneFactory::buildBigWall();
-  materials::MaterialPtr matShiny1 = materials::MaterialFactory::createShiny(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 1.5f);
-  materials::MaterialPtr matShiny2 = materials::MaterialFactory::createShiny(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 4.0f);
+  materials::MaterialPtr matShiny1 = materials::MaterialFactory::createShiny(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f);
+  materials::MaterialPtr matShiny2 = materials::MaterialFactory::MaterialFactory::createMetalFresnel(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f, 0.1f);
   materials::MaterialPtr matLambertian = materials::MaterialFactory::createLambertian(glm::vec3(0.2f));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1));

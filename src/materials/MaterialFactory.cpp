@@ -8,6 +8,7 @@
 #include "materials/ScatteringGlass.hpp"
 #include "materials/DielectricFresnel.hpp"
 #include "materials/ConstantReflectivity.hpp"
+#include "materials/ConductorFresnel.hpp"
 
 using namespace ray_storm::materials;
 
@@ -24,8 +25,20 @@ ray_storm::materials::MaterialPtr MaterialFactory::createMetal(
 )
 {
   materials::AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  MaterialPtr metal = MaterialPtr(new Material(phongBRDF));
-  return metal;
+  return MaterialPtr(new Material(phongBRDF));
+}
+
+ray_storm::materials::MaterialPtr MaterialFactory::createMetalFresnel(
+  const glm::vec3 &diffuse,
+  const glm::vec3 &specular,
+  float shinyness,
+  float indexOfRefraction,
+  float absorption
+)
+{
+  materials::AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
+  materials::AbstractReflectivityPtr conductor(new materials::ConductorFresnel(absorption));
+  return MaterialPtr(new Material(phongBRDF, indexOfRefraction, conductor));
 }
 
 ray_storm::materials::MaterialPtr MaterialFactory::createMirror
@@ -34,8 +47,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createMirror
 )
 {
   materials::AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
-  MaterialPtr mirror = MaterialPtr(new Material(mirrorBRDF));
-  return mirror;
+  return MaterialPtr(new Material(mirrorBRDF));
 }
 
 ray_storm::materials::MaterialPtr MaterialFactory::createGlass(

@@ -23,6 +23,14 @@ namespace ray_storm
         float shinyness
       );
 
+      static MaterialPtr createMetalFresnel(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float shinyness,
+        float indexOfRefraction,
+        float absorption
+      );
+
       static MaterialPtr createMirror(
         const glm::vec3 &color
       );

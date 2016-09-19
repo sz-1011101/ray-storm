@@ -45,11 +45,11 @@ namespace ray_storm
 
       Material(
         const AbstractBRDFPtr &brdf,
-        float absorption,
+        float eta,
         const AbstractReflectivityPtr &reflectivity
       ) : brdf(brdf), btdf(nullptr), reflectivity(reflectivity)
       {
-        this->eta = absorption;
+        this->eta = eta;
       }
 
       Material(
