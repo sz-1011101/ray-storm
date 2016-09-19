@@ -83,8 +83,8 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
 }
 
 ray_storm::materials::MaterialPtr MaterialFactory::createCombined(
-  AbstractBRDFPtr &brdf,
-  AbstractBTDFPtr &btdf,
+  const AbstractBRDFPtr &brdf,
+  const AbstractBTDFPtr &btdf,
   float constReflectance
 )
 {

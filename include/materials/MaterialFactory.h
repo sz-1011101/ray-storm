@@ -53,8 +53,8 @@ namespace ray_storm
       );
 
       static MaterialPtr createCombined(
-        AbstractBRDFPtr &brdf,
-        AbstractBTDFPtr &btdf,
+        const AbstractBRDFPtr &brdf,
+        const AbstractBTDFPtr &btdf,
         float constReflectance
       );
       
