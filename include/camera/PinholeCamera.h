@@ -4,6 +4,7 @@
 #include "utility/common.hpp"
 #include "utility/linear_alg.hpp"
 #include "camera/AbstractCamera.h"
+#include "camera/CameraSetup.hpp"
 
 namespace ray_storm
 {
@@ -14,26 +15,17 @@ namespace ray_storm
 
     public:
 
-      PinholeCamera(
-          const glm::vec3 &position, 
-          const glm::vec3 &lookAt, 
-          const glm::vec3 &up,
-          float aspectRatio,
-          float fov_degrees
-        );
+      PinholeCamera(const CameraSetup &cameraSetup);
 
       virtual void spawnRays(RayPackage &rayPackage);
 
     private:
 
-      glm::vec3 position;
-      glm::vec3 lookAt;
+      CameraSetup cameraSetup;
+
       glm::vec3 down;
       glm::vec3 right;
       glm::vec3 forward;
-
-      float aspectRatio;
-      float fov_degrees;
 
       float tanFovHalved;
 
