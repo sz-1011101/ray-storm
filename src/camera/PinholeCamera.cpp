@@ -2,11 +2,13 @@
 
 using namespace ray_storm::camera;
 
-PinholeCamera::PinholeCamera(const glm::vec3 &position,
-                             const glm::vec3 &lookAt,
-                             const glm::vec3 &up,
-                             float aspectRatio,
-                             float fov_degrees)
+PinholeCamera::PinholeCamera(
+  const glm::vec3 &position,
+  const glm::vec3 &lookAt,
+  const glm::vec3 &up,
+  float aspectRatio,
+  float fov_degrees
+)
 {
   this->position = position;
   this->lookAt = lookAt;
@@ -22,9 +24,21 @@ PinholeCamera::PinholeCamera(const glm::vec3 &position,
 
 }
 
-void PinholeCamera::spawnRay(float x, float y, geometry::Ray &ray) const
+void PinholeCamera::spawnRays(RayPackage &rayPackage)
 {
+  const float weight = 1.0f/rayPackage.size();
+  for (RayPackage::SampleRay &sr : rayPackage.rays)
+  {
+    sr.ray = this->spawnRay(rayPackage.x, rayPackage.y);
+    sr.weight = weight;
+  }
+}
+
+ray_storm::geometry::Ray PinholeCamera::spawnRay(float x, float y)
+{
+  geometry::Ray ray;
   ray.origin = this->position;
   ray.direction = glm::normalize(this->forward
     + this->tanFovHalved*this->right*(x*2.0f - 1.0f) + this->tanFovHalved*this->down*(y*2.0f - 1.0f));
+  return ray;
 }

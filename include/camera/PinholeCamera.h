@@ -14,13 +14,15 @@ namespace ray_storm
 
     public:
 
-      PinholeCamera(const glm::vec3 &position, 
-                    const glm::vec3 &lookAt, 
-                    const glm::vec3 &up,
-                    float aspectRatio,
-                    float fov_degrees);
+      PinholeCamera(
+          const glm::vec3 &position, 
+          const glm::vec3 &lookAt, 
+          const glm::vec3 &up,
+          float aspectRatio,
+          float fov_degrees
+        );
 
-      void spawnRay(float x, float y, geometry::Ray &ray) const;
+      virtual void spawnRays(RayPackage &rayPackage);
 
     private:
 
@@ -34,6 +36,8 @@ namespace ray_storm
       float fov_degrees;
 
       float tanFovHalved;
+
+      geometry::Ray spawnRay(float x, float y);
       
     };
   }

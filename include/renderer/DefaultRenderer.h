@@ -5,6 +5,7 @@
 
 #include "renderer/AbstractRenderer.h"
 #include "renderer/AbstractRadianceSampler.h"
+#include "camera/AbstractCamera.h"
 
 namespace ray_storm
 {

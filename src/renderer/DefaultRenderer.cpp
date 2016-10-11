@@ -1,4 +1,5 @@
 #include <omp.h> // <- best thing since sliced bread!
+#include <vector>
 
 #include "renderer/DefaultRenderer.h"
 #include "random/RandomRay.hpp"
@@ -40,7 +41,9 @@ void DefaultRenderer::render()
   printf("rendering %zu jobs...\n", jobs.size());
 
   // every thread should have its own source for random numbers
-  random::RandomizationHelper randHelpers[maxThreads];
+  std::vector<random::RandomizationHelper> randHelpers(maxThreads);
+  // each threads working data
+  std::vector<camera::RayPackage> rayPackages(maxThreads, camera::RayPackage(this->samples));
 
 #pragma omp parallel for schedule(dynamic)
   for (std::size_t j = 0; j < jobs.size(); j++)
@@ -50,7 +53,7 @@ void DefaultRenderer::render()
 
     // current thread id used to id different random engines
     const int currentThread = omp_get_thread_num();
-
+    camera::RayPackage &rp = rayPackages[currentThread];
     for (uint32_t x = 0; x < job.width; x++)
     {
       for (uint32_t y = 0; y < job.height; y++)
@@ -61,19 +64,20 @@ void DefaultRenderer::render()
         {
           for (uint32_t subY = 1; subY <= 2; subY++)
           {
-            geometry::Ray ray;
-            camera->spawnRay(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
-              static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY, ray);
+            rp.setup(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
+              static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY);
+            camera->spawnRays(rp);
 
-            for (uint32_t s = 0; s < this->samples; s++)
+            for (camera::RayPackage::SampleRay &sr : rp.rays)
             {
-              // TODO change camera api
-              pxlRadianceSum += this->sampler->sample(this->scene, ray.origin, -ray.direction, randHelpers[currentThread]);
+              sr.sample = this->sampler->sample(this->scene, sr.ray.origin, -sr.ray.direction, randHelpers[currentThread]);
             }
+
+            pxlRadianceSum += rp.recombine();
           }
         }
 
-        job.setPixelSRGB(x, y, pxlRadianceSum/static_cast<float>(this->samples*4.0f));
+        job.setPixelSRGB(x, y, pxlRadianceSum/4.0f);
       }
     }
 

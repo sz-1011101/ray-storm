@@ -2,8 +2,10 @@
 #define ABSTRACT_CAMERA_H_
 
 #include <memory>
+#include <vector>
 
-#include "geometry/Ray.hpp"
+#include "utility/common.hpp"
+#include "camera/RayPackage.hpp"
 
 namespace ray_storm
 {
@@ -16,7 +18,7 @@ namespace ray_storm
       
       virtual ~AbstractCamera() {};
 
-      virtual void spawnRay(float x, float y, geometry::Ray &ray) const = 0;
+      virtual void spawnRays(RayPackage &rayPackage) = 0;
 
     };
 

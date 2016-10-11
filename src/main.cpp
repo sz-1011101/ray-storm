@@ -1,6 +1,5 @@
 #include "utility/common.hpp"
 #include "scene/Scene.h"
-
 #include "camera/PinholeCamera.h"
 #include "scene/TestSceneFactory.h"
 #include "renderer/PathTraceSampler.h"
@@ -26,7 +25,7 @@ int main(int argc, char* argv[])
   rd->setWindow(&window);
 
   renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
-  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
+  renderer::DefaultRenderer dr(scene, camera, pts, 100);
   dr.setRenderedData(rd);
 
   dr.render();
