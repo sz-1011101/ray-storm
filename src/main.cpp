@@ -3,7 +3,8 @@
 
 #include "camera/PinholeCamera.h"
 #include "scene/TestSceneFactory.h"
-#include "renderer/PathTracer.h"
+#include "renderer/PathTraceSampler.h"
+#include "renderer/DefaultRenderer.h"
 #include "utility/Window.h"
 #include "utility/RenderedData.h"
 
@@ -24,10 +25,11 @@ int main(int argc, char* argv[])
   window.setRenderedData(rd);
   rd->setWindow(&window);
 
-  renderer::PathTracer pt(scene, camera, renderer::PathTracer::Settings(100, renderer::PathTracer::METHOD::DIRECT_BOUNCE));
-  pt.setRenderedData(rd);
+  renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
+  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
+  dr.setRenderedData(rd);
 
-  pt.render();
+  dr.render();
 
   window.wait();
   
