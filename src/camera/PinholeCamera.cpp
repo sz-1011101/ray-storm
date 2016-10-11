@@ -7,7 +7,7 @@ PinholeCamera::PinholeCamera(const CameraSetupPtr &cameraSetup) : cameraSetup(ca
 
 }
 
-void PinholeCamera::spawnRays(RayPackage &rayPackage)
+void PinholeCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper)
 {
   const float weight = 1.0f/rayPackage.size();
   for (RayPackage::SampleRay &sr : rayPackage.rays)

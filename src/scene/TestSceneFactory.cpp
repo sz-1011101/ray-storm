@@ -20,7 +20,7 @@ ScenePtr TestSceneFactory::createCornellBox()
 
   // light
   geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
-  geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 10, -1), 0.2f, matWhite, glm::vec3(200.0f)));
+  geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matCoating));

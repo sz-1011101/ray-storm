@@ -23,10 +23,9 @@ int main(int argc, char* argv[])
       glm::vec3(0, 1, 0),
       1.0f,
       75.0f,
-      0.045f,
-      0.1f,
-      geometry::Plane(glm::vec3(0, 0, 3), glm::vec3(0, 0, 1)
-      )
+      0.095f,
+      1.0f,
+      geometry::Plane(glm::vec3(0, 0, 1.0f), glm::normalize(glm::vec3(0, 1, 1)))
     )
   )));
 
@@ -39,7 +38,7 @@ int main(int argc, char* argv[])
   rd->setWindow(&window);
 
   renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
-  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
+  renderer::DefaultRenderer dr(scene, camera, pts, 100);
   dr.setRenderedData(rd);
 
   dr.render();

@@ -19,18 +19,21 @@ namespace ray_storm
         float diameter
       ) : diameter(diameter), radius(diameter/2.0f)
       {
-        
+
       }
 
-      void spawnPoints(std::size_t amount, std::vector<glm::vec2> &lensPoints)
+      void spawnPoints(
+        std::size_t amount,
+        std::vector<glm::vec2> &lensPoints,
+        random::RandomizationHelper &randHelper
+      )
       {
         // FIXME give as param
-        random::RandomizationHelper rh;
         lensPoints.clear();
         lensPoints.reserve(amount);
         while (amount > lensPoints.size())
         {
-          glm::vec2 randPnt(rh.drawUniformRandom(), rh.drawUniformRandom());
+          glm::vec2 randPnt(randHelper.drawUniformRandom(), randHelper.drawUniformRandom());
           randPnt = 2.0f*randPnt - 1.0f;
           if (glm::length(randPnt) < 1.0f)
           {

@@ -66,7 +66,7 @@ void DefaultRenderer::render()
           {
             rp.setup(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
               static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY);
-            camera->spawnRays(rp);
+            camera->spawnRays(rp, randHelpers[currentThread]);
 
             for (camera::RayPackage::SampleRay &sr : rp.rays)
             {

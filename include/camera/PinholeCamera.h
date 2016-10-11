@@ -17,7 +17,7 @@ namespace ray_storm
 
       PinholeCamera(const CameraSetupPtr &cameraSetup);
 
-      virtual void spawnRays(RayPackage &rayPackage);
+      virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 
     private:
 

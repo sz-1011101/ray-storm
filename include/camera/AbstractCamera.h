@@ -6,6 +6,7 @@
 
 #include "utility/common.hpp"
 #include "camera/RayPackage.hpp"
+#include "random/RandomizationHelper.h"
 
 namespace ray_storm
 {
@@ -18,7 +19,7 @@ namespace ray_storm
       
       virtual ~AbstractCamera() {};
 
-      virtual void spawnRays(RayPackage &rayPackage) = 0;
+      virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper) = 0;
 
     };
 

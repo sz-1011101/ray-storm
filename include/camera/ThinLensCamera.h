@@ -16,7 +16,7 @@ namespace ray_storm
 
       ~ThinLensCamera() {};
 
-      virtual void spawnRays(RayPackage &rayPackage);
+      virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 
     protected:
 

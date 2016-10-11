@@ -7,12 +7,12 @@ ThinLensCamera::ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup) : came
 
 }
 
-void ThinLensCamera::spawnRays(RayPackage &rayPackage)
+void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper)
 {
   const float weight = 1.0f/rayPackage.size();
 
   std::vector<glm::vec2> lensPoints;
-  this->cameraSetup->lens.spawnPoints(rayPackage.size(), lensPoints);
+  this->cameraSetup->lens.spawnPoints(rayPackage.size(), lensPoints, randHelper);
 
   geometry::Ray mainRay;
   mainRay.origin = glm::vec3(0.0f);
