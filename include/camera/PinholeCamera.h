@@ -23,12 +23,6 @@ namespace ray_storm
 
       CameraSetup cameraSetup;
 
-      glm::vec3 down;
-      glm::vec3 right;
-      glm::vec3 forward;
-
-      float tanFovHalved;
-
       geometry::Ray spawnRay(float x, float y);
       
     };
