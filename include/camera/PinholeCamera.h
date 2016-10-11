@@ -15,13 +15,13 @@ namespace ray_storm
 
     public:
 
-      PinholeCamera(const CameraSetup &cameraSetup);
+      PinholeCamera(const CameraSetupPtr &cameraSetup);
 
       virtual void spawnRays(RayPackage &rayPackage);
 
     private:
 
-      CameraSetup cameraSetup;
+      CameraSetupPtr cameraSetup;
 
       geometry::Ray spawnRay(float x, float y);
       

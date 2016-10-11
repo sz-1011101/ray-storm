@@ -2,7 +2,7 @@
 
 using namespace ray_storm::camera;
 
-PinholeCamera::PinholeCamera(const CameraSetup &cameraSetup) : cameraSetup(cameraSetup)
+PinholeCamera::PinholeCamera(const CameraSetupPtr &cameraSetup) : cameraSetup(cameraSetup)
 {
 
 }
@@ -20,9 +20,9 @@ void PinholeCamera::spawnRays(RayPackage &rayPackage)
 ray_storm::geometry::Ray PinholeCamera::spawnRay(float x, float y)
 {
   geometry::Ray ray;
-  ray.origin = this->cameraSetup.position;
-  ray.direction = glm::normalize(this->cameraSetup.forward
-    + this->cameraSetup.tanFovHalved*this->cameraSetup.right*(x*2.0f - 1.0f)
-    + this->cameraSetup.tanFovHalved*this->cameraSetup.down*(y*2.0f - 1.0f));
+  ray.origin = this->cameraSetup->position;
+  ray.direction = glm::normalize(this->cameraSetup->forward
+    + this->cameraSetup->tanFovHalved*this->cameraSetup->right*(x*2.0f - 1.0f)
+    + this->cameraSetup->tanFovHalved*this->cameraSetup->down*(y*2.0f - 1.0f));
   return ray;
 }
