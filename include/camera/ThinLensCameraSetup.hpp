@@ -33,7 +33,7 @@ namespace ray_storm
         const glm::vec3 &up,
         float aspectRatio,
         float fov_degrees,
-        SimpleLensPtr lens,
+        AbstractFlatLensPtr lens,
         const geometry::Plane &focusPlane
       ) : CameraSetup(position, lookAt, up, aspectRatio, fov_degrees), focusPlane(focusPlane),
         lens(lens)
@@ -42,7 +42,7 @@ namespace ray_storm
       }
 
       geometry::Plane focusPlane;
-      SimpleLensPtr lens;
+      AbstractFlatLensPtr lens;
 
     };
 

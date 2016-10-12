@@ -1,18 +1,14 @@
 #ifndef SIMPLE_LENS_H_
 #define SIMPLE_LENS_H_
 
-#include <vector>
-#include <memory>
-
-#include "utility/common.hpp"
-#include "random/RandomizationHelper.h"
+#include "camera/AbstractFlatLens.h"
 
 namespace ray_storm
 {
   namespace camera
   {
 
-    class SimpleLens
+    class SimpleLens : public AbstractFlatLens
     {
     public:
 
