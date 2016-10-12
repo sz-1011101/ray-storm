@@ -21,13 +21,28 @@ namespace ray_storm
         float focalLength,
         float fNumber,
         const geometry::Plane &focusPlane
-      ) : CameraSetup(position, lookAt, up, aspectRatio, fov_degrees), fNumber(fNumber), focusPlane(focusPlane),
-        lens(focalLength/fNumber)
-      {}
+      ) : CameraSetup(position, lookAt, up, aspectRatio, fov_degrees), focusPlane(focusPlane),
+        lens(new SimpleLens(focalLength/fNumber))
+      {
 
-      float fNumber;
+      }
+
+      ThinLensCameraSetup(
+        const glm::vec3 &position, 
+        const glm::vec3 &lookAt, 
+        const glm::vec3 &up,
+        float aspectRatio,
+        float fov_degrees,
+        SimpleLensPtr lens,
+        const geometry::Plane &focusPlane
+      ) : CameraSetup(position, lookAt, up, aspectRatio, fov_degrees), focusPlane(focusPlane),
+        lens(lens)
+      {
+
+      }
+
       geometry::Plane focusPlane;
-      SimpleLens lens;
+      SimpleLensPtr lens;
 
     };
 

@@ -3,6 +3,7 @@
 
 #include "camera/PinholeCamera.h"
 #include "camera/ThinLensCamera.h"
+#include "camera/LensFactory.h"
 
 #include "scene/TestSceneFactory.h"
 #include "renderer/PathTraceSampler.h"
@@ -23,9 +24,8 @@ int main(int argc, char* argv[])
       glm::vec3(0, 1, 0),
       1.0f,
       75.0f,
-      0.095f,
-      1.0f,
-      geometry::Plane(glm::vec3(0, 0, 1.0f), glm::normalize(glm::vec3(0, 1, 1)))
+      camera::LensFactory::createNPolygon(5, 0.2f),
+      geometry::Plane(glm::vec3(0, 0, 3.0f), glm::normalize(glm::vec3(0, 0, 1)))
     )
   )));
 
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
   rd->setWindow(&window);
 
   renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
-  renderer::DefaultRenderer dr(scene, camera, pts, 100);
+  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
   dr.setRenderedData(rd);
 
   dr.render();

@@ -2,6 +2,7 @@
 #define SIMPLE_LENS_H_
 
 #include <vector>
+#include <memory>
 
 #include "utility/common.hpp"
 #include "random/RandomizationHelper.h"
@@ -22,13 +23,14 @@ namespace ray_storm
 
       }
 
-      void spawnPoints(
+      ~SimpleLens() {};
+
+      virtual void spawnPoints(
         std::size_t amount,
         std::vector<glm::vec2> &lensPoints,
         random::RandomizationHelper &randHelper
       )
       {
-        // FIXME give as param
         lensPoints.clear();
         lensPoints.reserve(amount);
         while (amount > lensPoints.size())
@@ -46,6 +48,8 @@ namespace ray_storm
       float radius;
       
     };
+
+    typedef std::shared_ptr<SimpleLens> SimpleLensPtr;
   }
 }
 
