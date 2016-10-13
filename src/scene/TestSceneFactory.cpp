@@ -61,6 +61,57 @@ ScenePtr TestSceneFactory::createReflectionTest()
   return scene;
 }
 
+ScenePtr TestSceneFactory::createSolarSystem()
+{
+  ScenePtr scene(new scene::Scene());
+
+  materials::MaterialPtr matBlack = materials::MaterialFactory::createLambertian(glm::vec3(0.0f));
+  materials::MaterialPtr matMercury = materials::MaterialFactory::createMetal(glm::vec3(0.25), glm::vec3(0.2), 35.0f);
+  materials::MaterialPtr matVenus = materials::MaterialFactory::createLambertian(glm::vec3(0.65f, 0.3f, 0.15f));
+  materials::MaterialPtr matEarth = materials::MaterialFactory::createShiny(glm::vec3(0.1, 0.6, 0.9), glm::vec3(0.8, 0.8, 1.0), 150.0f);
+  materials::MaterialPtr matMars = materials::MaterialFactory::createLambertian(glm::vec3(0.8, 0.3, 0.3));
+  materials::MaterialPtr matJupiter = materials::MaterialFactory::createLambertian(glm::vec3(0.8, 0.7, 0.1));
+  materials::MaterialPtr matSaturn = materials::MaterialFactory::createLambertian(glm::vec3(0.65, 0.6, 0.1));
+  materials::MaterialPtr matUranus = materials::MaterialFactory::createLambertian(glm::vec3(0.75, 0.8, 1.0));
+  materials::MaterialPtr matNeptune = materials::MaterialFactory::createLambertian(glm::vec3(0.2, 0.1, 8.0));
+
+  // objects scale correct, distance not
+  // unit length = 10000 km
+  const float x = -95.0f;
+  const float z = -50.0f;
+  geometry::ObjectPtr sun = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x, 0, z), 69.57f, matBlack, glm::vec3(1.0f)));
+
+  geometry::ObjectPtr mercury = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 73.50f, 0, z), 0.2439f, matMercury));
+
+  geometry::ObjectPtr venus = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 75.50f, 0, z), 0.60518f, matVenus));
+
+  geometry::ObjectPtr earth = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 77.50f, 0, z), 0.6371f, matEarth));
+
+  geometry::ObjectPtr mars = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 79.50f, 0, z), 0.33895f, matMars));
+
+  geometry::ObjectPtr jupiter = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 90.0f, 0, z), 6.9911f, matJupiter));
+
+  geometry::ObjectPtr saturn = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 110.0f, 0, z), 5.8232f, matSaturn));
+
+  geometry::ObjectPtr uranus = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 125.0f, 0, z), 2.5362f, matUranus));
+
+  geometry::ObjectPtr neptune = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(x + 135.0f, 0, z), 2.4622f, matNeptune));
+
+  scene->add(sun);
+  scene->add(mercury);
+  scene->add(venus);
+  scene->add(earth);
+  scene->add(mars);
+  scene->add(jupiter);
+  scene->add(saturn);
+  scene->add(uranus);
+  scene->add(neptune);
+  scene->finalize();
+  // sorry pluto :(
+
+  return scene;
+}
+
 ScenePtr TestSceneFactory::buildBox()
 {
   ScenePtr box(new scene::Scene());

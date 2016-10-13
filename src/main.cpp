@@ -25,22 +25,23 @@ int main(int argc, char* argv[])
         glm::vec3(0, 1, 0),
         1.0f,
         75.0f,
-        camera::LensFactory::createNPolygon(5, 2.0f),
+        camera::LensFactory::createNPolygon(5, 0.1f),
         geometry::Plane(glm::vec3(0, 0, 8.0f), glm::normalize(glm::vec3(0, 0, 1)))
       )
     )
   ));
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
+  //scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox();
   //scene::ScenePtr scene = scene::TestSceneFactory::createReflectionTest();
-  
+  scene::ScenePtr scene = scene::TestSceneFactory::createSolarSystem();
+
   utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
 
   renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
-  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
+  renderer::DefaultRenderer dr(scene, camera, pts, 100);
   dr.setRenderedData(rd);
 
   dr.render();
