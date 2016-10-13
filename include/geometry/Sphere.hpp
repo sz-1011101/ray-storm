@@ -53,7 +53,7 @@ namespace ray_storm
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
         
         const glm::vec3 spherical = utility::Math::cartesianToSpherical(iPoint - position);
-        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position), glm::vec2(spherical.y, spherical.z));
+        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position), glm::vec2(spherical.y/(2.0f*M_PI), spherical.z/M_PI));
         return true;
       }
 
