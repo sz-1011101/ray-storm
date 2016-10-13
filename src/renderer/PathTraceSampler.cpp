@@ -4,6 +4,7 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.85f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
+const glm::vec3 SKY(0.2, 0.2, 0.3);
 
 PathTraceSampler::PathTraceSampler(METHOD method)
 {
@@ -50,7 +51,7 @@ glm::vec3 PathTraceSampler::walkPath(
   geometry::Intersection<geometry::Object> intersectX;
   if (!scene->intersect(ray, intersectX))
   {
-    return glm::vec3(0.0f);
+    return SKY;
   }
 
   for (uint32_t b = 0; b < maxBounces; b++) 
@@ -72,23 +73,26 @@ glm::vec3 PathTraceSampler::walkPath(
     }
 
     const float &pdfBSDFBounce = bounceRay.PDF;
-
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
     emitted[b] = xObj->getEmittance();
+
+    if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+    {
+      break;
+    }
     
     // we have the next ray, intersect
     geometry::Intersection<geometry::Object> intersectY;
-    // termination
-    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA && scene->intersect(bounceRay.ray, intersectY))
+
+    if (scene->intersect(bounceRay.ray, intersectY))
     {
-      glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
-      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
-      {
-        break;
+      if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
+        reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
       }
-      reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
     }
-    else
+    else // sky hit
     {
+      reflected[b] = SKY*bounceBSDF/pdfBSDFBounce;
       break;
     }
 
@@ -178,19 +182,23 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
 
     }
 
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+
+    if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+    {
+      break;
+    }
     // we have the next ray, intersect
     geometry::Intersection<geometry::Object> intersectY;
     bool yHit = scene->intersect(bounceRay.ray, intersectY);
 
     // termination
-    if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
+    if (yHit)
     {
-      glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
-      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+      if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
       {
-        break;
+        reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
       }
-      reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
     }
     else
     {
@@ -233,7 +241,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
   geometry::Intersection<geometry::Object> intersectX;
   if (!scene->intersect(ray, intersectX))
   {
-    return glm::vec3(0.0f);
+    return SKY;
   }
   // emittance of the first intersected object after the camera
   const glm::vec3 emitted = intersectX.intersected->getEmittance();
@@ -267,10 +275,8 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
 
     // directly sample the light sources
     scene::Scene::LuminaireSample lumSmpl;
-    if (!scene->drawLuminareSample(randHelper, lumSmpl))
-    {
-      break;
-    }
+    const bool lumSampleDrawn = scene->drawLuminareSample(randHelper, lumSmpl);
+
     const glm::vec3 lumSmplDir = glm::normalize(lumSmpl.position - x);
 
     // compute direct lighting
@@ -279,7 +285,8 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     glm::vec3 reflL = glm::vec3(0.0f);
 
     geometry::Intersection<geometry::Object> intersectL;
-    if (glm::dot(lumSmplDir, xN) > 0.0f
+    if (lumSampleDrawn
+      && glm::dot(lumSmplDir, xN) > 0.0f
       && scene->intersect(shadowRay, intersectL)
       && intersectL.intersected == lumSmpl.object
       && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
@@ -299,25 +306,37 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     }
 
     // we can get radiance via the y bounce
-    if (yHit && intersectY.intersected->isEmitting())
+    if (yHit)
     {
-      geometry::Object *yObj = intersectY.intersected;
-      const float pdfLumY = scene->getLuminarePDF(yObj);
-      reflY = bounceBSDF*yObj->getEmittance()
-        /(pdfLumY*(std::pow(glm::length(intersectY.intersection.position - x), 2.0f)
-        /dot(-bounceRay.ray.direction, intersectY.intersection.normal))
-        + pdfBSDFBounce);
+      if (intersectY.intersected->isEmitting())
+      {
+        geometry::Object *yObj = intersectY.intersected;
+        const float pdfLumY = scene->getLuminarePDF(yObj);
+        reflY = bounceBSDF*yObj->getEmittance()
+          /(pdfLumY*(std::pow(glm::length(intersectY.intersection.position - x), 2.0f)
+          /dot(-bounceRay.ray.direction, intersectY.intersection.normal))
+          + pdfBSDFBounce);
+      }
+    }
+    else 
+    {
+      // We "hit" the sky
+      // I assume zero pdf for pdfLumY because the sky is never randomly selected as a light source for direct lighting
+      // This means the sky acts similar to an object that emitts
+      // I'm not sure if this is allowed...
+      reflY = (bounceBSDF*SKY)/pdfBSDFBounce;
     }
 
     direct[b] = (reflL + reflY);
 
+    if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+    {
+      break;
+    }
+
     // termination
     if (yHit && randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
     {
-      if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
-      {
-        break;
-      }
       reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
     }
     else

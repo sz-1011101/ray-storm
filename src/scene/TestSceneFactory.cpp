@@ -6,7 +6,7 @@
 
 using namespace ray_storm::scene;
 
-ScenePtr TestSceneFactory::createCornellBox()
+ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting = false)
 {
   ScenePtr scene = TestSceneFactory::buildBox();
 
@@ -19,8 +19,13 @@ ScenePtr TestSceneFactory::createCornellBox()
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
 
   // light
-  geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
-  geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
+  if (!naturalLighting)
+  {
+    geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
+    geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
+    scene->add(sphereLight1);
+    scene->add(sphereLight2);
+  }
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
   geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matCoating));
@@ -30,8 +35,6 @@ ScenePtr TestSceneFactory::createCornellBox()
   geometry::ObjectPtr box = geometry::ObjectPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal1));
 
   // add our components
-  scene->add(sphereLight1);
-  scene->add(sphereLight2);
   scene->add(sphere1);
   scene->add(sphere2);
   scene->add(sphere3);
@@ -141,15 +144,15 @@ ScenePtr TestSceneFactory::buildBox()
   geometry::ObjectPtr backWall = geometry::ObjectPtr(new geometry::Rectangle(backWallRp, matWhite));
 
   // front wall
-  geometry::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
-  geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
+  //geometry::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  //geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
 
   box->add(floor);
   box->add(ceiling);
   box->add(leftWall);
   box->add(rightWall);
   box->add(backWall);
-  box->add(frontWall);
+  //box->add(frontWall);
 
   return box;
 }
