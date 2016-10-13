@@ -22,6 +22,8 @@ namespace ray_storm
         }
       }
 
+      virtual ~ApertureLens() {};
+
       virtual void spawnPoints(
         std::size_t amount,
         std::vector<glm::vec2> &lensPoints,

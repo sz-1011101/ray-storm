@@ -19,7 +19,7 @@ namespace ray_storm
 
       }
 
-      ~SimpleLens() {};
+      virtual ~SimpleLens() {};
 
       virtual void spawnPoints(
         std::size_t amount,

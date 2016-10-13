@@ -15,7 +15,7 @@ namespace ray_storm
     class AbstractFlatLens
     {
     public:
-      ~AbstractFlatLens() {};
+      virtual ~AbstractFlatLens() {};
 
       virtual void spawnPoints(
         std::size_t amount,

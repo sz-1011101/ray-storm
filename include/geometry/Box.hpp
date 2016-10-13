@@ -11,6 +11,7 @@ namespace ray_storm
     class Box : public Object
     {
     public:
+      
       Box(const glm::vec3 &origin, const glm::vec3 &extends,
         materials::MaterialPtr &material
       ) : Object(material, glm::vec3(0.0f)), aaBox(origin, extends)

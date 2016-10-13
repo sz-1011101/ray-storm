@@ -14,7 +14,7 @@ namespace ray_storm
 
       ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup);
 
-      ~ThinLensCamera() {};
+      virtual ~ThinLensCamera() {};
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 

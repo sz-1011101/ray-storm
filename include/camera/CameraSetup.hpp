@@ -40,6 +40,8 @@ namespace ray_storm
 
         this->inverseCameraMatrix = glm::inverse(this->cameraMatrix);
       }
+
+      virtual ~CameraSetup() {};
       
       glm::vec3 position;
       glm::vec3 lookAt; 

@@ -10,9 +10,12 @@ namespace ray_storm
     class ConductorFresnel : public AbstractReflectivity
     {
     public:
+
       ConductorFresnel(float absorption) {
         this->absorption = absorption;
       }
+
+      virtual ~ConductorFresnel() {};
 
       virtual float computeF(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
       {

@@ -16,6 +16,8 @@ namespace ray_storm
         this->reflectivity = reflectivity;
       }
 
+      virtual ~ConstantReflectivity() {};
+
       virtual float computeF(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
       {
         return this->reflectivity;
