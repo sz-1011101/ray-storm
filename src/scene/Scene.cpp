@@ -60,3 +60,18 @@ void Scene::finalize()
   this->dataStruct->initialize();
   puts("Scene finalized");
 }
+
+void Scene::setSky(const AbstractSkyPtr &sky)
+{
+  this->sky = sky;
+}
+
+glm::vec3 Scene::sampleSky(const geometry::Ray &ray)
+{
+  if (this->sky == nullptr)
+  {
+    return glm::vec3(0.0f);
+  }
+
+  return this->sky->sample(ray);
+}

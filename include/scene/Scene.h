@@ -7,6 +7,7 @@
 #include "geometry/Ray.hpp"
 #include "datastructures/SpatialDatastructure.h"
 #include "random/RandomizationHelper.h"
+#include "scene/AbstractSky.h"
 
 namespace ray_storm
 {
@@ -46,6 +47,10 @@ namespace ray_storm
 
       void finalize();
 
+      void setSky(const AbstractSkyPtr &sky);
+
+      glm::vec3 sampleSky(const geometry::Ray &ray);
+
     private:
 
       // scene objects that interact with the light
@@ -56,6 +61,9 @@ namespace ray_storm
 
       // for fast object intersecting
       std::unique_ptr<datastructures::SpatialDatastructure<geometry::Object>> dataStruct;
+
+      // sky
+      AbstractSkyPtr sky;
       
     };
 

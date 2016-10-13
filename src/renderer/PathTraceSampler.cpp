@@ -4,7 +4,6 @@ using namespace ray_storm::renderer;
 
 const float RUSSIAN_ROULETTE_ALPHA = 0.85f;
 const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
-const glm::vec3 SKY(0.2, 0.2, 0.3);
 
 PathTraceSampler::PathTraceSampler(METHOD method)
 {
@@ -51,7 +50,7 @@ glm::vec3 PathTraceSampler::walkPath(
   geometry::Intersection<geometry::Object> intersectX;
   if (!scene->intersect(ray, intersectX))
   {
-    return SKY;
+    return scene->sampleSky(ray);
   }
 
   for (uint32_t b = 0; b < maxBounces; b++) 
@@ -92,7 +91,7 @@ glm::vec3 PathTraceSampler::walkPath(
     }
     else // sky hit
     {
-      reflected[b] = SKY*bounceBSDF/pdfBSDFBounce;
+      reflected[b] = scene->sampleSky(bounceRay.ray)*bounceBSDF/pdfBSDFBounce;
       break;
     }
 
@@ -241,7 +240,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
   geometry::Intersection<geometry::Object> intersectX;
   if (!scene->intersect(ray, intersectX))
   {
-    return SKY;
+    return scene->sampleSky(ray);
   }
   // emittance of the first intersected object after the camera
   const glm::vec3 emitted = intersectX.intersected->getEmittance();
@@ -324,7 +323,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
       // I assume zero pdf for pdfLumY because the sky is never randomly selected as a light source for direct lighting
       // This means the sky acts similar to an object that emitts
       // I'm not sure if this is allowed...
-      reflY = (bounceBSDF*SKY)/pdfBSDFBounce;
+      reflY = (bounceBSDF*scene->sampleSky(bounceRay.ray))/pdfBSDFBounce;
     }
 
     direct[b] = (reflL + reflY);

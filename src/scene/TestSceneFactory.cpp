@@ -3,6 +3,7 @@
 #include "geometry/Rectangle.hpp"
 #include "geometry/Box.hpp"
 #include "materials/MaterialFactory.h"
+#include "scene/ConstantSky.hpp"
 
 using namespace ray_storm::scene;
 
@@ -25,6 +26,10 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting = false)
     geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
     scene->add(sphereLight2);
+  }
+  else
+  {
+    scene->setSky(ConstantSkyPtr(new ConstantSky(glm::vec3(0.5, 0.5, 0.8f))));
   }
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
