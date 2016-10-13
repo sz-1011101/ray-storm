@@ -74,6 +74,7 @@ namespace ray_storm
         }
         
         intersection.intersection = pInters.intersection;
+        intersection.intersection.texCoords = glm::vec2(wAxisDot/this->rectParams.width, hAxisDot/this->rectParams.height);
         intersection.t = pInters.t;
         intersection.intersected = this;
 

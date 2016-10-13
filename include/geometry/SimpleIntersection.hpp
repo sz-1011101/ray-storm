@@ -12,14 +12,16 @@ namespace ray_storm
 
       SimpleIntersection() {};
 
-      SimpleIntersection(const glm::vec3 &position, const glm::vec3 &normal)
+      SimpleIntersection(const glm::vec3 &position, const glm::vec3 &normal, const glm::vec2 &texCoords)
       {
         this->position = position;
         this->normal = normal;
+        this->texCoords = texCoords;
       }
 
       glm::vec3 position;
       glm::vec3 normal;
+      glm::vec2 texCoords;
     };
   }
 }

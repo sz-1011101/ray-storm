@@ -10,11 +10,11 @@ namespace ray_storm
 {
   namespace materials
   {
-    class AbstractBxDF
+    class AbstractSVBxDF
     {
     public:
 
-      virtual ~AbstractBxDF() {};
+      virtual ~AbstractSVBxDF() {};
 
       virtual glm::vec3 evaluate(
         const glm::vec3 &l,
@@ -36,7 +36,7 @@ namespace ray_storm
       ) = 0;
     };
 
-    typedef std::shared_ptr<AbstractBxDF> AbstractBxDFPtr;
+    typedef std::shared_ptr<AbstractSVBxDF> AbstractSVBxDFPtr;
   }
 }
 

@@ -1,13 +1,13 @@
 #ifndef ABSTRACT_BRDF_H_
 #define ABSTRACT_BRDF_H_
 
-#include "materials/AbstractBxDF.hpp"
+#include "materials/AbstractSVBxDF.hpp"
 
 namespace ray_storm
 {
   namespace materials
   {
-    class AbstractBRDF : public AbstractBxDF
+    class AbstractBRDF : public AbstractSVBxDF
     {
     public:
 

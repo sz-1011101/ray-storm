@@ -141,7 +141,8 @@ namespace ray_storm
         
         const glm::vec3 iPoint = ro + intersection.t*rd;
 
-        intersection.intersection = SimpleIntersection (iPoint, iNormal);
+        // TODO texture coordinate
+        intersection.intersection = SimpleIntersection (iPoint, iNormal, glm::vec2(0.0f));
         intersection.intersected = this;
 
         return true;

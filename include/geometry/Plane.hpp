@@ -39,7 +39,8 @@ namespace ray_storm
         // normal on both sides!
         const glm::vec3 fNormal = normalDotDirection < 0.0f ? this->normal : -this->normal;
         intersection.intersected = this;
-        intersection.intersection = SimpleIntersection(ray.origin + t*ray.direction, fNormal);
+        // TODO repeating texture coordinates
+        intersection.intersection = SimpleIntersection(ray.origin + t*ray.direction, fNormal, glm::vec2(0.0f));
         intersection.t = t;
 
         return true;

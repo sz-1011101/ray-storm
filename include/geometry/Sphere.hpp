@@ -2,6 +2,7 @@
 #define SPHERE_H_
 
 #include "geometry/Object.h"
+#include "utility/common.hpp"
 
 namespace ray_storm
 {
@@ -51,7 +52,8 @@ namespace ray_storm
         intersection.intersected = this;
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
         
-        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position));
+        const glm::vec3 spherical = utility::Math::cartesianToSpherical(iPoint - position);
+        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position), glm::vec2(spherical.y, spherical.z));
         return true;
       }
 

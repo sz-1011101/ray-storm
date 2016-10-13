@@ -5,6 +5,8 @@
 #include <cmath>
 #include <stdio.h>
 
+#include "utility/linear_alg.hpp"
+
 namespace ray_storm
 {
   namespace utility
@@ -23,6 +25,13 @@ namespace ray_storm
       static float radToDeg(float radians)
       {
         return radians/M_PI * 180.0f;
+      }
+
+      static glm::vec3 cartesianToSpherical(const glm::vec3 &v)
+      {
+        const float r = glm::length(v);
+        // http://mathworld.wolfram.com/SphericalCoordinates.html, but different axes
+        return glm::vec3(r, std::atan(v.x/v.z), std::cos(v.y/r));
       }
       
     };
