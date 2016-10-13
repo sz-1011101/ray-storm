@@ -31,7 +31,7 @@ namespace ray_storm
       {
         const float r = glm::length(v);
         // http://mathworld.wolfram.com/SphericalCoordinates.html, but different axes
-        return glm::vec3(r, std::atan(v.x/v.z), std::cos(v.y/r));
+        return glm::vec3(r, std::atan(v.x/v.z), std::acos(v.y/r));
       }
       
     };
