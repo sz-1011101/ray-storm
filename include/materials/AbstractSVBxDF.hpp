@@ -19,12 +19,14 @@ namespace ray_storm
       virtual glm::vec3 evaluate(
         const glm::vec3 &l,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &v
       ) = 0;
 
       virtual void drawDirection(
         const glm::vec3 &in,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         random::RandomizationHelper &randHelper,
         random::RandomDirection &randDir
       ) = 0;
@@ -32,6 +34,7 @@ namespace ray_storm
       virtual float getPDF(
         const glm::vec3 &in,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &out
       ) = 0;
     };

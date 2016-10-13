@@ -78,6 +78,7 @@ namespace ray_storm
       inline glm::vec3 evaluateBSDF(
         const glm::vec3 &l,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &v
       )
       {
@@ -98,12 +99,12 @@ namespace ray_storm
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
           glm::vec3 nRefl = glm::dot(n, l) < 0.0f ? -n : n;
-          return refl*this->brdf->evaluate(l, nRefl, v);
+          return refl*this->brdf->evaluate(l, nRefl, uv, v);
         }
         else if (type == REFRACTION)
         {
           // conservation of energy applies here, we also use the intersection normal to flip the IORs later
-          return (1.0f - refl)*this->btdf->evaluate(l, n, v);
+          return (1.0f - refl)*this->btdf->evaluate(l, n, uv, v);
         }
 
         return glm::vec3(0.0f);
@@ -112,6 +113,7 @@ namespace ray_storm
       inline bool sampleBSDF(
         const glm::vec3 &in,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         random::RandomizationHelper &randHelper,
         random::RandomDirection &randDir
       )
@@ -130,13 +132,13 @@ namespace ray_storm
           {
             return false;
           }
-          this->brdf->drawDirection(in, n, randHelper, randDir);
+          this->brdf->drawDirection(in, n, uv, randHelper, randDir);
           randDir.PDF *= rfl; // fresnel sampling pdf
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
-          this->btdf->drawDirection(in, n, randHelper, randDir);
+          this->btdf->drawDirection(in, n, uv, randHelper, randDir);
           randDir.PDF *= (1.0f - rfl); // fresnel sampling pdf
           return true;
         }
@@ -148,12 +150,13 @@ namespace ray_storm
         const glm::vec3 &in,
         const glm::vec3 &x,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         random::RandomizationHelper &randHelper,
         random::RandomRay &randRay
       )
       {
         random::RandomDirection randDir;
-        if (!this->sampleBSDF(in, n, randHelper, randDir))
+        if (!this->sampleBSDF(in, n, uv, randHelper, randDir))
         {
           return false;
         }
@@ -168,6 +171,7 @@ namespace ray_storm
       inline bool getPDF(
         const glm::vec3 &in,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &out,
         float &PDF
       )
@@ -188,12 +192,12 @@ namespace ray_storm
 
         if (type == REFLECTION)
         {
-          PDF = rfl*this->brdf->getPDF(in, n, out);
+          PDF = rfl*this->brdf->getPDF(in, n, uv, out);
           return true;
         }
         else if (type == REFRACTION)
         {
-          PDF = (1.0f - rfl)*this->btdf->getPDF(in, n, out);
+          PDF = (1.0f - rfl)*this->btdf->getPDF(in, n, uv, out);
           return true;
         }
         return false;

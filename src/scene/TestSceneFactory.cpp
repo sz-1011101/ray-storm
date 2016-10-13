@@ -33,9 +33,9 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting = false)
   }
 
   geometry::ObjectPtr sphere1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
-  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matCoating));
-  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matMirror));
-  geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matGlass));
+  geometry::ObjectPtr sphere2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matGlass));
+  geometry::ObjectPtr sphere3 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
+  geometry::ObjectPtr sphere4 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
   geometry::ObjectPtr box = geometry::ObjectPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal1));
 

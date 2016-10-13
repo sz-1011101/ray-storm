@@ -22,6 +22,7 @@ namespace ray_storm
       glm::vec3 evaluate(
         const glm::vec3 &l, 
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &v
       ){
         // lambertian is constant!
@@ -30,17 +31,19 @@ namespace ray_storm
 
       void drawDirection(
         const glm::vec3 &in,
-        const glm::vec3 &n, 
+        const glm::vec3 &n,
+        const glm::vec2 &uv,
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
         randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
-        randDir.PDF = this->getPDF(in, n, randDir.direction);
+        randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
       }
 
       float getPDF(
         const glm::vec3 &in,
         const glm::vec3 &n,
+        const glm::vec2 &uv,
         const glm::vec3 &out
       )
       {

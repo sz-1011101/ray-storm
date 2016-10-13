@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     )
   );
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true);
+  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false);
   //scene::ScenePtr scene = scene::TestSceneFactory::createReflectionTest();
   //scene::ScenePtr scene = scene::TestSceneFactory::createSolarSystem();
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   rd->setWindow(&window);
 
   renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
-  renderer::DefaultRenderer dr(scene, camera, pts, 500);
+  renderer::DefaultRenderer dr(scene, camera, pts, 200);
   dr.setRenderedData(rd);
 
   dr.render();

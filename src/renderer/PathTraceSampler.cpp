@@ -61,18 +61,19 @@ glm::vec3 PathTraceSampler::walkPath(
 
     const glm::vec3 &x = intersectX.intersection.position;
     const glm::vec3 &xN = intersectX.intersection.normal;
+    const glm::vec2 &xUV = intersectX.intersection.texCoords;
     geometry::Object *xObj = intersectX.intersected;
     materials::Material *xMat = xObj->getMaterial();
 
     // get a reflection by sampling the bsdf
     random::RandomRay bounceRay;
-    if (!xMat->sampleBSDF(ray.direction, x, xN, randHelper, bounceRay))
+    if (!xMat->sampleBSDF(ray.direction, x, xN, xUV, randHelper, bounceRay))
     {
       break;
     }
 
     const float &pdfBSDFBounce = bounceRay.PDF;
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
     emitted[b] = xObj->getEmittance();
 
     if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
@@ -141,12 +142,13 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
 
     const glm::vec3 &x = intersectX.intersection.position;
     const glm::vec3 &xN = intersectX.intersection.normal;
+    const glm::vec2 &xUV = intersectX.intersection.texCoords;
     geometry::Object *xObj = intersectX.intersected;
     materials::Material *xMat = xObj->getMaterial();
 
     // get a reflection by sampling the bsdf
     random::RandomRay bounceRay;
-    if (!xMat->sampleBSDF(ray.direction, x, xN, randHelper, bounceRay))
+    if (!xMat->sampleBSDF(ray.direction, x, xN, xUV, randHelper, bounceRay))
     {
       break;
     }
@@ -172,7 +174,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
       && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
     )
     {
-      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction);
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, xUV, -ray.direction);
       float pdfLumL = scene->getLuminarePDF(intersectL.intersected);
 
       direct[b] = lightBSDF*intersectL.intersected->getEmittance()
@@ -181,7 +183,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
 
     }
 
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
 
     if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
     {
@@ -254,12 +256,13 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
 
     const glm::vec3 &x = intersectX.intersection.position;
     const glm::vec3 &xN = intersectX.intersection.normal;
+    const glm::vec2 &xUV = intersectX.intersection.texCoords;
     geometry::Object *xObj = intersectX.intersected;
     materials::Material *xMat = xObj->getMaterial();
 
     // get a reflection by sampling the bsdf
     random::RandomRay bounceRay;
-    if (!xMat->sampleBSDF(ray.direction, x, xN, randHelper, bounceRay))
+    if (!xMat->sampleBSDF(ray.direction, x, xN, xUV, randHelper, bounceRay))
     {
       break;
     }
@@ -270,7 +273,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     geometry::Intersection<geometry::Object> intersectY;
     bool yHit = scene->intersect(bounceRay.ray, intersectY);
 
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, -ray.direction);
+    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
 
     // directly sample the light sources
     scene::Scene::LuminaireSample lumSmpl;
@@ -291,10 +294,10 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
       && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
     )
     {
-      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, -ray.direction);
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, xUV, -ray.direction);
       float pdfBSDFLight = 0.0f;
       const float pdfLumL = lumSmpl.PDF;
-      if (!xMat->getPDF(ray.direction, xN, lumSmplDir, pdfBSDFLight))
+      if (!xMat->getPDF(ray.direction, xN, xUV, lumSmplDir, pdfBSDFLight))
       {
         break;
       }
