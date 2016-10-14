@@ -7,7 +7,7 @@
 
 using namespace ray_storm::scene;
 
-ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting = false)
+ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSources)
 {
   ScenePtr scene = TestSceneFactory::buildBox();
 
@@ -19,15 +19,15 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting = false)
   materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f), 500.0f);
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
 
-  // light
-  if (!naturalLighting)
+  if (lightSources)
   {
     geometry::ObjectPtr sphereLight1 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
     geometry::ObjectPtr sphereLight2 = geometry::ObjectPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
     scene->add(sphereLight2);
   }
-  else
+
+  if (naturalLighting)
   {
     scene->setSky(ConstantSkyPtr(new ConstantSky(glm::vec3(0.5, 0.5, 0.8f))));
   }

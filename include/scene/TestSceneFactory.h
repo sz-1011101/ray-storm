@@ -12,7 +12,7 @@ namespace ray_storm
 
     public:
 
-      static ScenePtr createCornellBox(bool naturalLighting);
+      static ScenePtr createCornellBox(bool naturalLighting, bool lightSources);
 
       static ScenePtr createReflectionTest();
 
