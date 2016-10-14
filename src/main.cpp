@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     )
   );
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false);
+  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true);
   //scene::ScenePtr scene = scene::TestSceneFactory::createReflectionTest();
   //scene::ScenePtr scene = scene::TestSceneFactory::createSolarSystem();
 

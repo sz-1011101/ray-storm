@@ -21,17 +21,20 @@ namespace ray_storm
 
       struct LuminaireSample
       {
-        // object that is emitting
-        geometry::Object *object;
-        // surface point that emitts
-        glm::vec3 position;
+
+        bool shadowed;
+
+        glm::vec3 emittance;
+
+        glm::vec3 direction;
 
         float PDF;
 
         LuminaireSample()
         {
-          this->object = nullptr;
-          this->PDF = 1.0f;
+          this->shadowed = true;
+          this->emittance = glm::vec3(0.0f);
+          this->PDF = 0.0f;
         }
       };
 
@@ -39,9 +42,9 @@ namespace ray_storm
 
       bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
 
-      bool drawLuminareSample(random::RandomizationHelper &randHelper, LuminaireSample &light);
+      void luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
 
-      float getLuminarePDF(geometry::Object *object);
+      float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 
       void add(geometry::ObjectPtr &object);
 
@@ -51,6 +54,8 @@ namespace ray_storm
 
       glm::vec3 sampleSky(const geometry::Ray &ray);
 
+      float getSkyPDF(const glm::vec3 &n);
+
     private:
 
       // scene objects that interact with the light
@@ -59,11 +64,11 @@ namespace ray_storm
       // scene objects that additionally can act as a light source
       std::vector<geometry::ObjectPtr> lights;
 
+      // skylight
+      AbstractSkyPtr sky;
+
       // for fast object intersecting
       std::unique_ptr<datastructures::SpatialDatastructure<geometry::Object>> dataStruct;
-
-      // sky
-      AbstractSkyPtr sky;
       
     };
 

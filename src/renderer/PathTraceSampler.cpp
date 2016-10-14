@@ -128,7 +128,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
   geometry::Intersection<geometry::Object> intersectX;
   if (!scene->intersect(ray, intersectX))
   {
-    return glm::vec3(0.0f);
+    return scene->sampleSky(ray);
   }
 
   const glm::vec3 emittance = intersectX.intersected->getEmittance();
@@ -155,32 +155,13 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
     const glm::vec3 &xOffset = bounceRay.ray.origin;
     const float &pdfBSDFBounce = bounceRay.PDF;
 
-    // directly sample the light sources with area form
-
+    // direct lighting from luminare sampling
     scene::Scene::LuminaireSample lumSmpl;
-    if (!scene->drawLuminareSample(randHelper, lumSmpl))
+    scene->luminaireSample(xOffset, xN, randHelper, lumSmpl);
+    if (!lumSmpl.shadowed)
     {
-      break;
-    }
-    const glm::vec3 lumSmplDir = glm::normalize(lumSmpl.position - x);
-
-    // compute direct lighting
-    geometry::Ray shadowRay(xOffset, lumSmplDir);
-
-    geometry::Intersection<geometry::Object> intersectL;
-    if (glm::dot(lumSmplDir, xN) > 0.0f
-      && scene->intersect(shadowRay, intersectL)
-      && intersectL.intersected == lumSmpl.object
-      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
-    )
-    {
-      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, xUV, -ray.direction);
-      float pdfLumL = scene->getLuminarePDF(intersectL.intersected);
-
-      direct[b] = lightBSDF*intersectL.intersected->getEmittance()
-        /(pdfLumL*(std::pow(glm::length(lumSmpl.position - x), 2.0f)
-        /dot(-lumSmplDir, intersectL.intersection.normal)));
-
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmpl.direction, xN, xUV, -ray.direction);
+      direct[b] = lightBSDF*lumSmpl.emittance/lumSmpl.PDF;
     }
 
     glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
@@ -273,63 +254,42 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     geometry::Intersection<geometry::Object> intersectY;
     bool yHit = scene->intersect(bounceRay.ray, intersectY);
 
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
+    const glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
 
-    // directly sample the light sources
-    scene::Scene::LuminaireSample lumSmpl;
-    const bool lumSampleDrawn = scene->drawLuminareSample(randHelper, lumSmpl);
-
-    const glm::vec3 lumSmplDir = glm::normalize(lumSmpl.position - x);
-
-    // compute direct lighting
-    geometry::Ray shadowRay(xOffset, lumSmplDir);
     glm::vec3 reflY = glm::vec3(0.0f);
     glm::vec3 reflL = glm::vec3(0.0f);
 
-    geometry::Intersection<geometry::Object> intersectL;
-    if (lumSampleDrawn
-      && glm::dot(lumSmplDir, xN) > 0.0f
-      && scene->intersect(shadowRay, intersectL)
-      && intersectL.intersected == lumSmpl.object
-      && glm::distance(intersectL.intersection.position, lumSmpl.position) < 0.001f
-    )
+    // directly sample the light sources
+    scene::Scene::LuminaireSample lumSmpl;
+    scene->luminaireSample(xOffset, xN, randHelper, lumSmpl);
+    if (!lumSmpl.shadowed)
     {
-      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmplDir, xN, xUV, -ray.direction);
+      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmpl.direction, xN, xUV, -ray.direction);
       float pdfBSDFLight = 0.0f;
-      const float pdfLumL = lumSmpl.PDF;
-      if (!xMat->getPDF(ray.direction, xN, xUV, lumSmplDir, pdfBSDFLight))
+      const float pdfLumY = lumSmpl.PDF;
+      if (!xMat->getPDF(ray.direction, xN, xUV, lumSmpl.direction, pdfBSDFLight))
       {
         break;
       }
-      reflL = lightBSDF*intersectL.intersected->getEmittance()
-        /(pdfLumL*(std::pow(glm::length(lumSmpl.position - x), 2.0f)
-        /dot(-lumSmplDir, intersectL.intersection.normal))
-        + pdfBSDFLight);
+      reflL = lightBSDF*lumSmpl.emittance/(pdfLumY + pdfBSDFLight);
     }
 
-    // we can get radiance via the y bounce
+    // we can get radiance via the y bounce from an emitting object
     if (yHit)
     {
       if (intersectY.intersected->isEmitting())
       {
         geometry::Object *yObj = intersectY.intersected;
-        const float pdfLumY = scene->getLuminarePDF(yObj);
-        reflY = bounceBSDF*yObj->getEmittance()
-          /(pdfLumY*(std::pow(glm::length(intersectY.intersection.position - x), 2.0f)
-          /dot(-bounceRay.ray.direction, intersectY.intersection.normal))
-          + pdfBSDFBounce);
+        const float pdfLumY = scene->getLuminairePDF(yObj, bounceRay.ray, intersectY.intersection.position, intersectY.intersection.normal);
+        reflY = bounceBSDF*yObj->getEmittance()/(pdfLumY + pdfBSDFBounce);
       }
     }
-    else 
+    else // we hit the sky, sample for radiance
     {
-      // We "hit" the sky
-      // I assume zero pdf for pdfLumY because the sky is never randomly selected as a light source for direct lighting
-      // This means the sky acts similar to an object that emitts
-      // I'm not sure if this is allowed...
-      reflY = (bounceBSDF*scene->sampleSky(bounceRay.ray))/pdfBSDFBounce;
+
     }
 
-    direct[b] = (reflL + reflY);
+    direct[b] = reflL + reflY;
 
     if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
     {
