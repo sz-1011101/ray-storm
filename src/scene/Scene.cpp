@@ -39,7 +39,7 @@ void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::Rand
   {
     geometry::Object *luminaire = this->lights.at(objIndex).get();
     const glm::vec3 pos = luminaire->drawRandomSurfacePoint(randHelper);
-    light.direction = pos - x;
+    light.direction = glm::normalize(pos - x);
 
     geometry::Ray shadowRay(x, light.direction);
 
@@ -77,9 +77,9 @@ float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray,
   {
     // PDF from http://cg.informatik.uni-freiburg.de/course_notes/graphics2_09_pathTracing.pdf
     return (object->getPDF()/lCnt)*
-        // convert to directional pdf
+        // convert to directional pdf (see "Optimally Combining Sampling Techniques for Monte Carlo Rendering")
         (std::pow(glm::length(ray.origin - x), 2.0f)
-        /dot(-ray.direction, n));;
+        /dot(-ray.direction, n));
   }
   return 0.0f;
 }
