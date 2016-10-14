@@ -65,7 +65,7 @@ void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::Rand
     {
       light.shadowed = false;
       light.emittance = this->sampleSky(shadowRay);
-      light.PDF = randHelper.uniformRandomHemispherePDF();
+      light.PDF = this->getSkyPDF();
     }
   }
 }
@@ -123,7 +123,11 @@ glm::vec3 Scene::sampleSky(const geometry::Ray &ray)
   return this->sky->sample(ray);
 }
 
-float Scene::getSkyPDF(const glm::vec3 &n)
+float Scene::getSkyPDF()
 {
-  return 0; // TODO
+  if (this->sky == nullptr)
+  {
+    return 0.0f;
+  }
+  return random::RandomizationHelper::uniformRandomHemispherePDF()/(static_cast<int>(this->lights.size()) + 1);
 }

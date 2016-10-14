@@ -54,7 +54,7 @@ namespace ray_storm
 
       glm::vec3 sampleSky(const geometry::Ray &ray);
 
-      float getSkyPDF(const glm::vec3 &n);
+      float getSkyPDF();
 
     private:
 

@@ -286,7 +286,8 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     }
     else // we hit the sky, sample for radiance
     {
-
+      const float pdfSky = scene->getSkyPDF();
+      reflY = bounceBSDF*scene->sampleSky(bounceRay.ray)/(pdfSky + pdfBSDFBounce);
     }
 
     direct[b] = reflL + reflY;
