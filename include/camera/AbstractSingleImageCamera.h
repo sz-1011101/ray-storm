@@ -16,7 +16,7 @@ namespace ray_storm
 
       virtual ~AbstractSingleImageCamera() {};
 
-      void setTile(int xOrg, int yOrg, utility::Image &tile);
+      void setTile(int xOrg, int yOrg, const utility::Image &tile);
 
       uint32_t getWidth();
 

@@ -8,7 +8,7 @@ AbstractSingleImageCamera::AbstractSingleImageCamera(const utility::RenderedData
 
 }
 
-void AbstractSingleImageCamera::setTile(int xOrg, int yOrg, utility::Image &tile)
+void AbstractSingleImageCamera::setTile(int xOrg, int yOrg, const utility::Image &tile)
 {
   if (this->renderedData == nullptr)
   {

@@ -18,7 +18,7 @@ void RenderedData::setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear)
   this->data.setPixelSRGB(x, y, rgbLinear);
 }
 
-void RenderedData::setTile(int xOrg, int yOrg, Image &tile)
+void RenderedData::setTile(int xOrg, int yOrg, const Image &tile)
 {
   tile.image.copyTo(this->data.image(cv::Rect(xOrg, yOrg, tile.image.cols, tile.image.rows)));
 }

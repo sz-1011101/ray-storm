@@ -27,7 +27,7 @@ namespace ray_storm
 
       void setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear);
 
-      void setTile(int xOrg, int yOrg, Image &tile);
+      void setTile(int xOrg, int yOrg, const Image &tile);
 
       void setWindow(Window *window);
 
