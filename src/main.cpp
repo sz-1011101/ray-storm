@@ -16,24 +16,12 @@ int main(int argc, char* argv[])
 
   using namespace ray_storm;
 
-  // camera
-  /*
-  camera::AbstractCameraPtr camera(new camera::ThinLensCamera(
-    camera::ThinLensCameraSetupPtr(
-      new camera::ThinLensCameraSetup(
-        glm::vec3(0, 5.0f, 9.5f),
-        glm::vec3(0, 5, -10),
-        glm::vec3(0, 1, 0),
-        1.0f,
-        75.0f,
-        camera::LensFactory::createNPolygon(5, 0.1f),
-        geometry::Plane(glm::vec3(0, 0, 8.0f), glm::normalize(glm::vec3(0, 0, 1)))
-      )
-    )
-  ));
-  */
+  utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
+  utility::Window window;
+  window.setRenderedData(rd);
+  rd->setWindow(&window);
 
-  camera::AbstractCameraPtr camera(new camera::PinholeCamera(
+  camera::AbstractSingleImageCameraPtr camera(new camera::PinholeCamera(
     camera::CameraSetupPtr(
       new camera::CameraSetup(
         glm::vec3(0, 5.0f, 9.5f),
@@ -42,22 +30,18 @@ int main(int argc, char* argv[])
         1.0f,
         75.0f
         )
-      )
+      ),
+      rd
     )
   );
 
+  renderer::AbstractRadianceSamplerPtr pts(
+    new renderer::PathTraceSampler(
+      renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
+
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, true);
-  //scene::ScenePtr scene = scene::TestSceneFactory::createReflectionTest();
-  //scene::ScenePtr scene = scene::TestSceneFactory::createSolarSystem();
-
-  utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
-  utility::Window window;
-  window.setRenderedData(rd);
-  rd->setWindow(&window);
-
-  renderer::AbstractRadianceSamplerPtr pts(new renderer::PathTraceSampler(renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
+  
   renderer::DefaultRenderer dr(scene, camera, pts, 200);
-  dr.setRenderedData(rd);
 
   dr.render();
 

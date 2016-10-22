@@ -19,13 +19,7 @@ namespace ray_storm
 
       virtual ~AbstractRenderer() {};
 
-      void setRenderedData(utility::RenderedDataPtr &renderedData);
-
       virtual void render() = 0;
-
-    protected:
-
-      utility::RenderedDataPtr renderedData;
       
     };
   }

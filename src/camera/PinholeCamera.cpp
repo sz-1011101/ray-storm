@@ -2,7 +2,8 @@
 
 using namespace ray_storm::camera;
 
-PinholeCamera::PinholeCamera(const CameraSetupPtr &cameraSetup) : cameraSetup(cameraSetup)
+PinholeCamera::PinholeCamera(const CameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData)
+  : AbstractSingleImageCamera(renderedData), cameraSetup(cameraSetup)
 {
 
 }

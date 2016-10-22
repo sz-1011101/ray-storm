@@ -2,7 +2,8 @@
 
 using namespace ray_storm::camera;
 
-ThinLensCamera::ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup) : cameraSetup(cameraSetup)
+ThinLensCamera::ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData)
+  : AbstractSingleImageCamera(renderedData), cameraSetup(cameraSetup)
 {
 
 }

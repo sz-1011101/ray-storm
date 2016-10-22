@@ -9,7 +9,7 @@ using namespace ray_storm::renderer;
 
 DefaultRenderer::DefaultRenderer(
   const scene::ScenePtr &scene,
-  const camera::AbstractCameraPtr &camera,
+  const camera::AbstractSingleImageCameraPtr &camera,
   const AbstractRadianceSamplerPtr &sampler,
   uint32_t samples
 ) : scene(scene), camera(camera), sampler(sampler), samples(samples)
@@ -20,13 +20,14 @@ DefaultRenderer::DefaultRenderer(
 void DefaultRenderer::render()
 {
   // TODO: more informative error handling
-  if (this->scene == nullptr || this->camera == nullptr || this->renderedData == nullptr)
+  if (this->scene == nullptr || this->camera == nullptr)
   {
+    puts("No scene or camera available");
     return;
   }
 
-  const uint32_t width = this->renderedData->getWidth();
-  const uint32_t height = this->renderedData->getHeight();
+  const uint32_t width = this->camera->getWidth();
+  const uint32_t height = this->camera->getHeight();
 
   const float xSSoffset = (1.0f/width)/3.0f;
   const float ySSoffset = (1.0f/height)/3.0f;
@@ -81,11 +82,10 @@ void DefaultRenderer::render()
       }
     }
 
-    // job done -> update window
+    // job done -> give result to camera
     #pragma omp critical
     {
-      this->renderedData->setTile(job.xOrigin, job.yOrigin, job.tile);
-      this->renderedData->signalChanged();
+      this->camera->setTile(job.xOrigin, job.yOrigin, job.tile);
     }
   }
 
