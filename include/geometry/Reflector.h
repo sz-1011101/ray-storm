@@ -5,10 +5,14 @@
 
 namespace ray_storm
 {
+
+  namespace dispatchers
+  {
+    class AbstractObjectDispatcher;
+  }
+
   namespace geometry
   {
-
-    class AbstractObjectDispatcher;
 
     class Reflector : public Object
     {

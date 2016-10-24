@@ -97,7 +97,11 @@ void Scene::add(const geometry::ReflectorPtr &reflector)
 void Scene::add(const geometry::EmitterPtr &emitter)
 {
   this->objects.push_back(emitter);
-  this->lights.push_back(emitter);
+  dispatchers::EmittanceDispatcher ed;
+  emitter->accept(&ed);
+  if (ed.isEmitting()) {
+    this->lights.push_back(emitter);
+  }
 }
 
 void Scene::finalize()

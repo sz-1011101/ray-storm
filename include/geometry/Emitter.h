@@ -6,10 +6,14 @@
 
 namespace ray_storm
 {
+
+  namespace dispatchers
+  {
+    class AbstractObjectDispatcher;
+  }
+
   namespace geometry
   {
-
-    class AbstractObjectDispatcher;
 
     class Emitter : public Object, public Emitting
     {

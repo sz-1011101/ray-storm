@@ -18,25 +18,11 @@ namespace ray_storm
       void dispatch(geometry::Emitter *emitter)
       {
         this->emittance = emitter->getEmittance();
-        this->emitting = true;
-        this->PDF = emitter->getPDF();
+        this->emitting = emitter->isEmitting();
+        this->PDF = this->emitting ? emitter->getPDF() : 0.0f;
       }
       
       void dispatch(geometry::Reflector *reflector)
-      {
-        this->emittance = glm::vec3(0.0f);
-        this->emitting = true;
-        this->PDF = 0.0f;
-      }
-
-      void dispatch(const geometry::EmitterPtr &emitter)
-      {
-        this->emittance = emitter->getEmittance();
-        this->emitting = true;
-        this->PDF = emitter->getPDF();
-      }
-      
-      void dispatch(const geometry::ReflectorPtr &reflector)
       {
         this->emittance = glm::vec3(0.0f);
         this->emitting = false;

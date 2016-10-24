@@ -17,8 +17,6 @@ namespace ray_storm
   namespace geometry
   {
 
-    
-
     class Object : public Renderable, public Intersectable<Object>
     {
     public: 
