@@ -1,4 +1,5 @@
 #include "renderer/PathTraceSampler.h"
+#include "dispatchers/EmittanceDispatcher.hpp"
 
 using namespace ray_storm::renderer;
 
@@ -41,6 +42,7 @@ glm::vec3 PathTraceSampler::walkPath(
 
   // current ray
   geometry::Ray ray = initialRay;
+  dispatchers::EmittanceDispatcher ed;
 
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
   int depth = 0;
@@ -74,7 +76,9 @@ glm::vec3 PathTraceSampler::walkPath(
 
     const float &pdfBSDFBounce = bounceRay.PDF;
     glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
-    emitted[b] = xObj->getEmittance();
+
+    xObj->accept(&ed);
+    emitted[b] = ed.getEmittance();
 
     if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
     {
@@ -119,6 +123,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
 
   // current ray
   geometry::Ray ray = initialRay;
+  dispatchers::EmittanceDispatcher ed;
 
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
   int depth = 0;
@@ -131,7 +136,8 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
     return scene->sampleSky(ray);
   }
 
-  const glm::vec3 emittance = intersectX.intersected->getEmittance();
+  intersectX.intersected->accept(&ed);
+  const glm::vec3 emittance = ed.getEmittance();
 
   // we found our first intersection! lets go on...
   for (uint32_t b = 0; b < maxBounces; b++) // hard limit will bias the result in theory...
@@ -214,6 +220,7 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
 
   // current ray
   geometry::Ray ray = initialRay;
+  dispatchers::EmittanceDispatcher ed;
 
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
   int depth = 0;
@@ -225,8 +232,12 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
   {
     return scene->sampleSky(ray);
   }
+
+  
   // emittance of the first intersected object after the camera
-  const glm::vec3 emitted = intersectX.intersected->getEmittance();
+
+  intersectX.intersected->accept(&ed);
+  const glm::vec3 emitted = ed.getEmittance();
 
   // we found our first intersection! lets go on...
   for (uint32_t b = 0; b < maxBounces; b++) // hard limit will bias the result in theory...
@@ -277,11 +288,13 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting2(
     // we can get radiance via the y bounce from an emitting object
     if (yHit)
     {
-      if (intersectY.intersected->isEmitting())
+      intersectY.intersected->accept(&ed);
+      if (ed.isEmitting())
       {
         geometry::Object *yObj = intersectY.intersected;
         const float pdfLumY = scene->getLuminairePDF(yObj, bounceRay.ray, intersectY.intersection.position, intersectY.intersection.normal);
-        reflY = bounceBSDF*yObj->getEmittance()/(pdfLumY + pdfBSDFBounce);
+        yObj->accept(&ed);
+        reflY = bounceBSDF*ed.getEmittance()/(pdfLumY + pdfBSDFBounce);
       }
     }
     else // we hit the sky, sample for radiance

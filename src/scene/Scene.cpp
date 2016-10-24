@@ -1,5 +1,6 @@
 #include "scene/Scene.h"
 #include "datastructures/List.hpp"
+#include "dispatchers/EmittanceDispatcher.hpp"
 
 using namespace ray_storm::scene;
 
@@ -37,7 +38,7 @@ void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::Rand
 
   if (objDrawn) // object luminaire
   {
-    geometry::Object *luminaire = this->lights.at(objIndex).get();
+    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
     const glm::vec3 pos = luminaire->drawRandomSurfacePoint(randHelper);
     light.direction = glm::normalize(pos - x);
 
@@ -73,10 +74,14 @@ void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::Rand
 float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n)
 {
   const int lCnt = this->sky == nullptr ? static_cast<int>(this->lights.size()) : static_cast<int>(this->lights.size()) + 1;
-  if (object != nullptr && object->isEmitting())
+  
+  dispatchers::EmittanceDispatcher ed;
+  object->accept(&ed);
+
+  if (object != nullptr && ed.isEmitting())
   {
     // PDF from http://cg.informatik.uni-freiburg.de/course_notes/graphics2_09_pathTracing.pdf
-    return (object->getPDF()/lCnt)*
+    return (ed.getPDF()/lCnt)*
         // convert to directional pdf (see "Optimally Combining Sampling Techniques for Monte Carlo Rendering")
         (std::pow(glm::length(ray.origin - x), 2.0f)
         /dot(-ray.direction, n));
@@ -84,16 +89,15 @@ float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray,
   return 0.0f;
 }
 
-void Scene::add(geometry::ObjectPtr &object)
+void Scene::add(const geometry::ReflectorPtr &reflector)
 {
-  this->objects.push_back(object);
-  puts("Object added");
-  // if the objects' material is emitting in some channel it is a light source
-  if (object->isEmitting())
-  {
-    this->lights.push_back(object);
-    puts("Light added");
-  }
+  this->objects.push_back(reflector);
+}
+
+void Scene::add(const geometry::EmitterPtr &emitter)
+{
+  this->objects.push_back(emitter);
+  this->lights.push_back(emitter);
 }
 
 void Scene::finalize()

@@ -1,20 +1,20 @@
 #ifndef BOX_H_
 #define BOX_H_
 
+#include "geometry/Reflector.h"
 #include "geometry/AxisAlignedBox.hpp"
-#include "geometry/Object.h"
 
 namespace ray_storm
 {
   namespace geometry
   {
-    class Box : public Object
+    class Box : public Reflector
     {
     public:
       
       Box(const glm::vec3 &origin, const glm::vec3 &extends,
         materials::MaterialPtr &material
-      ) : Object(material, glm::vec3(0.0f)), aaBox(origin, extends)
+      ) : Reflector(material), aaBox(origin, extends)
       {
         this->origin = origin;
         this->extends = extends;
@@ -33,23 +33,6 @@ namespace ray_storm
         intersection.t = aaIntersect.t;
 
         return true;
-      }
-
-      float getSurfaceArea()
-      {
-        return 2.0f*(extends.x*extends.y + extends.x*extends.z + extends.z*extends.y);
-      }
-
-      glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
-      {
-        // TODO implement
-        return this->origin;
-      }
-
-      float getPDF()
-      {
-        // TODO implement
-        return 0.0f;
       }
 
     private:

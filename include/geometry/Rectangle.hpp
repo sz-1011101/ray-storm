@@ -9,7 +9,7 @@ namespace ray_storm
   namespace geometry
   {
 
-    class Rectangle : public Object
+    class Rectangle : public Emitter
     {
     public:
 
@@ -44,7 +44,7 @@ namespace ray_storm
         const RectParams &rectParams,
         materials::MaterialPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
-      ) : Object(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
+      ) : Emitter(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {
         this->normal = rectParams.calcNormal();
         this->wSide = rectParams.wAxis*rectParams.width;

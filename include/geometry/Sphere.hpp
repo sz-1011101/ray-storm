@@ -1,7 +1,7 @@
 #ifndef SPHERE_H_
 #define SPHERE_H_
 
-#include "geometry/Object.h"
+#include "geometry/Emitter.h"
 #include "utility/common.hpp"
 
 namespace ray_storm
@@ -9,16 +9,16 @@ namespace ray_storm
   namespace geometry
   {
     
-    class Sphere : public Object
+    class Sphere : public Emitter
     {
 
     public:
 
       Sphere(
         const glm::vec3 &position, 
-        float radius, materials::MaterialPtr &material,
+        float radius, const materials::MaterialPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
-      ) : Object(material, emittance)
+      ) : Emitter(material, emittance)
       {
         this->position = position;
         this->radius = radius;

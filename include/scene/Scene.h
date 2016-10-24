@@ -3,7 +3,8 @@
 
 #include <memory>
 
-#include "geometry/Object.h"
+#include "geometry/Emitter.h"
+#include "geometry/Reflector.h"
 #include "geometry/Ray.hpp"
 #include "datastructures/SpatialDatastructure.h"
 #include "random/RandomizationHelper.h"
@@ -46,7 +47,9 @@ namespace ray_storm
 
       float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 
-      void add(geometry::ObjectPtr &object);
+      void add(const geometry::EmitterPtr &emitter);
+
+      void add(const geometry::ReflectorPtr &reflector);
 
       void finalize();
 
@@ -62,7 +65,7 @@ namespace ray_storm
       std::vector<geometry::ObjectPtr> objects;
 
       // scene objects that additionally can act as a light source
-      std::vector<geometry::ObjectPtr> lights;
+      std::vector<geometry::EmitterPtr> lights;
 
       // skylight
       AbstractSkyPtr sky;
