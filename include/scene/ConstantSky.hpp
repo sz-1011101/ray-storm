@@ -13,7 +13,7 @@ namespace ray_storm
 
       ConstantSky(const glm::vec3 &color) : color(color) {};
 
-      ~ConstantSky() {};
+      virtual ~ConstantSky() {};
 
       virtual glm::vec3 sample(const geometry::Ray &ray)
       {

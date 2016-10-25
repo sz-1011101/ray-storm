@@ -4,6 +4,7 @@
 #include "geometry/Box.hpp"
 #include "materials/MaterialFactory.h"
 #include "scene/ConstantSky.hpp"
+#include "scene/SunSky.hpp"
 
 using namespace ray_storm::scene;
 
@@ -29,7 +30,10 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   if (naturalLighting)
   {
-    scene->setSky(ConstantSkyPtr(new ConstantSky(glm::vec3(0.5, 0.5, 0.8f))));
+    const glm::vec3 skyColor = glm::vec3(0.6f, 0.3f, 0.3f);
+    const glm::vec3 sunColor = glm::vec3(1.0f);
+    const glm::vec3 sunDir = glm::vec3(0.0f, -0.2f, -1.0f);
+    scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
   geometry::EmitterPtr sphere1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
@@ -127,7 +131,7 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
   materials::MaterialPtr matRed = materials::MaterialFactory::createLambertian(glm::vec3(0.75f, 0.25f, 0.25f));
   materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
-
+  
   // floor
   geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
   geometry::EmitterPtr floor = geometry::EmitterPtr(new geometry::Rectangle(floorRp, matWhite));
