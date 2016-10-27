@@ -110,6 +110,11 @@ namespace ray_storm
         return this->lumSmpl;
       }
 
+      glm::vec3 computeLuminaireIncomingBSDF()
+      {
+        return this->material->evaluateBSDF(this->lumSmpl.direction, this->normal, this->uv, -this->incoming.direction);
+      }
+
     private:
 
       // vertex situation
