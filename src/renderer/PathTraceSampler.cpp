@@ -103,93 +103,74 @@ glm::vec3 PathTraceSampler::walkPathDirectLighting(
   random::RandomizationHelper &randHelper
 )
 {
-
-  // current ray
-  geometry::Ray ray = initialRay;
-  dispatchers::EmittanceDispatcher ed;
-
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  int depth = 0;
+  uint32_t depth = 0;
+  PathTraceVertex vertices[maxBounces];
   glm::vec3 reflected[maxBounces];
   glm::vec3 direct[maxBounces];
 
-  geometry::Intersection<geometry::Object> intersectX;
-  if (!scene->intersect(ray, intersectX))
-  {
-    return scene->sampleSky(ray);
-  }
+  vertices[0] = PathTraceVertex(initialRay);
 
-  intersectX.intersected->accept(&ed);
-  const glm::vec3 emittance = ed.getEmittance();
-
-  // we found our first intersection! lets go on...
-  for (uint32_t b = 0; b < maxBounces; b++) // hard limit will bias the result in theory...
+  for (uint32_t b = 0; b < maxBounces; b++) 
   {
     depth = b;
-    reflected[b] = glm::vec3(0.0f);
-    direct[b] = glm::vec3(0.0f);
+    reflected[depth] = glm::vec3(0.0f);
+    direct[depth] = glm::vec3(0.0f);
+    PathTraceVertex &vert = vertices[depth];
 
-    const glm::vec3 &x = intersectX.intersection.position;
-    const glm::vec3 &xN = intersectX.intersection.normal;
-    const glm::vec2 &xUV = intersectX.intersection.texCoords;
-    geometry::Object *xObj = intersectX.intersected;
-    materials::Material *xMat = xObj->getMaterial();
-
-    // get a reflection by sampling the bsdf
-    random::RandomRay bounceRay;
-    if (!xMat->sampleBSDF(ray.direction, x, xN, xUV, randHelper, bounceRay))
+    // find intersection
+    if (!vert.computeIntersection(scene.get()))
     {
-      break;
-    }
-    const glm::vec3 &xOffset = bounceRay.ray.origin;
-    const float &pdfBSDFBounce = bounceRay.PDF;
-
-    // direct lighting from luminare sampling
-    scene::Scene::LuminaireSample lumSmpl;
-    scene->luminaireSample(xOffset, xN, randHelper, lumSmpl);
-    if (!lumSmpl.shadowed)
-    {
-      glm::vec3 lightBSDF = xMat->evaluateBSDF(lumSmpl.direction, xN, xUV, -ray.direction);
-      direct[b] = lightBSDF*lumSmpl.emittance/lumSmpl.PDF;
-    }
-
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
-
-    if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
-    {
-      break;
-    }
-    // we have the next ray, intersect
-    geometry::Intersection<geometry::Object> intersectY;
-    bool yHit = scene->intersect(bounceRay.ray, intersectY);
-
-    // termination
-    if (yHit)
-    {
-      if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
-      {
-        reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
+      if (depth == 0) {
+        direct[depth] = scene->sampleSky(vert.getIncoming());
       }
+      break;
+    }
+
+    if (!vert.isReflecting() || !vert.computeBounce(randHelper))
+    {
+      break;
+    }
+
+    // HACK? otherwise emitters are black on first bounce
+    if (depth == 0)
+    {
+      direct[depth] = vert.computeEmittance();
+    }
+
+    vert.computeLuminaireSample(scene.get(), randHelper);
+    const scene::Scene::LuminaireSample &ls = vert.getLuminaireSample();
+    if (ls.shadowed != true)
+    {
+      direct[depth] += ls.emittance*vert.computeLuminaireIncomingBSDF()/ls.PDF;
+    }
+
+    // eval bsdf
+    glm::vec3 bsdf = vert.computeBounceIncomingBSDF();
+
+    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
+      reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bsdf/vert.getBounceIncomingPDF();
     }
     else
     {
       break;
     }
 
-    // go on with reflected ray
-    ray = bounceRay.ray;
-    intersectX = intersectY; // advance one step
+    if (depth < maxBounces - 1)
+    {
+      vert.setupNext(vertices[depth + 1]);
+    }
+
   }
 
-  // walk the recusion backwards to accumulate radiance
+  // recombine result
   glm::vec3 reflectedRadiance(1.0f);
   for (int b = depth; b >= 0; b--)
   {
     reflectedRadiance = (direct[b] + reflected[b]*reflectedRadiance);
   }
 
-  return emittance + reflectedRadiance;
-
+  return reflectedRadiance;
 }
 
 glm::vec3 PathTraceSampler::walkPathDirectLighting2(
