@@ -80,9 +80,14 @@ namespace ray_storm
         return this->normal;
       }
 
+      glm::vec3 computeBSDF(const glm::vec3 &direction)
+      {
+        return this->material->evaluateBSDF(direction, this->normal, this->uv, -this->incoming.direction);
+      }
+
       glm::vec3 computeBounceIncomingBSDF()
       {
-        return this->material->evaluateBSDF(this->bounceRay.ray.direction, this->normal, this->uv, -this->incoming.direction);
+        return this->computeBSDF(this->bounceRay.ray.direction);
       }
 
       float getBounceIncomingPDF()
@@ -112,7 +117,7 @@ namespace ray_storm
 
       glm::vec3 computeLuminaireIncomingBSDF()
       {
-        return this->material->evaluateBSDF(this->lumSmpl.direction, this->normal, this->uv, -this->incoming.direction);
+        return this->computeBSDF(this->lumSmpl.direction);
       }
 
     private:
