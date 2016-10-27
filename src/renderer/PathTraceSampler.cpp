@@ -1,5 +1,6 @@
 #include "renderer/PathTraceSampler.h"
 #include "dispatchers/EmittanceDispatcher.hpp"
+#include "renderer/PathTraceVertex.hpp"
 
 using namespace ray_storm::renderer;
 
@@ -39,71 +40,62 @@ glm::vec3 PathTraceSampler::walkPath(
   random::RandomizationHelper &randHelper
 )
 {
-
-  // current ray
-  geometry::Ray ray = initialRay;
-  dispatchers::EmittanceDispatcher ed;
-
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  int depth = 0;
+  uint32_t depth = 0;
+  PathTraceVertex vertices[maxBounces];
   glm::vec3 reflected[maxBounces];
   glm::vec3 emitted[maxBounces];
 
-  geometry::Intersection<geometry::Object> intersectX;
-  if (!scene->intersect(ray, intersectX))
-  {
-    return scene->sampleSky(ray);
-  }
+  vertices[0] = PathTraceVertex(initialRay);
 
   for (uint32_t b = 0; b < maxBounces; b++) 
   {
     depth = b;
-    reflected[b] = glm::vec3(0.0f);
-    emitted[b] = glm::vec3(0.0f);
+    reflected[depth] = glm::vec3(0.0f);
+    emitted[depth] = glm::vec3(0.0f);
+    PathTraceVertex &vert = vertices[depth];
 
-    const glm::vec3 &x = intersectX.intersection.position;
-    const glm::vec3 &xN = intersectX.intersection.normal;
-    const glm::vec2 &xUV = intersectX.intersection.texCoords;
-    geometry::Object *xObj = intersectX.intersected;
-    materials::Material *xMat = xObj->getMaterial();
+    // find intersection
+    if (!vert.computeIntersection(scene.get()))
+    {
+      emitted[depth] = scene->sampleSky(vert.getIncoming());
+      break;
+    }
 
-    // get a reflection by sampling the bsdf
-    random::RandomRay bounceRay;
-    if (!xMat->sampleBSDF(ray.direction, x, xN, xUV, randHelper, bounceRay))
+    if (!vert.computeEmittance(emitted[depth]))
     {
       break;
     }
 
-    const float &pdfBSDFBounce = bounceRay.PDF;
-    glm::vec3 bounceBSDF = xMat->evaluateBSDF(bounceRay.ray.direction, xN, xUV, -ray.direction);
-
-    xObj->accept(&ed);
-    emitted[b] = ed.getEmittance();
-
-    if (glm::all(glm::lessThanEqual(bounceBSDF, glm::vec3(0.0f))))
+    //intersection found
+    if (!vert.computeBounce(randHelper))
     {
       break;
     }
-    
-    // we have the next ray, intersect
-    geometry::Intersection<geometry::Object> intersectY;
 
-    if (scene->intersect(bounceRay.ray, intersectY))
+    // eval bsdf
+    glm::vec3 bsdf;
+    if (!vert.computeBounceIncomingBSDF(bsdf))
     {
-      if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
-        reflected[b] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/pdfBSDFBounce;
-      }
-    }
-    else // sky hit
-    {
-      reflected[b] = scene->sampleSky(bounceRay.ray)*bounceBSDF/pdfBSDFBounce;
       break;
     }
 
-    ray = bounceRay.ray;
-    intersectX = intersectY;
+    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
+      reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bsdf/vert.getBounceIncomingPDF();
+    }
+    else
+    {
+      break;
+    }
+
+    if (depth < maxBounces - 1)
+    {
+      vert.setupNext(vertices[depth + 1]);
+    }
+
   }
 
+  // recombine result
   glm::vec3 reflectedRadiance(1.0f);
   for (int b = depth; b >= 0; b--)
   {
@@ -111,7 +103,6 @@ glm::vec3 PathTraceSampler::walkPath(
   }
 
   return reflectedRadiance;
-
 }
 
 glm::vec3 PathTraceSampler::walkPathDirectLighting(
