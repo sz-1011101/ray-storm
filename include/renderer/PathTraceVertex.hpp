@@ -62,7 +62,12 @@ namespace ray_storm
 
       bool isIntersecting()
       {
-        return object != nullptr;
+        return this->object != nullptr;
+      }
+
+      bool isReflecting()
+      {
+        return this->material != nullptr;
       }
 
       const glm::vec3 &getPosition()
@@ -75,13 +80,9 @@ namespace ray_storm
         return this->normal;
       }
 
-      bool computeBounceIncomingBSDF(glm::vec3 &bsdf)
+      glm::vec3 computeBounceIncomingBSDF()
       {
-        if (this->material == nullptr) {
-          return false;
-        }
-        bsdf = this->material->evaluateBSDF(this->bounceRay.ray.direction, this->normal, this->uv, -this->incoming.direction);
-        return true;
+        return this->material->evaluateBSDF(this->bounceRay.ray.direction, this->normal, this->uv, -this->incoming.direction);
       }
 
       float getBounceIncomingPDF()
@@ -89,16 +90,24 @@ namespace ray_storm
         return this->bounceRay.PDF;
       }
 
-      bool computeEmittance(glm::vec3 &emittance)
+      glm::vec3 computeEmittance()
       {
-        if (this->object == nullptr)
-        {
-          return false;
-        }
         dispatchers::EmittanceDispatcher ed;
         this->object->accept(&ed);
-        emittance = ed.getEmittance();
-        return true;
+        return ed.getEmittance();
+      }
+
+      void computeLuminaireSample(
+        scene::Scene *scene,
+        random::RandomizationHelper &randHelper
+      )
+      {
+        scene->luminaireSample(bounceRay.ray.origin, normal, randHelper, this->lumSmpl);
+      }
+
+      const scene::Scene::LuminaireSample &getLuminaireSample()
+      {
+        return this->lumSmpl;
       }
 
     private:
@@ -114,6 +123,8 @@ namespace ray_storm
       glm::vec2 uv;
 
       random::RandomRay bounceRay;
+
+      scene::Scene::LuminaireSample lumSmpl;
 
       // additional info
 

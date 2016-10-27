@@ -62,23 +62,15 @@ glm::vec3 PathTraceSampler::walkPath(
       break;
     }
 
-    if (!vert.computeEmittance(emitted[depth]))
-    {
-      break;
-    }
+    emitted[depth] = vert.computeEmittance();
 
-    //intersection found
-    if (!vert.computeBounce(randHelper))
+    if (!vert.isReflecting() || !vert.computeBounce(randHelper))
     {
       break;
     }
 
     // eval bsdf
-    glm::vec3 bsdf;
-    if (!vert.computeBounceIncomingBSDF(bsdf))
-    {
-      break;
-    }
+    glm::vec3 bsdf = vert.computeBounceIncomingBSDF();
 
     if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
       reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bsdf/vert.getBounceIncomingPDF();
