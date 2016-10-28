@@ -45,7 +45,7 @@ namespace ray_storm
         random::RandomizationHelper &randHelper
       );
 
-      glm::vec3 walkPathDirectLighting2(
+      glm::vec3 walkPathDirectLightingBounce(
         const scene::ScenePtr &scene,
         const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper
