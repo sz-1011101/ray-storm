@@ -69,6 +69,12 @@ namespace ray_storm
         random::RandomizationHelper &randHelper
       );
 
+      glm::vec3 bidirectional(
+        const scene::ScenePtr &scene,
+        const geometry::Ray &initialRay,
+        random::RandomizationHelper &randHelper
+      );
+
     };
   }
 }

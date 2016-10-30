@@ -180,3 +180,11 @@ float Scene::getSkyPDF()
   }
   return random::RandomizationHelper::uniformRandomHemispherePDF()/(static_cast<int>(this->lights.size()) + 1);
 }
+
+bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target)
+{
+  geometry::Ray vRay(origin, glm::normalize(target - origin));
+  geometry::Intersection<geometry::Object> intersect;
+  // first condition should always happen, but numerics will ensure wonkyness
+  return this->intersect(vRay, intersect) && glm::length(intersect.intersection.position - target) < 0.001f;
+}

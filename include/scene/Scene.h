@@ -75,6 +75,8 @@ namespace ray_storm
 
       float getSkyPDF();
 
+      bool visible(const glm::vec3 &origin, const glm::vec3 &target);
+
     private:
 
       // scene objects that interact with the light

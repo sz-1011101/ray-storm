@@ -211,3 +211,24 @@ glm::vec3 PathTraceSampler::directIlluminationBounce(
   return L;
 
 }
+
+glm::vec3 PathTraceSampler::bidirectional(
+  const scene::ScenePtr &scene,
+  const geometry::Ray &initialRay,
+  random::RandomizationHelper &randHelper
+)
+{
+  RandomWalk eyeWalk;
+  this->randomWalk(scene, initialRay, randHelper, eyeWalk, PathTraceVertex::DIRECTION::EYE);
+  const std::size_t eyeWalkLen = eyeWalk.vertices.size();
+
+  RandomWalk lightWalk;
+  this->randomWalk(scene, initialRay, randHelper, eyeWalk, PathTraceVertex::DIRECTION::LIGHT);
+  const std::size_t lightWalkLen = lightWalk.vertices.size();
+
+  
+
+
+  return glm::vec3(0.0f); //FIXME
+
+}
