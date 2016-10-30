@@ -35,12 +35,13 @@ glm::vec3 PathTraceSampler::sample
   }
 }
 
-void PathTraceSampler::randomWalkEye
+void PathTraceSampler::randomWalk
 (
   const scene::ScenePtr &scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper,
-  RandomWalk &walk
+  RandomWalk &walk,
+  PathTraceVertex::DIRECTION direction = PathTraceVertex::DIRECTION::EYE
 )
 {
 
@@ -61,11 +62,11 @@ void PathTraceSampler::randomWalkEye
     float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
     if (PathTraceVertexFunctions::isReflecting(vert) &&
         randHelper.drawUniformRandom() < rr &&
-        PathTraceVertexFunctions::bounceEye(randHelper, vert))
+        PathTraceVertexFunctions::bounce(randHelper, vert, direction))
     {
       Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
       vert.cummulative = Lrefl;
-      ray = geometry::Ray(vert.outPosition, vert.out);
+      ray = geometry::Ray(vert.offPosition, vert.out);
     }
     else
     {
@@ -94,7 +95,7 @@ glm::vec3 PathTraceSampler::naive(
 )
 {
   RandomWalk walk;
-  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  this->randomWalk(scene, initialRay, randHelper, walk);
   const std::size_t walkLen = walk.vertices.size();
 
   if (walkLen == 0)
@@ -124,7 +125,7 @@ glm::vec3 PathTraceSampler::directIllumination(
 )
 {
   RandomWalk walk;
-  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  this->randomWalk(scene, initialRay, randHelper, walk);
   const std::size_t walkLen = walk.vertices.size();
 
   if (walkLen == 0)
@@ -164,7 +165,7 @@ glm::vec3 PathTraceSampler::directIlluminationBounce(
   // details for the bsdf/luminaire sample weighting 
   // in http://www.cs.cornell.edu/courses/cs6630/2012sp/slides/07pathtr-slides.pdf
   RandomWalk walk;
-  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  this->randomWalk(scene, initialRay, randHelper, walk);
   const std::size_t walkLen = walk.vertices.size();
 
   if (walkLen == 0)

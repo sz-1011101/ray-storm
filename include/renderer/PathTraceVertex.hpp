@@ -14,6 +14,12 @@ namespace ray_storm
     {
     public:
 
+      enum DIRECTION
+      {
+        EYE = 0,
+        LIGHT
+      };
+
       PathTraceVertex() : object(nullptr), material(nullptr) {}
 
       // vertex situation
@@ -26,7 +32,8 @@ namespace ray_storm
 
       glm::vec2 uv;
 
-      glm::vec3 outPosition;
+      // elevated pos for ray spawning
+      glm::vec3 offPosition;
 
       glm::vec3 out;
 

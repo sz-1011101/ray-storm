@@ -24,10 +24,10 @@ namespace ray_storm
         {
           return false;
         }
-
+      
         vertex.in = ray.direction;
         vertex.position = isect.intersection.position;
-        vertex.outPosition = vertex.position;
+        vertex.offPosition = vertex.position;
         vertex.normal = isect.intersection.normal;
         vertex.uv = isect.intersection.texCoords;
         vertex.object = isect.intersected;
@@ -35,17 +35,29 @@ namespace ray_storm
         return true;
       }
 
-      static bool bounceEye(random::RandomizationHelper &randHelper, PathTraceVertex &vertex)
+      static bool bounce(
+        random::RandomizationHelper &randHelper,
+        PathTraceVertex &vertex,
+        PathTraceVertex::DIRECTION direction = PathTraceVertex::DIRECTION::EYE
+      )
       {
         random::RandomRay ray;
         if (!vertex.material->sampleBSDF(vertex.in, vertex.position, vertex.normal, vertex.uv, randHelper, ray))
         {
           return false;
         }
+
         vertex.out = ray.ray.direction;
-        vertex.outPosition = ray.ray.origin;
+        vertex.offPosition = ray.ray.origin;
         vertex.bsdfPDF = ray.PDF;
-        vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
+        switch (direction)
+        {
+          case PathTraceVertex::DIRECTION::EYE:
+          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in); break;
+          case PathTraceVertex::DIRECTION::LIGHT:
+          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(-vertex.in, vertex, vertex.out); break;
+        }
+        
         return true;
       }
 
@@ -64,7 +76,7 @@ namespace ray_storm
       static scene::Scene::LuminaireSample sampleLuminaire(PathTraceVertex &vertex, scene::Scene *scene, random::RandomizationHelper &randHelper)
       {
         scene::Scene::LuminaireSample lSample;
-        scene->sampleLuminaire(vertex.outPosition, vertex.normal, randHelper, lSample);
+        scene->sampleLuminaire(vertex.offPosition, vertex.normal, randHelper, lSample);
         return lSample;
       }
 

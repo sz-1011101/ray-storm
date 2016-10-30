@@ -42,18 +42,12 @@ namespace ray_storm
         std::vector<PathTraceVertex> vertices;
       };
 
-      void randomWalkEye(
+      void randomWalk(
         const scene::ScenePtr &scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper,
-        RandomWalk &walk
-      );
-
-      void randomWalkLight(
-        const scene::ScenePtr &scene,
-        const geometry::Ray &initialRay,
-        random::RandomizationHelper &randHelper,
-        RandomWalk &walk
+        RandomWalk &walk,
+        PathTraceVertex::DIRECTION direction
       );
 
       // TODO move these out to seperate samplers?
