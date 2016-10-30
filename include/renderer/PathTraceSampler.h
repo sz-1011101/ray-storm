@@ -49,6 +49,13 @@ namespace ray_storm
         RandomWalk &walk
       );
 
+      void randomWalkLight(
+        const scene::ScenePtr &scene,
+        const geometry::Ray &initialRay,
+        random::RandomizationHelper &randHelper,
+        RandomWalk &walk
+      );
+
       // TODO move these out to seperate samplers?
       glm::vec3 naive(
         const scene::ScenePtr &scene,

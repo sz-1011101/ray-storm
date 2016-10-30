@@ -7,3 +7,5 @@ void Emitter::accept(dispatchers::AbstractObjectDispatcher *dispatcher)
 {
   dispatcher->dispatch(this);
 }
+
+const float Emitter::SURFACE_POINT_OFFSET = 0.00025f;

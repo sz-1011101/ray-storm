@@ -4,6 +4,8 @@
 
 using namespace ray_storm::scene;
 
+const float SKY_RAY_OFFSET = 999999.0f; // TODO replace by scaling with scene bbox size
+
 Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
 {
 }
@@ -68,6 +70,45 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
       light.emittance = this->sampleSky(shadowRay.direction);
       light.PDF = this->getSkyPDF();
     }
+  }
+}
+
+void Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay)
+{
+  const int lCnt = static_cast<int>(this->lights.size());
+  int objIndex;
+  bool objDrawn = false;
+
+  if (lCnt == 0 && this->sky == nullptr)
+  {
+    return;
+  }
+
+  // draw from objects and sky...
+  if (this->sky != nullptr)
+  {
+    objIndex = randHelper.drawUniformRandom(0, lCnt + 1);
+    objDrawn = objIndex == lCnt ? false : true;
+  }
+  else //... or only objects
+  {
+    objIndex = randHelper.drawUniformRandom(0, lCnt);
+    objDrawn = true;
+  }
+
+  const float selectionPDF = this->sky == nullptr ? 1.0f/this->lights.size() : 1.0f/(this->lights.size() + 1);
+
+  if (objDrawn) // object luminaire
+  {
+    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
+    luminaire->drawRandomRay(randHelper, lumRay.randRay);
+    lumRay.randRay.PDF *= selectionPDF;
+  }
+  else // sky light sampling
+  {
+    lumRay.randRay.ray.direction = randHelper.drawUniformRandomSphereDirection();
+    lumRay.randRay.ray.origin = -lumRay.randRay.ray.direction*SKY_RAY_OFFSET; // HACK pls fix
+    lumRay.randRay.PDF = selectionPDF*random::RandomizationHelper::uniformRandomSpherePDF();
   }
 }
 

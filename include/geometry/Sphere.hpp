@@ -64,7 +64,14 @@ namespace ray_storm
 
       glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
       {
-        return this->position + randHelper.drawUniformRandomSphereDirection()*this->radius;
+        return this->position + randHelper.drawUniformRandomSphereDirection()*(this->radius + Emitter::SURFACE_POINT_OFFSET);
+      }
+
+      void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      {
+        randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
+        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(randRay.ray.origin - this->position));
+        randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
       }
 
       float getPDF()

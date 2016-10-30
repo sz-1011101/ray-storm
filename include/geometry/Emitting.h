@@ -2,6 +2,7 @@
 #define EMITTING_H_
 
 #include "random/RandomizationHelper.h"
+#include "random/RandomRay.hpp"
 
 namespace ray_storm
 {
@@ -21,6 +22,8 @@ namespace ray_storm
       virtual float getSurfaceArea() = 0;
 
       virtual glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper) = 0;
+
+      virtual void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay) = 0;
 
       virtual float getPDF() = 0;
 

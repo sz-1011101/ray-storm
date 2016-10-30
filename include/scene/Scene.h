@@ -8,6 +8,7 @@
 #include "geometry/Ray.hpp"
 #include "datastructures/SpatialDatastructure.h"
 #include "random/RandomizationHelper.h"
+#include "random/RandomRay.hpp"
 #include "scene/AbstractSky.h"
 
 namespace ray_storm
@@ -39,11 +40,26 @@ namespace ray_storm
         }
       };
 
+      struct LuminaireRay
+      {
+        glm::vec3 emittance;
+
+        random::RandomRay randRay;
+
+        LuminaireRay()
+        {
+          this->emittance = glm::vec3(0.0f);
+          this->randRay.PDF = 0.0f;
+        }
+      };
+
       Scene();
 
       bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
 
       void sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
+
+      void sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay);
 
       float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 

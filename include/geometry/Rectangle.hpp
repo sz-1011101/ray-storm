@@ -90,7 +90,14 @@ namespace ray_storm
       {
         float u = randHelper.drawUniformRandom();
         float v = randHelper.drawUniformRandom();
-        return  this->rectParams.origin + u*this->wSide + v*this->hSide;
+        return this->rectParams.origin + u*this->wSide + v*this->hSide + this->normal*Emitter::SURFACE_POINT_OFFSET;
+      }
+
+      void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      {
+        randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
+        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(this->normal));
+        randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
       }
 
       float getPDF()

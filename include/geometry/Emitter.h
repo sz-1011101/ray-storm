@@ -25,6 +25,10 @@ namespace ray_storm
       virtual ~Emitter() {};
 
       void accept(dispatchers::AbstractObjectDispatcher *dispatcher);
+
+    protected:
+
+      static const float SURFACE_POINT_OFFSET;
       
     };
 
