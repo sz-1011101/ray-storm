@@ -1,6 +1,6 @@
 #include "renderer/PathTraceSampler.h"
 #include "dispatchers/EmittanceDispatcher.hpp"
-#include "renderer/PathTraceVertex.hpp"
+#include "renderer/PathTraceVertexFunctions.hpp"
 
 using namespace ray_storm::renderer;
 
@@ -12,7 +12,8 @@ PathTraceSampler::PathTraceSampler(METHOD method)
   this->method = method;
 }
 
-glm::vec3 PathTraceSampler::sample(
+glm::vec3 PathTraceSampler::sample
+(
   const scene::ScenePtr &scene,
   const glm::vec3 &position,
   const glm::vec3 &direction,
@@ -24,240 +25,188 @@ glm::vec3 PathTraceSampler::sample(
   switch (this->method)
   {
     case NAIVE:
-    return this->walkPath(scene, ray, randHelper);
+    return this->naive(scene, ray, randHelper);
     case DIRECT:
-    return this->walkPathDirectLighting(scene, ray, randHelper);
+    return this->directIllumination(scene, ray, randHelper);
     case DIRECT_BOUNCE:
-    return this->walkPathDirectLightingBounce(scene, ray, randHelper);
+    return this->directIlluminationBounce(scene, ray, randHelper);
     default:
     return glm::vec3(0.0);
   }
 }
 
-glm::vec3 PathTraceSampler::walkPath(
+void PathTraceSampler::randomWalkEye
+(
   const scene::ScenePtr &scene,
-  const geometry::Ray &initialRay, 
-  random::RandomizationHelper &randHelper
+  const geometry::Ray &initialRay,
+  random::RandomizationHelper &randHelper,
+  RandomWalk &walk
 )
 {
+
+  walk.vertices.reserve(EXPECTED_BOUNCES);
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  uint32_t depth = 0;
-  PathTraceVertex vertices[maxBounces];
-  glm::vec3 reflected[maxBounces];
-  glm::vec3 emitted[maxBounces];
+  geometry::Ray ray = initialRay;
 
-  vertices[0] = PathTraceVertex(initialRay);
-
-  for (uint32_t b = 0; b < maxBounces; b++) 
+  glm::vec3 Lrefl(1.0f);
+  bool absorbed = false;
+  for (uint32_t b = 0; b < maxBounces; b++) // bounds this loop, biased in theory though
   {
-    depth = b;
-    reflected[depth] = glm::vec3(0.0f);
-    emitted[depth] = glm::vec3(0.0f);
-    PathTraceVertex &vert = vertices[depth];
-
-    // find intersection
-    if (!vert.computeIntersection(scene.get()))
-    {
-      emitted[depth] = scene->sampleSky(vert.getIncoming());
-      break;
-    }
-
-    emitted[depth] = vert.computeEmittance();
-
-    if (!vert.isReflecting() || !vert.computeBounce(randHelper))
+    PathTraceVertex vert;
+    if (!PathTraceVertexFunctions::intersect(ray, scene.get(), vert))
     {
       break;
     }
 
-    // eval bsdf
-    glm::vec3 bsdf = vert.computeBounceIncomingBSDF();
-
-    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA) {
-      reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bsdf/vert.getBounceIncomingPDF();
+    float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
+    if (PathTraceVertexFunctions::isReflecting(vert) &&
+        randHelper.drawUniformRandom() < rr &&
+        PathTraceVertexFunctions::bounceEye(randHelper, vert))
+    {
+      Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
+      vert.cummulative = Lrefl;
+      ray = geometry::Ray(vert.outPosition, vert.out);
     }
     else
     {
+      absorbed = true;
+    }
+    
+    walk.vertices.push_back(vert);
+    if (absorbed)
+    {
       break;
     }
 
-    if (depth < maxBounces - 1)
+    if (b == maxBounces - 1)
     {
-      vert.setupNext(vertices[depth + 1]);
+      absorbed = true;
     }
-
   }
 
-  // recombine result
-  glm::vec3 reflectedRadiance(1.0f);
-  for (int b = depth; b >= 0; b--)
-  {
-    reflectedRadiance = (emitted[b] + reflected[b]*reflectedRadiance);
-  }
-
-  return reflectedRadiance;
+  walk.absorbed = absorbed;
 }
 
-glm::vec3 PathTraceSampler::walkPathDirectLighting(
+glm::vec3 PathTraceSampler::naive(
   const scene::ScenePtr &scene,
-  const geometry::Ray &initialRay, 
+  const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
 {
-  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  uint32_t depth = 0;
-  PathTraceVertex vertices[maxBounces];
-  glm::vec3 reflected[maxBounces];
-  glm::vec3 direct[maxBounces];
+  RandomWalk walk;
+  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  const std::size_t walkLen = walk.vertices.size();
 
-  vertices[0] = PathTraceVertex(initialRay);
-
-  for (uint32_t b = 0; b < maxBounces; b++) 
+  if (walkLen == 0)
   {
-    depth = b;
-    reflected[depth] = glm::vec3(0.0f);
-    direct[depth] = glm::vec3(0.0f);
-    PathTraceVertex &vert = vertices[depth];
+    return scene->sampleSky(initialRay.direction);
+  }
 
-    // find intersection
-    if (!vert.computeIntersection(scene.get()))
+  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+  for (std::size_t b = 0; b < walkLen - 1; b++)
+  {
+    L += walk.vertices[b].cummulative*PathTraceVertexFunctions::emittance(walk.vertices[b + 1]);
+  }
+
+  if (!walk.absorbed)
+  {
+    L += walk.vertices[walkLen - 1].cummulative*scene->sampleSky(walk.vertices[walkLen - 1].out);
+  }
+
+  return L;
+
+}
+
+glm::vec3 PathTraceSampler::directIllumination(
+  const scene::ScenePtr &scene,
+  const geometry::Ray &initialRay,
+  random::RandomizationHelper &randHelper
+)
+{
+  RandomWalk walk;
+  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  const std::size_t walkLen = walk.vertices.size();
+
+  if (walkLen == 0)
+  {
+    return scene->sampleSky(initialRay.direction);
+  }
+
+  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+  for (std::size_t b = 0; b < walkLen; b++)
+  {
+    PathTraceVertex &vert = walk.vertices[b];
+    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+      vert, scene.get(), randHelper);
+    glm::vec3 Ld(0.0f); // direct illumination
+    if (!lumSample.shadowed)
     {
-      if (depth == 0) {
-        direct[depth] = scene->sampleSky(vert.getIncoming());
+      Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/lumSample.PDF;
+      if (b > 0)
+      {
+        Ld *= walk.vertices[b - 1].cummulative;
       }
-      break;
+    
+      L += Ld;
     }
-
-    if (!vert.isReflecting() || !vert.computeBounce(randHelper))
-    {
-      break;
-    }
-
-    // HACK? otherwise emitters are black on first bounce
-    if (depth == 0)
-    {
-      direct[depth] = vert.computeEmittance();
-    }
-
-    vert.computeLuminaireSample(scene.get(), randHelper);
-    const scene::Scene::LuminaireSample &ls = vert.getLuminaireSample();
-    if (!ls.shadowed)
-    {
-      direct[depth] += ls.emittance*vert.computeLuminaireIncomingBSDF()/ls.PDF;
-    }
-
-    // eval bsdf
-    glm::vec3 bsdf = vert.computeBounceIncomingBSDF();
-
-    if (randHelper.drawUniformRandom() < RUSSIAN_ROULETTE_ALPHA)
-    {
-      reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bsdf/vert.getBounceIncomingPDF();
-    }
-    else
-    {
-      break;
-    }
-
-    if (depth < maxBounces - 1)
-    {
-      vert.setupNext(vertices[depth + 1]);
-    }
-
   }
 
-  // recombine result
-  glm::vec3 reflectedRadiance(1.0f);
-  for (int b = depth; b >= 0; b--)
-  {
-    reflectedRadiance = (direct[b] + reflected[b]*reflectedRadiance);
-  }
+  return L;
 
-  return reflectedRadiance;
 }
 
-glm::vec3 PathTraceSampler::walkPathDirectLightingBounce(
+glm::vec3 PathTraceSampler::directIlluminationBounce(
   const scene::ScenePtr &scene,
-  const geometry::Ray &initialRay, 
+  const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
 {
-  // details for the brdf/luminaire sample weighting 
+  // details for the bsdf/luminaire sample weighting 
   // in http://www.cs.cornell.edu/courses/cs6630/2012sp/slides/07pathtr-slides.pdf
-  const uint32_t maxBounces = EXPECTED_BOUNCES*2;
-  uint32_t depth = 0;
-  PathTraceVertex vertices[maxBounces];
-  glm::vec3 reflected[maxBounces];
-  glm::vec3 direct[maxBounces];
+  RandomWalk walk;
+  this->randomWalkEye(scene, initialRay, randHelper, walk);
+  const std::size_t walkLen = walk.vertices.size();
 
-  vertices[0] = PathTraceVertex(initialRay);
-  PathTraceVertex &vert = vertices[depth];
-  vert.computeIntersection(scene.get());
-
-  if (!vert.isIntersecting())
+  if (walkLen == 0)
   {
-    return scene->sampleSky(vert.getIncoming());
+    return scene->sampleSky(initialRay.direction);
   }
 
-  for (uint32_t b = 0; b < maxBounces; b++) 
+  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+  for (std::size_t b = 0; b < walkLen; b++)
   {
-    depth = b;
-    reflected[depth] = glm::vec3(0.0f);
-    direct[depth] = glm::vec3(0.0f);
-    vert = vertices[depth];
-
-    // HACK evil hack to get emitting emitters...
-    if (depth == 0)
+    PathTraceVertex &vert = walk.vertices[b];
+    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+      vert, scene.get(), randHelper);
+    glm::vec3 LdLum(0.0f); // direct illumination
+    glm::vec3 LdBounce(0.0f); // direct illumination of bounce
+    
+    if (!lumSample.shadowed)
     {
-      direct[depth] = vert.computeEmittance();
+      const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
+      LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
     }
 
-    if (!vert.isReflecting() || !vert.computeBounce(randHelper))
+    if (b < walkLen - 1)
     {
-      break;
+      PathTraceVertex &nextVert = walk.vertices[b + 1];
+      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene.get());
+      LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
     }
-
-    // eval bsdf + pdf
-    const glm::vec3 bounceBSDF = vert.computeBounceIncomingBSDF();
-    const float bouncePDF = vert.getBounceIncomingPDF();
-
-    vert.computeLuminaireSample(scene.get(), randHelper);
-    const scene::Scene::LuminaireSample &ls = vert.getLuminaireSample();
-    if (!ls.shadowed)
+    else if (!walk.absorbed) // last vertex
     {
-      direct[depth] += ls.emittance*vert.computeLuminaireIncomingBSDF()/(ls.PDF + vert.computePDF_BSDF(vert.getIncoming().direction, ls.direction));
+      LdBounce = scene->sampleSky(vert.out)*vert.bsdf/(vert.bsdfPDF + scene->getSkyPDF());
     }
+    glm::vec3 Ld = LdLum + LdBounce;
 
-    if (depth < maxBounces - 1)
+    if (b > 0)
     {
-      PathTraceVertex &nextVert = vertices[depth + 1];
-      vert.setupNext(nextVert);
-
-      // bounce illumination
-      if (!nextVert.computeIntersection(scene.get()))
-      {
-        // bounce goes into sky
-        direct[depth] += bounceBSDF*scene->sampleSky(vert.getIncoming())/(scene->getSkyPDF() + bouncePDF);
-        break;
-      }
-      else
-      {
-        // bounce goes into next object
-        direct[depth] += bounceBSDF*nextVert.computeEmittance()/(nextVert.computeLuminairePDF(scene.get()) + bouncePDF);
-      }
+      Ld *= walk.vertices[b - 1].cummulative;
     }
+    L += Ld;
 
-    if (randHelper.drawUniformRandom() >= RUSSIAN_ROULETTE_ALPHA)
-    {
-      break;
-    }
-    reflected[depth] = (1.0f/RUSSIAN_ROULETTE_ALPHA)*bounceBSDF/bouncePDF;
   }
 
-  // recombine result
-  glm::vec3 reflectedRadiance(1.0f);
-  for (int b = depth; b >= 0; b--)
-  {
-    reflectedRadiance = (direct[b] + reflected[b]*reflectedRadiance);
-  }
+  return L;
 
-  return reflectedRadiance;
 }

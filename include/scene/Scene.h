@@ -43,7 +43,7 @@ namespace ray_storm
 
       bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
 
-      void luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
+      void sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
 
       float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 
@@ -55,7 +55,7 @@ namespace ray_storm
 
       void setSky(const AbstractSkyPtr &sky);
 
-      glm::vec3 sampleSky(const geometry::Ray &ray);
+      glm::vec3 sampleSky(const glm::vec3 &direction);
 
       float getSkyPDF();
 

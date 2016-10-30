@@ -15,7 +15,7 @@ namespace ray_storm
 
       virtual ~ConstantSky() {};
 
-      virtual glm::vec3 sample(const geometry::Ray &ray)
+      virtual glm::vec3 sample(const glm::vec3 &direction)
       {
         return this->color;
       }

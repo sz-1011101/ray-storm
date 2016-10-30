@@ -25,9 +25,9 @@ namespace ray_storm
 
       virtual ~SunSky() {};
 
-      virtual glm::vec3 sample(const geometry::Ray &ray)
+      virtual glm::vec3 sample(const glm::vec3 &direction)
       {
-        const float cosTheta = glm::dot(ray.direction, -this->sunDirection);
+        const float cosTheta = glm::dot(direction, -this->sunDirection);
 
         return this->skyColor + std::pow(std::max(0.0f, cosTheta), glareExponent)*this->sunColor;
       }

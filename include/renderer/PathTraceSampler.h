@@ -2,6 +2,7 @@
 #define PATH_TRACE_SAMPLER
 
 #include "renderer/AbstractRadianceSampler.h"
+#include "renderer/PathTraceVertex.hpp"
 
 namespace ray_storm
 {
@@ -32,22 +33,38 @@ namespace ray_storm
       METHOD method;
 
     private:
+
+      struct RandomWalk
+      {
+        RandomWalk() : absorbed(true) {}
+
+        bool absorbed;
+        std::vector<PathTraceVertex> vertices;
+      };
+
+      void randomWalkEye(
+        const scene::ScenePtr &scene,
+        const geometry::Ray &initialRay,
+        random::RandomizationHelper &randHelper,
+        RandomWalk &walk
+      );
+
       // TODO move these out to seperate samplers?
-      glm::vec3 walkPath(
+      glm::vec3 naive(
         const scene::ScenePtr &scene,
         const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper
       );
 
-      glm::vec3 walkPathDirectLighting(
+      glm::vec3 directIllumination(
         const scene::ScenePtr &scene,
         const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper
       );
 
-      glm::vec3 walkPathDirectLightingBounce(
+      glm::vec3 directIlluminationBounce(
         const scene::ScenePtr &scene,
-        const geometry::Ray &initialRay, 
+        const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper
       );
 

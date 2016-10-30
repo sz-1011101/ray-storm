@@ -13,7 +13,7 @@ bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry:
   return this->dataStruct->intersect(ray, intersection);
 }
 
-void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light)
+void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light)
 {
   const int lCnt = static_cast<int>(this->lights.size());
   int objIndex;
@@ -65,7 +65,7 @@ void Scene::luminaireSample(const glm::vec3 &x, const glm::vec3 &n, random::Rand
     if (!this->intersect(shadowRay, intersectL)) // skylight hit?
     {
       light.shadowed = false;
-      light.emittance = this->sampleSky(shadowRay);
+      light.emittance = this->sampleSky(shadowRay.direction);
       light.PDF = this->getSkyPDF();
     }
   }
@@ -121,14 +121,14 @@ void Scene::setSky(const AbstractSkyPtr &sky)
   this->sky = sky;
 }
 
-glm::vec3 Scene::sampleSky(const geometry::Ray &ray)
+glm::vec3 Scene::sampleSky(const glm::vec3 &direction)
 {
   if (this->sky == nullptr)
   {
     return glm::vec3(0.0f);
   }
 
-  return this->sky->sample(ray);
+  return this->sky->sample(direction);
 }
 
 float Scene::getSkyPDF()

@@ -16,7 +16,7 @@ namespace ray_storm
 
       ~AbstractSky() {};
 
-      virtual glm::vec3 sample(const geometry::Ray &ray) = 0;
+      virtual glm::vec3 sample(const glm::vec3 &direction) = 0;
       
     };
 
