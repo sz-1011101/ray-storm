@@ -37,9 +37,9 @@ int main(int argc, char* argv[])
 
   renderer::AbstractRadianceSamplerPtr pts(
     new renderer::PathTraceSampler(
-      renderer::PathTraceSampler::METHOD::DIRECT_BOUNCE));
+      renderer::PathTraceSampler::METHOD::BIDIRECTIONAL));
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, true);
+  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
   renderer::DefaultRenderer dr(scene, camera, pts, 200);
 

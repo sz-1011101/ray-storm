@@ -73,7 +73,7 @@ namespace ray_storm
         return ed.getEmittance();
       }
 
-      static scene::Scene::LuminaireSample sampleLuminaire(PathTraceVertex &vertex, scene::Scene *scene, random::RandomizationHelper &randHelper)
+      static scene::Scene::LuminaireSample sampleLuminaire(const PathTraceVertex &vertex, scene::Scene *scene, random::RandomizationHelper &randHelper)
       {
         scene::Scene::LuminaireSample lSample;
         scene->sampleLuminaire(vertex.offPosition, vertex.normal, randHelper, lSample);
@@ -87,7 +87,7 @@ namespace ray_storm
         return pdf;
       }
 
-      static float luminarePDF(const glm::vec3 &position, PathTraceVertex &vertex, scene::Scene *scene)
+      static float luminarePDF(const glm::vec3 &position, const PathTraceVertex &vertex, scene::Scene *scene)
       {
         return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.in), vertex.position, vertex.normal);
       }

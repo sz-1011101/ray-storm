@@ -103,12 +103,14 @@ void Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
     geometry::Emitter *luminaire = this->lights.at(objIndex).get();
     luminaire->drawRandomRay(randHelper, lumRay.randRay);
     lumRay.randRay.PDF *= selectionPDF;
+    lumRay.emittance = luminaire->getEmittance();
   }
   else // sky light sampling
   {
     lumRay.randRay.ray.direction = randHelper.drawUniformRandomSphereDirection();
     lumRay.randRay.ray.origin = -lumRay.randRay.ray.direction*SKY_RAY_OFFSET; // HACK pls fix
     lumRay.randRay.PDF = selectionPDF*random::RandomizationHelper::uniformRandomSpherePDF();
+    lumRay.emittance = this->sky->sample(lumRay.randRay.ray.direction);
   }
 }
 

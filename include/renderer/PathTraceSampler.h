@@ -16,7 +16,8 @@ namespace ray_storm
       {
         NAIVE = 0,
         DIRECT,
-        DIRECT_BOUNCE
+        DIRECT_BOUNCE,
+        BIDIRECTIONAL
       };
 
       PathTraceSampler(METHOD method);
@@ -73,6 +74,13 @@ namespace ray_storm
         const scene::ScenePtr &scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper
+      );
+
+      glm::vec3 pathRadiance(
+        const RandomWalk &eyeWalk,
+        const RandomWalk &lightWalk,
+        int eyeLen,
+        int lightLen
       );
 
     };

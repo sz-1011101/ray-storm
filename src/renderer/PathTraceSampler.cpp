@@ -30,6 +30,8 @@ glm::vec3 PathTraceSampler::sample
     return this->directIllumination(scene, ray, randHelper);
     case DIRECT_BOUNCE:
     return this->directIlluminationBounce(scene, ray, randHelper);
+    case BIDIRECTIONAL:
+    return this->bidirectional(scene, ray, randHelper);
     default:
     return glm::vec3(0.0);
   }
@@ -223,12 +225,87 @@ glm::vec3 PathTraceSampler::bidirectional(
   const std::size_t eyeWalkLen = eyeWalk.vertices.size();
 
   RandomWalk lightWalk;
-  this->randomWalk(scene, initialRay, randHelper, eyeWalk, PathTraceVertex::DIRECTION::LIGHT);
+  scene::Scene::LuminaireRay lumRay;
+  scene->sampleLuminaireRay(randHelper, lumRay);
+
+  const glm::vec3 Le = lumRay.emittance/lumRay.randRay.PDF;
+
+  this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, PathTraceVertex::DIRECTION::LIGHT);
   const std::size_t lightWalkLen = lightWalk.vertices.size();
 
-  
+  glm::vec3 L(0.0f);
+  const float pathWeight = 1.0f/((eyeWalkLen + 1)*lightWalkLen);
+  int paths = 0;
+  for (std::size_t i = 0; i < eyeWalkLen; i++)
+  {
+    const PathTraceVertex eyeVert = eyeWalk.vertices[i];
 
+    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+      eyeVert, scene.get(), randHelper);
+    glm::vec3 Ld(0.0f); // direct illumination
+    if (!lumSample.shadowed)
+    {
+      Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, -eyeVert.in)*lumSample.emittance/lumSample.PDF;
+      if (i > 0)
+      {
+        Ld *= eyeWalk.vertices[i - 1].cummulative;
+      }
+    
+      L += Ld;//*pathWeight;
+    }
 
-  return glm::vec3(0.0f); //FIXME
+    paths++;
 
+    for (std::size_t j = 0; j < lightWalkLen; j++)
+    {
+      const PathTraceVertex lightVert = lightWalk.vertices[j];
+
+      if (scene->visible(eyeVert.position, lightVert.position))
+      {
+        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j);//*pathWeight;
+      }
+
+      paths++;
+
+    }
+  }
+
+  return L/static_cast<float>(paths);
+
+}
+
+glm::vec3 PathTraceSampler::pathRadiance(
+  const RandomWalk &eyeWalk,
+  const RandomWalk &lightWalk,
+  int eyeLen,
+  int lightLen
+)
+{
+  // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
+  const PathTraceVertex eyeVert = eyeWalk.vertices[eyeLen];
+  const PathTraceVertex lightVert = lightWalk.vertices[lightLen];
+
+  glm::vec3 L(1.0f);
+
+  if (eyeLen > 0)
+  {
+    L *= eyeWalk.vertices[eyeLen - 1].cummulative;
+  }
+  if (lightLen > 0)
+  {
+    L *= lightWalk.vertices[lightLen - 1].cummulative;
+  }
+  glm::vec3 e2l = lightVert.position - eyeVert.position;
+  glm::vec3 e2lNorm = glm::normalize(e2l);
+  float e2llen = glm::length(e2l);
+  float e2llensquared = e2llen*e2llen;
+
+  float G = std::abs(glm::dot(e2lNorm, eyeVert.normal))*std::abs(glm::dot(-e2lNorm, lightVert.normal)) / e2llensquared;
+
+  L *= PathTraceVertexFunctions::evaluateBSDF(e2lNorm, eyeVert, -eyeVert.in);
+  L *= PathTraceVertexFunctions::evaluateBSDF(lightVert.in, lightVert, -e2lNorm);
+
+  L *= G;
+
+  return L;
 }
