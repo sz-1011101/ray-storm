@@ -235,11 +235,10 @@ glm::vec3 PathTraceSampler::bidirectional(
   const std::size_t lightWalkLen = lightWalk.vertices.size();
 
   glm::vec3 L(0.0f);
-  const float pathWeight = 1.0f/((eyeWalkLen + 1)*lightWalkLen);
   int paths = 0;
-  int i = 1;//for (std::size_t i = 0; i < eyeWalkLen; i++)
+  for (std::size_t i = 0; i < eyeWalkLen; i++)
   {
-    const PathTraceVertex eyeVert = eyeWalk.vertices[i];
+    const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
 
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
       eyeVert, scene.get(), randHelper);
@@ -252,28 +251,28 @@ glm::vec3 PathTraceSampler::bidirectional(
         Ld *= eyeWalk.vertices[i - 1].cummulative;
       }
     
-      //L += Ld;//*pathWeight;
+      L += Ld;
+
     }
 
-    //paths++;
+    paths++;
 
-    int j = 1;//for (std::size_t j = 0; j < lightWalkLen; j++)
+    for (std::size_t j = 0; j < lightWalkLen; j++)
     {
-      const PathTraceVertex lightVert = lightWalk.vertices[j];
-      const glm::vec3 e2l = glm::normalize(eyeVert.position - lightVert.position);
-      const float cosThetaE = glm::dot(eyeVert.normal, e2l);
-      const float cosThetaL = glm::dot(lightVert.normal, -e2l);
-      if (cosThetaE > 0.0f && cosThetaL > 0.0f && scene->visible(eyeVert.offPosition, lightVert.offPosition))
+      const PathTraceVertex &lightVert = lightWalk.vertices[j];
+      if (scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
-        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j);//*pathWeight;
+        L = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);
+        paths++;
       }
-
-      paths++;
 
     }
   }
-
-  return L;//L/static_cast<float>(paths);
+  if (paths == 0)
+  {
+    return glm::vec3(0.0f);
+  }
+  return L/static_cast<float>(paths);
 
 }
 
@@ -285,30 +284,34 @@ glm::vec3 PathTraceSampler::pathRadiance(
 )
 {
   // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
-  const PathTraceVertex eyeVert = eyeWalk.vertices[eyeLen];
-  const PathTraceVertex lightVert = lightWalk.vertices[lightLen];
+  const PathTraceVertex &eyeVert = eyeWalk.vertices[eyeLen];
+  const PathTraceVertex &lightVert = lightWalk.vertices[lightLen];
 
   glm::vec3 L(1.0f);
 
   if (eyeLen > 0)
   {
-    L *= eyeWalk.vertices[eyeLen - 1].cummulative;
+    //L *= eyeWalk.vertices[eyeLen - 1].cummulative;
   }
   if (lightLen > 0)
   {
-    L *= lightWalk.vertices[lightLen - 1].cummulative;
+    //L *= lightWalk.vertices[lightLen - 1].cummulative;
   }
   glm::vec3 e2l = lightVert.position - eyeVert.position;
-  glm::vec3 e2lNorm = glm::normalize(e2l);
   float e2llen = glm::length(e2l);
   float e2llensquared = e2llen*e2llen;
+  e2l = glm::normalize(e2l);
 
-  float G = std::abs(glm::dot(e2lNorm, eyeVert.normal))*std::abs(glm::dot(-e2lNorm, lightVert.normal)) / e2llensquared;
+  if (e2llensquared < 0.05f)
+  {
+    return glm::vec3(0.0f);
+  }
 
-  //L *= PathTraceVertexFunctions::evaluateBSDF(e2lNorm, eyeVert, -eyeVert.in);
-  //L *= PathTraceVertexFunctions::evaluateBSDF(lightVert.in, lightVert, -e2lNorm);
+  float G = std::abs(glm::dot(e2l, eyeVert.normal))*std::abs(glm::dot(-e2l, lightVert.normal)) / e2llensquared;
 
+  L *= PathTraceVertexFunctions::evaluateBSDF(e2l, eyeVert, -eyeVert.in);
   L *= G;
+  L *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, -e2l);
 
   return L;
 }
