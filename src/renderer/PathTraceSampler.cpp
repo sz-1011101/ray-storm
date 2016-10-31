@@ -64,7 +64,8 @@ void PathTraceSampler::randomWalk
     float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
     if (PathTraceVertexFunctions::isReflecting(vert) &&
         randHelper.drawUniformRandom() < rr &&
-        PathTraceVertexFunctions::bounce(randHelper, vert, direction))
+        PathTraceVertexFunctions::bounce(randHelper, vert, direction) &&
+        glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.01f))))
     {
       Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
       vert.cummulative = Lrefl;
@@ -236,7 +237,7 @@ glm::vec3 PathTraceSampler::bidirectional(
   glm::vec3 L(0.0f);
   const float pathWeight = 1.0f/((eyeWalkLen + 1)*lightWalkLen);
   int paths = 0;
-  for (std::size_t i = 0; i < eyeWalkLen; i++)
+  int i = 1;//for (std::size_t i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex eyeVert = eyeWalk.vertices[i];
 
@@ -251,16 +252,18 @@ glm::vec3 PathTraceSampler::bidirectional(
         Ld *= eyeWalk.vertices[i - 1].cummulative;
       }
     
-      L += Ld;//*pathWeight;
+      //L += Ld;//*pathWeight;
     }
 
-    paths++;
+    //paths++;
 
-    for (std::size_t j = 0; j < lightWalkLen; j++)
+    int j = 1;//for (std::size_t j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex lightVert = lightWalk.vertices[j];
-
-      if (scene->visible(eyeVert.position, lightVert.position))
+      const glm::vec3 e2l = glm::normalize(eyeVert.position - lightVert.position);
+      const float cosThetaE = glm::dot(eyeVert.normal, e2l);
+      const float cosThetaL = glm::dot(lightVert.normal, -e2l);
+      if (cosThetaE > 0.0f && cosThetaL > 0.0f && scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
         L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j);//*pathWeight;
       }
@@ -270,7 +273,7 @@ glm::vec3 PathTraceSampler::bidirectional(
     }
   }
 
-  return L/static_cast<float>(paths);
+  return L;//L/static_cast<float>(paths);
 
 }
 
@@ -302,8 +305,8 @@ glm::vec3 PathTraceSampler::pathRadiance(
 
   float G = std::abs(glm::dot(e2lNorm, eyeVert.normal))*std::abs(glm::dot(-e2lNorm, lightVert.normal)) / e2llensquared;
 
-  L *= PathTraceVertexFunctions::evaluateBSDF(e2lNorm, eyeVert, -eyeVert.in);
-  L *= PathTraceVertexFunctions::evaluateBSDF(lightVert.in, lightVert, -e2lNorm);
+  //L *= PathTraceVertexFunctions::evaluateBSDF(e2lNorm, eyeVert, -eyeVert.in);
+  //L *= PathTraceVertexFunctions::evaluateBSDF(lightVert.in, lightVert, -e2lNorm);
 
   L *= G;
 

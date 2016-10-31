@@ -70,7 +70,7 @@ namespace ray_storm
       void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay)
       {
         randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
-        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(randRay.ray.origin - this->position));
+        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(this->position - randRay.ray.origin));
         randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
       }
 
