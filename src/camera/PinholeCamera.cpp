@@ -30,10 +30,9 @@ ray_storm::geometry::Ray PinholeCamera::spawnRay(const glm::vec2 &xy)
 void PinholeCamera::gatherSample(const geometry::Ray &ray, const glm::vec3 &sample)
 {
   const glm::vec4 o(ray.origin, 1.0f);
-  const glm::vec4 proj = this->cameraSetup->projMatrix*this->cameraSetup->cameraMatrix*o;
-  proj / proj.z;
-
-  AbstractSingleImageCamera::gatherSample(glm::vec2(proj.x, proj.y), sample);
+  glm::vec4 cs = this->cameraSetup->projMatrix*this->cameraSetup->cameraMatrix*o;
+  cs /= cs.w;
+  AbstractSingleImageCamera::gatherSample(glm::vec2((-cs.x + 1.0f)/2.0f, (-cs.y + 1.0f)/2.0f), sample);
 
 }
 

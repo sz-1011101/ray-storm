@@ -39,12 +39,7 @@ namespace ray_storm
           glm::dot(-x, position), glm::dot(-y, position), glm::dot(-z, position), 1.0f
         );
 
-        this->projMatrix = glm::mat4(
-          1.0f, 0.0f, 0.0f, 0.0f,
-          0.0f, 1.0f, 0.0f, 0.0f,
-          this->tanFovHalvedW, this->tanFovHalvedH, 1.0f, 0.0f,
-           0.0f, 0.0f, 0.0f, 1.0f
-        );
+        this->projMatrix = glm::infinitePerspective(utility::Math::degToRad(this->fov_degrees), aspectRatio, 0.001f);
 
         this->inverseCameraMatrix = glm::inverse(this->cameraMatrix);
       }

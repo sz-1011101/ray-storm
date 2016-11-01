@@ -68,7 +68,7 @@ void PathTraceSampler::randomWalk
     if (PathTraceVertexFunctions::isReflecting(vert) &&
         randHelper.drawUniformRandom() < rr &&
         PathTraceVertexFunctions::bounce(randHelper, vert, direction) &&
-        glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.01f))))
+        glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.001f))))
     {
       Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
       vert.cummulative = Lrefl;
@@ -225,6 +225,7 @@ glm::vec3 PathTraceSampler::bidirectional(
   random::RandomizationHelper &randHelper
 )
 {
+  // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
   RandomWalk eyeWalk;
   this->randomWalk(scene, initialRay, randHelper, eyeWalk, PathTraceVertex::DIRECTION::EYE);
   const std::size_t eyeWalkLen = eyeWalk.vertices.size();
@@ -239,8 +240,7 @@ glm::vec3 PathTraceSampler::bidirectional(
   const std::size_t lightWalkLen = lightWalk.vertices.size();
 
   glm::vec3 L(0.0f);
-  int paths = 0;
-  for (std::size_t i = 0; i < eyeWalkLen; i++)
+  /*for (std::size_t i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
 
@@ -271,12 +271,35 @@ glm::vec3 PathTraceSampler::bidirectional(
       }
 
     }
-  }
-  if (paths == 0)
+  }*/
+  int j = 1;
+  if (lightWalkLen > 1)//for (std::size_t j = 0; j < lightWalkLen; j++)
   {
-    return glm::vec3(0.0f);
+    const PathTraceVertex &lightVert = lightWalk.vertices[j];
+    const glm::vec3 cameraPnt = initialRay.origin;
+    if (scene->visible(lightVert.offPosition, cameraPnt))
+    {
+      glm::vec3 Lc = Le;
+      glm::vec3 l2c = cameraPnt - lightVert.position;
+      const float l2clen = glm::length(l2c);
+      const float l2clenSquared = l2clen*l2clen;
+      l2c /= l2clen; // normalize
+
+      if (l2clenSquared >= 0.05f)
+      {
+        if (j > 0)
+        {
+          Lc *= lightWalk.vertices[j - 1].cummulative;
+        }
+
+        Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
+        camera->gatherSample(geometry::Ray(lightVert.position, l2c), Lc);
+      }
+      
+    }
   }
-  return L/static_cast<float>(paths);
+
+  return L; //static_cast<float>(paths);
 
 }
 
@@ -295,11 +318,11 @@ glm::vec3 PathTraceSampler::pathRadiance(
 
   if (eyeLen > 0)
   {
-    //L *= eyeWalk.vertices[eyeLen - 1].cummulative;
+    L *= eyeWalk.vertices[eyeLen - 1].cummulative;
   }
   if (lightLen > 0)
   {
-    //L *= lightWalk.vertices[lightLen - 1].cummulative;
+    L *= lightWalk.vertices[lightLen - 1].cummulative;
   }
   glm::vec3 e2l = lightVert.position - eyeVert.position;
   float e2llen = glm::length(e2l);
