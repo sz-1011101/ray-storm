@@ -4,11 +4,21 @@
 #include <memory>
 
 #include "utility/common.hpp"
-#include "scene/Scene.h"
 #include "random/RandomizationHelper.h"
 
 namespace ray_storm
 {
+
+  namespace scene
+  {
+    class Scene;
+  }
+
+  namespace camera
+  {
+    class AbstractCamera;
+  }
+
   namespace renderer
   {
     class AbstractRadianceSampler
@@ -18,7 +28,8 @@ namespace ray_storm
       virtual ~AbstractRadianceSampler() {};
       
       virtual glm::vec3 sample(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
         const glm::vec3 &position,
         const glm::vec3 &direction,
         random::RandomizationHelper &randHelper

@@ -23,7 +23,8 @@ namespace ray_storm
       PathTraceSampler(METHOD method);
 
       glm::vec3 sample(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
         const glm::vec3 &position,
         const glm::vec3 &direction,
         random::RandomizationHelper &randHelper
@@ -44,7 +45,7 @@ namespace ray_storm
       };
 
       void randomWalk(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper,
         RandomWalk &walk,
@@ -53,25 +54,26 @@ namespace ray_storm
 
       // TODO move these out to seperate samplers?
       glm::vec3 naive(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
         const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper
       );
 
       glm::vec3 directIllumination(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
         const geometry::Ray &initialRay, 
         random::RandomizationHelper &randHelper
       );
 
       glm::vec3 directIlluminationBounce(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper
       );
 
       glm::vec3 bidirectional(
-        const scene::ScenePtr &scene,
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper
       );

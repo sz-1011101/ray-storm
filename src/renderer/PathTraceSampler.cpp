@@ -1,6 +1,8 @@
 #include "renderer/PathTraceSampler.h"
 #include "dispatchers/EmittanceDispatcher.hpp"
 #include "renderer/PathTraceVertexFunctions.hpp"
+#include "scene/Scene.h"
+#include "camera/AbstractCamera.h"
 
 using namespace ray_storm::renderer;
 
@@ -14,7 +16,8 @@ PathTraceSampler::PathTraceSampler(METHOD method)
 
 glm::vec3 PathTraceSampler::sample
 (
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
+  camera::AbstractCamera *camera,
   const glm::vec3 &position,
   const glm::vec3 &direction,
   random::RandomizationHelper &randHelper
@@ -31,7 +34,7 @@ glm::vec3 PathTraceSampler::sample
     case DIRECT_BOUNCE:
     return this->directIlluminationBounce(scene, ray, randHelper);
     case BIDIRECTIONAL:
-    return this->bidirectional(scene, ray, randHelper);
+    return this->bidirectional(scene, camera, ray, randHelper);
     default:
     return glm::vec3(0.0);
   }
@@ -39,7 +42,7 @@ glm::vec3 PathTraceSampler::sample
 
 void PathTraceSampler::randomWalk
 (
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper,
   RandomWalk &walk,
@@ -56,7 +59,7 @@ void PathTraceSampler::randomWalk
   for (uint32_t b = 0; b < maxBounces; b++) // bounds this loop, biased in theory though
   {
     PathTraceVertex vert;
-    if (!PathTraceVertexFunctions::intersect(ray, scene.get(), vert))
+    if (!PathTraceVertexFunctions::intersect(ray, scene, vert))
     {
       break;
     }
@@ -92,7 +95,7 @@ void PathTraceSampler::randomWalk
 }
 
 glm::vec3 PathTraceSampler::naive(
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
@@ -122,7 +125,7 @@ glm::vec3 PathTraceSampler::naive(
 }
 
 glm::vec3 PathTraceSampler::directIllumination(
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
@@ -141,7 +144,7 @@ glm::vec3 PathTraceSampler::directIllumination(
   {
     PathTraceVertex &vert = walk.vertices[b];
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      vert, scene.get(), randHelper);
+      vert, scene, randHelper);
     glm::vec3 Ld(0.0f); // direct illumination
     if (!lumSample.shadowed)
     {
@@ -160,7 +163,7 @@ glm::vec3 PathTraceSampler::directIllumination(
 }
 
 glm::vec3 PathTraceSampler::directIlluminationBounce(
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
@@ -181,7 +184,7 @@ glm::vec3 PathTraceSampler::directIlluminationBounce(
   {
     PathTraceVertex &vert = walk.vertices[b];
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      vert, scene.get(), randHelper);
+      vert, scene, randHelper);
     glm::vec3 LdLum(0.0f); // direct illumination
     glm::vec3 LdBounce(0.0f); // direct illumination of bounce
     
@@ -194,7 +197,7 @@ glm::vec3 PathTraceSampler::directIlluminationBounce(
     if (b < walkLen - 1)
     {
       PathTraceVertex &nextVert = walk.vertices[b + 1];
-      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene.get());
+      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
       LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
     }
     else if (!walk.absorbed) // last vertex
@@ -216,7 +219,8 @@ glm::vec3 PathTraceSampler::directIlluminationBounce(
 }
 
 glm::vec3 PathTraceSampler::bidirectional(
-  const scene::ScenePtr &scene,
+  scene::Scene *scene,
+  camera::AbstractCamera *camera,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper
 )
@@ -241,7 +245,7 @@ glm::vec3 PathTraceSampler::bidirectional(
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
 
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      eyeVert, scene.get(), randHelper);
+      eyeVert, scene, randHelper);
     glm::vec3 Ld(0.0f); // direct illumination
     if (!lumSample.shadowed)
     {

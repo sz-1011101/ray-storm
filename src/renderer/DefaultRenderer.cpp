@@ -71,7 +71,10 @@ void DefaultRenderer::render()
 
             for (camera::RayPackage::SampleRay &sr : rp.rays)
             {
-              camera->gatherSample(rp.xy, this->sampler->sample(this->scene, sr.ray.origin, -sr.ray.direction, randHelpers[currentThread]));
+              camera->gatherSample(
+                rp.xy, this->sampler->sample(this->scene.get(), this->camera.get(), 
+                sr.ray.origin, -sr.ray.direction, randHelpers[currentThread])
+              );
             }
 
           }
