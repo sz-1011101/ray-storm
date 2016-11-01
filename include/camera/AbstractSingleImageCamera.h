@@ -19,8 +19,6 @@ namespace ray_storm
 
       void gatherSample(const glm::vec2 &xy, const glm::vec3 &sample);
 
-      virtual void gatherSample(const glm::vec3 &point, const glm::vec3 &sample) = 0;
-
       void signal();
 
       uint32_t getWidth();

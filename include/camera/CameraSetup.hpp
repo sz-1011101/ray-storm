@@ -20,7 +20,8 @@ namespace ray_storm
       ) : position(position), lookAt(lookAt), up(up),
         aspectRatio(aspectRatio), fov_degrees(fov_degrees)
       {
-        this->tanFovHalved = std::tan(utility::Math::degToRad(this->fov_degrees)/2.0f);
+        this->tanFovHalvedW = std::tan(utility::Math::degToRad(this->fov_degrees)/2.0f);
+        this->tanFovHalvedH = std::tan(utility::Math::degToRad(this->fov_degrees/aspectRatio)/2.0f);
 
         // build basic camera vectors
         this->forward = glm::normalize(this->lookAt - this->position);
@@ -36,6 +37,13 @@ namespace ray_storm
           x.y, y.y, z.y, 0.0f,
           x.z, y.z, z.z, 0.0f,
           glm::dot(-x, position), glm::dot(-y, position), glm::dot(-z, position), 1.0f
+        );
+
+        this->projMatrix = glm::mat4(
+          1.0f, 0.0f, 0.0f, 0.0f,
+          0.0f, 1.0f, 0.0f, 0.0f,
+          this->tanFovHalvedW, this->tanFovHalvedH, 1.0f, 0.0f,
+           0.0f, 0.0f, 0.0f, 1.0f
         );
 
         this->inverseCameraMatrix = glm::inverse(this->cameraMatrix);
@@ -54,10 +62,13 @@ namespace ray_storm
       glm::vec3 right;
       glm::vec3 forward;
 
-      float tanFovHalved;
+      float tanFovHalvedW;
+      float tanFovHalvedH;
 
       glm::mat4 cameraMatrix;
       glm::mat4 inverseCameraMatrix;
+
+      glm::mat4 projMatrix;
     };
 
     typedef std::shared_ptr<CameraSetup> CameraSetupPtr;

@@ -18,7 +18,9 @@ namespace ray_storm
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 
-      virtual void gatherSample(const glm::vec3 &point, const glm::vec3 &sample);
+      virtual void gatherSample(const geometry::Ray &ray, const glm::vec3 &sample);
+
+      virtual glm::vec3 spawnPoint(random::RandomizationHelper &randHelper);
 
     protected:
 

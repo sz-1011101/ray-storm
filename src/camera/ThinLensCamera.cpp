@@ -18,8 +18,8 @@ void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelp
   geometry::Ray mainRay;
   mainRay.origin = glm::vec3(0.0f);
   mainRay.direction = glm::normalize(glm::vec3(0.0f, 0.0f, 1.0f)
-    + this->cameraSetup->tanFovHalved*glm::vec3(1.0f, 0.0f, 0.0f)*(rayPackage.xy.x*2.0f - 1.0f)
-    + this->cameraSetup->tanFovHalved*glm::vec3(0.0f, 1.0f, 0.0f)*(rayPackage.xy.y*2.0f - 1.0f));
+    + this->cameraSetup->tanFovHalvedW*glm::vec3(1.0f, 0.0f, 0.0f)*(rayPackage.xy.x*2.0f - 1.0f)
+    + this->cameraSetup->tanFovHalvedH*glm::vec3(0.0f, 1.0f, 0.0f)*(rayPackage.xy.y*2.0f - 1.0f));
 
   // intersect the main ray (which is never refracted) with the focus plane
   // assume we always intersect
@@ -41,7 +41,13 @@ void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelp
   }
 }
 
-void ThinLensCamera::gatherSample(const glm::vec3 &point, const glm::vec3 &sample)
+void ThinLensCamera::gatherSample(const geometry::Ray &ray, const glm::vec3 &sample)
 {
   // TODO
+}
+
+glm::vec3 ThinLensCamera::spawnPoint(random::RandomizationHelper &randHelper)
+{
+  // TODO
+  return this->cameraSetup->position;
 }

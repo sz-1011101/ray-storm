@@ -21,6 +21,12 @@ namespace ray_storm
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper) = 0;
 
+      virtual void gatherSample(const glm::vec2 &xy, const glm::vec3 &sample) = 0;
+
+      virtual void gatherSample(const geometry::Ray &ray, const glm::vec3 &sample) = 0;
+
+      virtual glm::vec3 spawnPoint(random::RandomizationHelper &randHelper) = 0;
+
     };
 
     typedef std::shared_ptr<AbstractCamera> AbstractCameraPtr;
