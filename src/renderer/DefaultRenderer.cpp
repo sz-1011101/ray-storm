@@ -46,6 +46,8 @@ void DefaultRenderer::render()
   // each threads working data
   std::vector<camera::RayPackage> rayPackages(maxThreads, camera::RayPackage(this->samples));
 
+  std::vector<bool> jobDoneFlags(maxThreads, false);
+
 #pragma omp parallel for schedule(dynamic)
   for (std::size_t j = 0; j < jobs.size(); j++)
   {
@@ -83,12 +85,32 @@ void DefaultRenderer::render()
       }
     }
 
-    // job done -> give result to camera
+    // first round of jobs done -> signal
     #pragma omp critical
     {
-      this->camera->signal();
+      jobDoneFlags[currentThread] = true;
+      bool sig = true;
+      for (bool f : jobDoneFlags)
+      {
+        if (!f)
+        {
+          sig = false;
+          break;
+        }
+      }
+      if (sig)
+      {
+        this->camera->signal();
+        // reset work vec
+        for (std::size_t b = 0; b < jobDoneFlags.size(); b++)
+        {
+          jobDoneFlags[b] = false;
+        }
+      }
     }
   }
+
+  this->camera->signal();
 
   puts("done!");
 }
