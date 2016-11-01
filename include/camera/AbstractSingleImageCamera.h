@@ -3,6 +3,7 @@
 
 #include "camera/AbstractCamera.h"
 #include "utility/RenderedData.h"
+#include "utility/SamplePlate.hpp"
 
 namespace ray_storm
 {
@@ -12,11 +13,15 @@ namespace ray_storm
     {
     public:
 
-      AbstractSingleImageCamera(const utility::RenderedDataPtr &renderedData);
+      AbstractSingleImageCamera(const utility::RenderedDataPtr &renderedData, uint32_t width, uint32_t height);
 
       virtual ~AbstractSingleImageCamera() {};
 
-      void setTile(int xOrg, int yOrg, const utility::Image &tile);
+      void gatherSample(const glm::vec2 &xy, const glm::vec3 &sample);
+
+      virtual void gatherSample(const glm::vec3 &point, const glm::vec3 &sample) = 0;
+
+      void signal();
 
       uint32_t getWidth();
 
@@ -25,6 +30,8 @@ namespace ray_storm
     protected:
 
       utility::RenderedDataPtr renderedData;
+
+      utility::SamplePlate samples;
       
     };
 

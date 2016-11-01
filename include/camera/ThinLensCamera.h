@@ -12,11 +12,13 @@ namespace ray_storm
     {
     public:
 
-      ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData);
+      ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData, uint32_t width, uint32_t height);
 
       virtual ~ThinLensCamera() {};
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
+
+      virtual void gatherSample(const glm::vec3 &point, const glm::vec3 &sample);
 
     protected:
 

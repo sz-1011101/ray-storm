@@ -65,27 +65,25 @@ void DefaultRenderer::render()
         {
           for (uint32_t subY = 1; subY <= 2; subY++)
           {
-            rp.setup(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
-              static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY);
+            rp.setup(glm::vec2(static_cast<float>(job.xOrigin + x)/width + xSSoffset*subX,
+              static_cast<float>(job.yOrigin + y)/height + ySSoffset*subY));
             camera->spawnRays(rp, randHelpers[currentThread]);
 
             for (camera::RayPackage::SampleRay &sr : rp.rays)
             {
-              sr.sample = this->sampler->sample(this->scene, sr.ray.origin, -sr.ray.direction, randHelpers[currentThread]);
+              camera->gatherSample(rp.xy, this->sampler->sample(this->scene, sr.ray.origin, -sr.ray.direction, randHelpers[currentThread]));
             }
 
-            pxlRadianceSum += rp.recombine();
           }
         }
 
-        job.setPixelSRGB(x, y, pxlRadianceSum/4.0f);
       }
     }
 
     // job done -> give result to camera
     #pragma omp critical
     {
-      this->camera->setTile(job.xOrigin, job.yOrigin, job.tile);
+      this->camera->signal();
     }
   }
 

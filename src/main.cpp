@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 
   using namespace ray_storm;
 
-  utility::RenderedDataPtr rd(new utility::RenderedData(200, 200));
+  utility::RenderedDataPtr rd(new utility::RenderedData());
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
@@ -31,7 +31,9 @@ int main(int argc, char* argv[])
         75.0f
         )
       ),
-      rd
+      rd,
+      200,
+      200
     )
   );
 

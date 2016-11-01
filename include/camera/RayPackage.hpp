@@ -16,24 +16,22 @@ namespace ray_storm
       struct SampleRay
       {
 
-        SampleRay() : sample(0.0f), weight(0.0f)
+        SampleRay() : weight(1.0f)
         {
 
         }
 
-        SampleRay(const geometry::Ray &ray) : ray(ray), sample(0.0f), weight(0.0f)
+        SampleRay(const geometry::Ray &ray) : ray(ray), weight(1.0f)
         {
           
         }
 
         SampleRay(
           const geometry::Ray &ray,
-          const glm::vec3 &sample,
           float weight
-        ) : ray(ray), sample(sample), weight(weight) {};
+        ) : ray(ray), weight(weight) {};
 
         geometry::Ray ray;
-        glm::vec3 sample;
         float weight;
       };
 
@@ -44,29 +42,17 @@ namespace ray_storm
         return this->rays[i];
       }
 
-      void setup(float x, float y)
+      void setup(const glm::vec2 &xy)
       {
-        this->x = x;
-        this->y = y;
+        this->xy = xy;
       }
 
       std::size_t size()
       {
         return this->rays.size();
       }
-
-      glm::vec3 recombine()
-      {
-        glm::vec3 sum(0.0f);
-        for (SampleRay &sr : this->rays)
-        {
-          sum += sr.weight*sr.sample;
-        }
-        return sum;
-      }
       
-      float x;
-      float y;
+      glm::vec2 xy;
 
       std::vector<SampleRay> rays;
 

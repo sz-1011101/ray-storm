@@ -3,24 +3,14 @@
 
 using namespace ray_storm::utility;
 
-RenderedData::RenderedData(uint32_t width, uint32_t height) : data(width, height)
+RenderedData::RenderedData()
 {
   this->window = nullptr;
 }
 
-void RenderedData::setPixel(int x, int y, const glm::vec3 &rgb)
+void RenderedData::setData(const cv::Mat &data)
 {
-  this->data.setPixel(x, y, rgb);
-}
-
-void RenderedData::setPixelSRGB(int x, int y, const glm::vec3 &rgbLinear)
-{
-  this->data.setPixelSRGB(x, y, rgbLinear);
-}
-
-void RenderedData::setTile(int xOrg, int yOrg, const Image &tile)
-{
-  tile.image.copyTo(this->data.image(cv::Rect(xOrg, yOrg, tile.image.cols, tile.image.rows)));
+  this->data = data;
 }
 
 void RenderedData::setWindow(Window *window)
@@ -28,7 +18,7 @@ void RenderedData::setWindow(Window *window)
   this->window = window;
 }
 
-const ray_storm::utility::Image &RenderedData::getData()
+const cv::Mat &RenderedData::getData()
 {
   return this->data;
 }
@@ -39,14 +29,4 @@ void RenderedData::signalChanged()
   {
     this->window->refresh();
   }
-}
-
-uint32_t RenderedData::getWidth() const
-{
-  return this->data.image.cols;
-}
-
-uint32_t RenderedData::getHeight() const
-{
-  return this->data.image.rows;
 }

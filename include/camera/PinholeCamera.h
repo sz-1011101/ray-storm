@@ -15,17 +15,19 @@ namespace ray_storm
 
     public:
 
-      PinholeCamera(const CameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData);
+      PinholeCamera(const CameraSetupPtr &cameraSetup, const utility::RenderedDataPtr &renderedData, uint32_t width, uint32_t height);
 
       virtual ~PinholeCamera() {};
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 
+      virtual void gatherSample(const glm::vec3 &point, const glm::vec3 &sample);
+
     private:
 
       CameraSetupPtr cameraSetup;
 
-      geometry::Ray spawnRay(float x, float y);
+      geometry::Ray spawnRay(const glm::vec2 &xy);
       
     };
   }
