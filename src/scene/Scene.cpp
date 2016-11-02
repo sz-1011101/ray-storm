@@ -188,5 +188,16 @@ bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target)
   geometry::Ray vRay(origin, glm::normalize(target - origin));
   geometry::Intersection<geometry::Object> intersect;
   
-  return this->intersect(vRay, intersect) ? glm::distance(intersect.intersection.position, target) < 0.001f : true;
+  if (!this->intersect(vRay, intersect))
+  {
+    return true;
+  }
+
+  if (glm::distance(intersect.intersection.position, target) < 0.001f)
+  {
+    return true;
+  }
+
+  return glm::distance(origin, intersect.intersection.position) >= glm::distance(origin, target);
+
 }
