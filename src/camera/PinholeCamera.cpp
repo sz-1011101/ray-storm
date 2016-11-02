@@ -9,22 +9,20 @@ PinholeCamera::PinholeCamera(const CameraSetupPtr &cameraSetup, const utility::R
 
 void PinholeCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper)
 {
-  const float weight = 1.0f;
-  for (RayPackage::SampleRay &sr : rayPackage.rays)
+  for (SampleRay &sr : rayPackage.rays)
   {
-    sr.ray = this->spawnRay(rayPackage.xy);
-    sr.weight = weight;
+    this->spawnRay(sr, rayPackage.xy);
   }
 }
 
-ray_storm::geometry::Ray PinholeCamera::spawnRay(const glm::vec2 &xy)
+void PinholeCamera::spawnRay(SampleRay &sampleRay, const glm::vec2 &xy)
 {
   geometry::Ray ray;
   ray.origin = this->cameraSetup->position;
   ray.direction = glm::normalize(this->cameraSetup->forward
     + this->cameraSetup->tanFovHalvedW*this->cameraSetup->right*(xy.x*2.0f - 1.0f)
     + this->cameraSetup->tanFovHalvedH*this->cameraSetup->down*(xy.y*2.0f - 1.0f));
-  return ray;
+  sampleRay = SampleRay(ray, xy);
 }
 
 void PinholeCamera::gatherSample(const geometry::Ray &ray, const glm::vec3 &sample)

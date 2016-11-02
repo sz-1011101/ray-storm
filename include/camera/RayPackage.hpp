@@ -3,6 +3,7 @@
 
 #include "utility/common.hpp"
 #include "geometry/Ray.hpp"
+#include "camera/SampleRay.hpp"
 
 #include <vector>
 
@@ -12,28 +13,6 @@ namespace ray_storm
   {
     struct RayPackage
     {
-
-      struct SampleRay
-      {
-
-        SampleRay() : weight(1.0f)
-        {
-
-        }
-
-        SampleRay(const geometry::Ray &ray) : ray(ray), weight(1.0f)
-        {
-          
-        }
-
-        SampleRay(
-          const geometry::Ray &ray,
-          float weight
-        ) : ray(ray), weight(weight) {};
-
-        geometry::Ray ray;
-        float weight;
-      };
 
       RayPackage(uint32_t samples) : rays(samples) {};
 

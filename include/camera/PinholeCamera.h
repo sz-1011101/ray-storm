@@ -29,9 +29,7 @@ namespace ray_storm
 
       CameraSetupPtr cameraSetup;
 
-      geometry::Ray spawnRay(const glm::vec2 &xy);
-
-      glm::mat4 projMat;
+      void spawnRay(SampleRay &sampleRay, const glm::vec2 &xy);
       
     };
   }

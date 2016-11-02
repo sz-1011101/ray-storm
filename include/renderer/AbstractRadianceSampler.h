@@ -5,6 +5,7 @@
 
 #include "utility/common.hpp"
 #include "random/RandomizationHelper.h"
+#include "camera/SampleRay.hpp"
 
 namespace ray_storm
 {
@@ -27,11 +28,10 @@ namespace ray_storm
 
       virtual ~AbstractRadianceSampler() {};
       
-      virtual glm::vec3 sample(
+      virtual void sample(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
-        const glm::vec3 &position,
-        const glm::vec3 &direction,
+        const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       ) = 0;
 

@@ -10,8 +10,6 @@ ThinLensCamera::ThinLensCamera(const ThinLensCameraSetupPtr &cameraSetup, const 
 
 void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper)
 {
-  const float weight = 1.0f;
-
   std::vector<glm::vec2> lensPoints;
   this->cameraSetup->lens->spawnPoints(rayPackage.size(), lensPoints, randHelper);
 
@@ -30,14 +28,15 @@ void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelp
 
   for (std::size_t i = 0; i < rayPackage.size(); i++)
   {
-    RayPackage::SampleRay &sr = rayPackage[i];
+    SampleRay &sr = rayPackage[i];
     glm::vec4 originWS = this->cameraSetup->inverseCameraMatrix*glm::vec4(glm::vec3(lensPoints[i], 0.0f), 1.0f);
     glm::vec4 secPntWS = this->cameraSetup->inverseCameraMatrix*glm::vec4(focusPlanePnt, 1.0f);
 
-    sr.ray.origin = glm::vec3(originWS.x, originWS.y, originWS.z);
-    sr.ray.direction = glm::normalize(glm::vec3(secPntWS.x, secPntWS.y, secPntWS.z) - sr.ray.origin);
+    geometry::Ray ray;
+    ray.origin = glm::vec3(originWS.x, originWS.y, originWS.z);
+    ray.direction = glm::normalize(glm::vec3(secPntWS.x, secPntWS.y, secPntWS.z) - sr.ray.origin);
 
-    sr.weight = weight;
+    sr = SampleRay(ray, rayPackage.xy);
   }
 }
 

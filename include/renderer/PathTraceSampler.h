@@ -22,11 +22,10 @@ namespace ray_storm
 
       PathTraceSampler(METHOD method);
 
-      glm::vec3 sample(
+      void sample(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
-        const glm::vec3 &position,
-        const glm::vec3 &direction,
+        const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
@@ -53,28 +52,31 @@ namespace ray_storm
       );
 
       // TODO move these out to seperate samplers?
-      glm::vec3 naive(
-        scene::Scene *scene,
-        const geometry::Ray &initialRay, 
-        random::RandomizationHelper &randHelper
-      );
-
-      glm::vec3 directIllumination(
-        scene::Scene *scene,
-        const geometry::Ray &initialRay, 
-        random::RandomizationHelper &randHelper
-      );
-
-      glm::vec3 directIlluminationBounce(
-        scene::Scene *scene,
-        const geometry::Ray &initialRay,
-        random::RandomizationHelper &randHelper
-      );
-
-      glm::vec3 bidirectional(
+      void naive(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
-        const geometry::Ray &initialRay,
+        const camera::SampleRay &sampleRay,
+        random::RandomizationHelper &randHelper
+      );
+
+      void directIllumination(
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
+        const camera::SampleRay &sampleRay,
+        random::RandomizationHelper &randHelper
+      );
+
+      void directIlluminationBounce(
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
+        const camera::SampleRay &sampleRay,
+        random::RandomizationHelper &randHelper
+      );
+
+      void bidirectional(
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
+        const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
@@ -84,6 +86,8 @@ namespace ray_storm
         int eyeLen,
         int lightLen
       );
+
+      float pathWeighting(int i, int j);
 
     };
   }
