@@ -14,12 +14,6 @@ namespace ray_storm
     {
     public:
 
-      enum DIRECTION
-      {
-        EYE = 0,
-        LIGHT
-      };
-
       PathTraceVertex() : object(nullptr), material(nullptr) {}
 
       // vertex situation

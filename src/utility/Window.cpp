@@ -24,7 +24,7 @@ void Window::setRenderedData(RenderedDataPtr renderedData)
 void Window::refresh()
 {
   cv::imshow(WINDOW_NAME, this->renderedData->getData());
-  cv::waitKey(1);
+  cv::waitKey(5);
 }
 
 void Window::wait()

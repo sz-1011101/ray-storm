@@ -46,6 +46,9 @@ void DefaultRenderer::render()
   // each threads working data
   std::vector<camera::RayPackage> rayPackages(maxThreads, camera::RayPackage(this->samples));
 
+  // used to refresh data
+  int jobsDone = 0;
+
 #pragma omp parallel for schedule(dynamic)
   for (std::size_t j = 0; j < jobs.size(); j++)
   {
@@ -81,10 +84,13 @@ void DefaultRenderer::render()
       }
     }
 
-    // first round of jobs done -> signal
     #pragma omp critical
     {
-      this->camera->signal();
+      jobsDone++;
+      if (jobsDone % maxThreads == 0)
+      {
+        this->camera->signal();
+      }
     }
   }
 

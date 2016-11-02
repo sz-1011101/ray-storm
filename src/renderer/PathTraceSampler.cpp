@@ -42,8 +42,7 @@ void PathTraceSampler::randomWalk
   scene::Scene *scene,
   const geometry::Ray &initialRay,
   random::RandomizationHelper &randHelper,
-  RandomWalk &walk,
-  PathTraceVertex::DIRECTION direction = PathTraceVertex::DIRECTION::EYE
+  RandomWalk &walk
 )
 {
 
@@ -64,7 +63,7 @@ void PathTraceSampler::randomWalk
     float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
     if (PathTraceVertexFunctions::isReflecting(vert) &&
         randHelper.drawUniformRandom() < rr &&
-        PathTraceVertexFunctions::bounce(randHelper, vert, direction) &&
+        PathTraceVertexFunctions::bounce(randHelper, vert) &&
         glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.001f))))
     {
       Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
@@ -229,7 +228,7 @@ void PathTraceSampler::bidirectional(
 {
   // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
   RandomWalk eyeWalk;
-  this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk, PathTraceVertex::DIRECTION::EYE);
+  this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk);
   const std::size_t eyeWalkLen = eyeWalk.vertices.size();
 
   RandomWalk lightWalk;
@@ -238,7 +237,7 @@ void PathTraceSampler::bidirectional(
 
   const glm::vec3 Le = lumRay.emittance/lumRay.randRay.PDF;
 
-  this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, PathTraceVertex::DIRECTION::LIGHT);
+  this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
   const std::size_t lightWalkLen = lightWalk.vertices.size();
 
   for (std::size_t i = 0; i < eyeWalkLen; i++)
@@ -345,4 +344,5 @@ glm::vec3 PathTraceSampler::pathRadiance(
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
+  //return eyeIndex == 0 && lightIndex == 2 ? 1.0f : 0.0f; 
 }

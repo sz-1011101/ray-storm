@@ -47,8 +47,7 @@ namespace ray_storm
         scene::Scene *scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper,
-        RandomWalk &walk,
-        PathTraceVertex::DIRECTION direction
+        RandomWalk &walk
       );
 
       // TODO move these out to seperate samplers?
