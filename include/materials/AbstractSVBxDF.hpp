@@ -37,6 +37,12 @@ namespace ray_storm
         const glm::vec2 &uv,
         const glm::vec3 &out
       ) = 0;
+
+      virtual bool delta() const
+      {
+        return false;
+      }
+
     };
 
     typedef std::shared_ptr<AbstractSVBxDF> AbstractSVBxDFPtr;

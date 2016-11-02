@@ -26,10 +26,7 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        glm::vec3 nRef = n;
-        glm::vec3 t;
-        MaterialHelper::refract(1.0f, this->indexOfRefraction, -l, n, t, nRef);
-        return glm::dot(v, t) > 0.999f ? this->color : glm::vec3(0.0f);
+        return glm::vec3(0.0f);
       }
 
       void drawDirection(
@@ -52,11 +49,12 @@ namespace ray_storm
         const glm::vec3 &out
       )
       {
-        // HACK
-        glm::vec3 nRef = n;
-        glm::vec3 t;
-        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, t, nRef);
-        return glm::dot(out, t) > 0.999f ? 1.0f : 0.0f;
+        return 0.0f;
+      }
+
+      virtual bool delta() const
+      {
+        return true;
       }
 
     private:

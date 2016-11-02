@@ -48,10 +48,19 @@ namespace ray_storm
 
         vertex.out = ray.ray.direction;
         vertex.offPosition = ray.ray.origin;
-        vertex.bsdfPDF = ray.PDF;
- 
-        vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
-        
+
+        PathTraceVertexFunctions::delta(vertex);
+        if (!vertex.delta)
+        {
+          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
+          vertex.bsdfPDF = ray.PDF;
+        }
+        else
+        {
+          vertex.bsdf = glm::vec3(1.0f);
+          vertex.bsdfPDF = 1.0f;
+        }
+
         return true;
       }
 
@@ -84,6 +93,11 @@ namespace ray_storm
       static float luminarePDF(const glm::vec3 &position, const PathTraceVertex &vertex, scene::Scene *scene)
       {
         return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.in), vertex.position, vertex.normal);
+      }
+
+      static void delta(PathTraceVertex &vertex)
+      {
+        vertex.delta = vertex.material->isDelta();
       }
 
     private:

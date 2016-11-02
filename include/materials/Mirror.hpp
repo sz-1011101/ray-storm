@@ -23,8 +23,7 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(-l, n));
-        return glm::dot(mirrorDirection, v) > 0.999f ? this->reflectance : glm::vec3(0.0f);
+        return glm::vec3(0.0f);
       }
 
       void drawDirection(
@@ -47,9 +46,12 @@ namespace ray_storm
         const glm::vec3 &out
       )
       {
-        // HACK
-        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(in, n));
-        return glm::dot(mirrorDirection, out) > 0.999f ? 1.0f : 0.0f;
+        return 0.0f;
+      }
+
+      virtual bool delta() const
+      {
+        return true;
       }
 
     private:

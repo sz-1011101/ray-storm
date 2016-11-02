@@ -40,6 +40,8 @@ namespace ray_storm
       geometry::Object *object;
 
       materials::Material *material;
+
+      bool delta;
       
     };
   }

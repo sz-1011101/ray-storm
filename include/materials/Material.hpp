@@ -239,6 +239,12 @@ namespace ray_storm
         }
       }
 
+      inline bool isDelta()
+      {
+        return (this->checkAvailable(REFLECTION) && this->brdf->delta()) ||
+          (this->checkAvailable(REFRACTION) && this->btdf->delta());
+      }
+
     private:
 
       const float RAY_OFFSET_EPSILON = 0.001f;

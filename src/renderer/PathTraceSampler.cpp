@@ -276,6 +276,7 @@ void PathTraceSampler::bidirectional(
   for (std::size_t j = 0; j < lightWalkLen; j++)
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
+
     const glm::vec3 cameraPnt = camera->spawnPoint(randHelper);
     if (scene->visible(cameraPnt, lightVert.position))
     {
@@ -344,5 +345,5 @@ glm::vec3 PathTraceSampler::pathRadiance(
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
-  //return eyeIndex == 0 && lightIndex == 2 ? 1.0f : 0.0f; 
+  //return lightIndex == 0 ? 0.0f : 1.0f; 
 }
