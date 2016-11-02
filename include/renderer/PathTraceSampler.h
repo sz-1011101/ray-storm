@@ -87,7 +87,7 @@ namespace ray_storm
         int lightLen
       );
 
-      float pathWeighting(int i, int j);
+      float pathWeighting(int eyeIndex, int lightIndex);
 
     };
   }

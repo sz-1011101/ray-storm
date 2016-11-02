@@ -22,7 +22,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   if (lightSources)
   {
-    geometry::EmitterPtr sphereLight1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-1, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
+    geometry::EmitterPtr sphereLight1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 10, 2), 0.2f, matWhite, glm::vec3(200.0f)));
     //geometry::EmitterPtr sphereLight2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
     //scene->add(sphereLight2);
@@ -37,7 +37,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   }
 
   geometry::EmitterPtr sphere1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
-  geometry::EmitterPtr sphere2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 1, 2), 1.0f, matGlass));
+  geometry::EmitterPtr sphere2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 2, 2), 1.0f, matGlass));
   geometry::EmitterPtr sphere3 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
   geometry::EmitterPtr sphere4 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
