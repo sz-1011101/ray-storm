@@ -134,12 +134,14 @@ namespace ray_storm
           }
           this->brdf->drawDirection(in, n, uv, randHelper, randDir);
           randDir.PDF *= rfl; // fresnel sampling pdf
+          randDir.delta = this->brdf->delta();
           return true;
         }
         else if (this->btdf != nullptr) // transmission is happening, if btdf available
         {
           this->btdf->drawDirection(in, n, uv, randHelper, randDir);
           randDir.PDF *= (1.0f - rfl); // fresnel sampling pdf
+          randDir.delta = this->btdf->delta();
           return true;
         }
 
@@ -164,7 +166,7 @@ namespace ray_storm
         randRay.ray.origin = x + this->offset(in, n, randDir.direction);
         randRay.ray.direction = randDir.direction;
         randRay.PDF = randDir.PDF;
-
+        randRay.delta = randDir.delta;
         return true;
       }
 
@@ -237,12 +239,6 @@ namespace ray_storm
         if (this->btdf != nullptr) {
           this->btdf->setIndexOfRefraction(eta);
         }
-      }
-
-      inline bool isDelta()
-      {
-        return (this->checkAvailable(REFLECTION) && this->brdf->delta()) ||
-          (this->checkAvailable(REFRACTION) && this->btdf->delta());
       }
 
     private:

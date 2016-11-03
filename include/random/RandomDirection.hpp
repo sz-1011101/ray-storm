@@ -9,8 +9,15 @@ namespace ray_storm
   {
     struct RandomDirection
     {
+
+      RandomDirection() : delta(false)
+      {
+        
+      }
+
       glm::vec3 direction;
       float PDF;
+      bool delta;
     };
   }
 }
