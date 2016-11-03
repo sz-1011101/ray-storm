@@ -25,13 +25,13 @@ void PathTraceSampler::sample
   switch (this->method)
   {
     case NAIVE:
-    this->naive(scene, camera, sampleRay, randHelper);
+    this->naive(scene, camera, sampleRay, randHelper);break;
     case DIRECT:
-    this->directIllumination(scene, camera, sampleRay, randHelper);
+    this->directIllumination(scene, camera, sampleRay, randHelper);break;
     case DIRECT_BOUNCE:
-    this->directIlluminationBounce(scene, camera, sampleRay, randHelper);
+    this->directIlluminationBounce(scene, camera, sampleRay, randHelper);break;
     case BIDIRECTIONAL:
-    this->bidirectional(scene, camera, sampleRay, randHelper);
+    this->bidirectional(scene, camera, sampleRay, randHelper);break;
     default:
     break;
   }
@@ -62,22 +62,19 @@ void PathTraceSampler::randomWalk
 
     float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
     if (PathTraceVertexFunctions::isReflecting(vert) &&
-        randHelper.drawUniformRandom() < rr &&
-        PathTraceVertexFunctions::bounce(randHelper, vert) &&
-        glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.001f))))
-    {
-      Lrefl *= (1.0f/rr)*vert.bsdf/vert.bsdfPDF;
+      PathTraceVertexFunctions::bounce(randHelper, vert) &&
+      (vert.delta || randHelper.drawUniformRandom() < rr) &&
+      glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.00001f)))
+    )
+    { // we do always bounce on in case of dirac delta function...
+      Lrefl *= (vert.delta ? vert.bsdf : (1.0f/rr)*vert.bsdf/vert.bsdfPDF);
       vert.cummulative = Lrefl;
       ray = geometry::Ray(vert.offPosition, vert.out);
+      walk.vertices.push_back(vert);
     }
     else
     {
       absorbed = true;
-    }
-    
-    walk.vertices.push_back(vert);
-    if (absorbed)
-    {
       break;
     }
 
@@ -269,7 +266,7 @@ void PathTraceSampler::bidirectional(
     for (std::size_t j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex &lightVert = lightWalk.vertices[j];
-      
+
       if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
         const glm::vec3 Lp = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);

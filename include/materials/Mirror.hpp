@@ -23,7 +23,7 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        return glm::vec3(0.0f);
+        return this->reflectance;
       }
 
       void drawDirection(

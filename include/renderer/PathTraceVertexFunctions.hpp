@@ -50,16 +50,8 @@ namespace ray_storm
         vertex.offPosition = ray.ray.origin;
 
         PathTraceVertexFunctions::delta(vertex);
-        if (!vertex.delta)
-        {
-          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
-          vertex.bsdfPDF = ray.PDF;
-        }
-        else
-        {
-          vertex.bsdf = glm::vec3(1.0f); // FIXME
-          vertex.bsdfPDF = 1.0f;
-        }
+        vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
+        vertex.bsdfPDF = ray.PDF;
 
         return true;
       }
