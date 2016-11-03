@@ -101,6 +101,7 @@ void PathTraceSampler::naive(
   if (walkLen == 0)
   {
     camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
+    camera->incrementSampleCnt(sampleRay.xy);
     return;
   }
 
@@ -134,6 +135,7 @@ void PathTraceSampler::directIllumination(
   if (walkLen == 0)
   {
     camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
+    camera->incrementSampleCnt(sampleRay.xy);
     return;
   }
 
@@ -182,6 +184,7 @@ void PathTraceSampler::directIlluminationBounce(
   if (walkLen == 0)
   {
     camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
+    camera->incrementSampleCnt(sampleRay.xy);
     return;
   }
 
@@ -241,6 +244,12 @@ void PathTraceSampler::bidirectional(
   RandomWalk eyeWalk;
   this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk);
   const std::size_t eyeWalkLen = eyeWalk.vertices.size();
+
+  if (eyeWalkLen == 0)
+  {
+    camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
+    camera->incrementSampleCnt(sampleRay.xy);
+  }
 
   RandomWalk lightWalk;
   scene::Scene::LuminaireRay lumRay;
