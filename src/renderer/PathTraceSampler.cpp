@@ -257,11 +257,14 @@ void PathTraceSampler::bidirectional(
   this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk);
   const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
 
-  if (eyeWalkLen == 0 && !eyeWalk.absorbed)
+  if (eyeWalkLen == 0)
   {
-    camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
-    camera->incrementSampleCnt(sampleRay.xy);
-    return;
+    if (!eyeWalk.absorbed)
+    {
+      camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
+      camera->incrementSampleCnt(sampleRay.xy);
+      return;
+    }
   }
 
   RandomWalk lightWalk;
@@ -398,6 +401,6 @@ glm::vec3 PathTraceSampler::pathRadiance(
 
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
-  return 1.0f/(1.0f + eyeIndex + lightIndex);
-  //return lightIndex == 0 ? 1.0f : 0.0f;
+  //return 1.0f/(1.0f + eyeIndex + lightIndex);
+  return lightIndex == 0 ? 1.0f : 0.0f;
 }
