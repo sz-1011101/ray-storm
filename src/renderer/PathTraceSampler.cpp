@@ -246,6 +246,11 @@ void PathTraceSampler::bidirectional(
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
 
+    if (eyeVert.delta)
+    {
+      continue;
+    }
+
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
       eyeVert, scene, randHelper);
       
@@ -264,8 +269,8 @@ void PathTraceSampler::bidirectional(
     for (std::size_t j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex &lightVert = lightWalk.vertices[j];
-
-      if (scene->visible(eyeVert.offPosition, lightVert.offPosition))
+      
+      if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
         const glm::vec3 Lp = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);
         camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1));
@@ -277,6 +282,11 @@ void PathTraceSampler::bidirectional(
   for (std::size_t j = 0; j < lightWalkLen; j++)
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
+
+    if (lightVert.delta)
+    {
+      continue;
+    }
 
     camera::SampleRay sr;
     if (camera->generateRay(lightVert.position, sr) && scene->visible(sr.ray.origin, lightVert.position))
