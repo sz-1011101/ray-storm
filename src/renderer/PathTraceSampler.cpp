@@ -269,11 +269,14 @@ void PathTraceSampler::bidirectional(
 
   RandomWalk lightWalk;
   scene::Scene::LuminaireRay lumRay;
-  scene->sampleLuminaireRay(randHelper, lumRay);
+  glm::vec3 Le(0.0f); // the light source emittance where we start the light path walk
 
-  const glm::vec3 Le = lumRay.emittance/lumRay.randRay.PDF;
-
-  this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
+  if (scene->sampleLuminaireRay(randHelper, lumRay))
+  {
+    Le = lumRay.emittance/lumRay.randRay.PDF;
+    this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
+  }
+  
   const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
 
   camera::SampleRay srLum;
@@ -401,6 +404,6 @@ glm::vec3 PathTraceSampler::pathRadiance(
 
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
-  //return 1.0f/(1.0f + eyeIndex + lightIndex);
-  return lightIndex == 0 ? 1.0f : 0.0f;
+  return 1.0f/(1.0f + eyeIndex + lightIndex);
+  //return lightIndex == 0 ? 1.0f : 0.0f;
 }

@@ -68,7 +68,7 @@ namespace ray_storm
 
       void sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
 
-      void sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay);
+      bool sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay);
 
       float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 

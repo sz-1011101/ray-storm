@@ -73,46 +73,26 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
   }
 }
 
-void Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay)
+bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay)
 {
   const int lCnt = static_cast<int>(this->lights.size());
   int objIndex;
-  bool objDrawn = false;
 
-  if (lCnt == 0 && this->sky == nullptr)
+  if (lCnt == 0)
   {
-    return;
-  }
-
-  // draw from objects and sky...
-  if (this->sky != nullptr)
-  {
-    objIndex = randHelper.drawUniformRandom(0, lCnt + 1);
-    objDrawn = objIndex == lCnt ? false : true;
-  }
-  else //... or only objects
-  {
-    objIndex = randHelper.drawUniformRandom(0, lCnt);
-    objDrawn = true;
+    return false;
   }
 
-  const float selectionPDF = this->sky == nullptr ? 1.0f/this->lights.size() : 1.0f/(this->lights.size() + 1);
+  objIndex = randHelper.drawUniformRandom(0, lCnt);
 
-  if (objDrawn) // object luminaire
-  {
-    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
-    luminaire->drawRandomRay(randHelper, lumRay.randRay);
-    lumRay.randRay.PDF *= selectionPDF;
-    lumRay.emittance = luminaire->getEmittance();
-  }
-  else // sky light sampling
-  {
-    lumRay.randRay.ray.direction = randHelper.drawUniformRandomSphereDirection();
-    lumRay.randRay.ray.origin = -lumRay.randRay.ray.direction*SKY_RAY_OFFSET; // HACK pls fix
-    lumRay.randRay.PDF = selectionPDF*random::RandomizationHelper::uniformRandomSpherePDF();
-    lumRay.emittance = this->sky->sample(lumRay.randRay.ray.direction);
-    lumRay.directional = true;
-  }
+  const float selectionPDF = 1.0f/this->lights.size();
+
+  geometry::Emitter *luminaire = this->lights.at(objIndex).get();
+  luminaire->drawRandomRay(randHelper, lumRay.randRay);
+  lumRay.randRay.PDF *= selectionPDF;
+  lumRay.emittance = luminaire->getEmittance();
+
+  return true;
 }
 
 float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n)
