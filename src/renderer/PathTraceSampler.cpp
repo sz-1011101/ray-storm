@@ -141,6 +141,12 @@ void PathTraceSampler::directIllumination(
   for (std::size_t b = 0; b < walkLen; b++)
   {
     PathTraceVertex &vert = walk.vertices[b];
+
+    if (vert.delta)
+    {
+      continue;
+    }
+
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
       vert, scene, randHelper);
     glm::vec3 Ld(0.0f); // direct illumination
@@ -183,6 +189,12 @@ void PathTraceSampler::directIlluminationBounce(
   for (std::size_t b = 0; b < walkLen; b++)
   {
     PathTraceVertex &vert = walk.vertices[b];
+
+    if (vert.delta)
+    {
+      continue;
+    }
+
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
       vert, scene, randHelper);
     glm::vec3 LdLum(0.0f); // direct illumination
