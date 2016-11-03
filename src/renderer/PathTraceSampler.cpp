@@ -268,8 +268,8 @@ void PathTraceSampler::bidirectional(
       if (scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
         const glm::vec3 Lp = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);
-        camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1))
-;      }
+        camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1));
+      }
 
     }
   }
