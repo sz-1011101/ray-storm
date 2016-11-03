@@ -96,24 +96,28 @@ void PathTraceSampler::naive(
 {
   RandomWalk walk;
   this->randomWalk(scene, sampleRay.ray, randHelper, walk);
-  const std::size_t walkLen = walk.vertices.size();
+  const int walkLen = static_cast<int>(walk.vertices.size());
+  glm::vec3 L(0.0f);
 
   if (walkLen == 0)
   {
-    camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
-    camera->incrementSampleCnt(sampleRay.xy);
-    return;
+    if (!walk.absorbed)
+    {
+      L = scene->sampleSky(sampleRay.ray.direction);
+    }
   }
-
-  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
-  for (std::size_t b = 0; b < walkLen - 1; b++)
+  else
   {
-    L += walk.vertices[b].cummulative*PathTraceVertexFunctions::emittance(walk.vertices[b + 1]);
-  }
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+    for (int b = 0; b < walkLen - 1; b++)
+    {
+      L += walk.vertices[b].cummulative*PathTraceVertexFunctions::emittance(walk.vertices[b + 1]);
+    }
 
-  if (!walk.absorbed)
-  {
-    L += walk.vertices[walkLen - 1].cummulative*scene->sampleSky(walk.vertices[walkLen - 1].out);
+    if (!walk.absorbed)
+    {
+      L += walk.vertices[walkLen - 1].cummulative*scene->sampleSky(walk.vertices[walkLen - 1].out);
+    }
   }
 
   camera->gatherSample(sampleRay.xy, L);
@@ -130,37 +134,41 @@ void PathTraceSampler::directIllumination(
 {
   RandomWalk walk;
   this->randomWalk(scene, sampleRay.ray, randHelper, walk);
-  const std::size_t walkLen = walk.vertices.size();
-
+  const int walkLen = static_cast<int>(walk.vertices.size());
+  glm::vec3 L(0.0f);
+  
   if (walkLen == 0)
   {
-    camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
-    camera->incrementSampleCnt(sampleRay.xy);
-    return;
-  }
-
-  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
-  for (std::size_t b = 0; b < walkLen; b++)
-  {
-    PathTraceVertex &vert = walk.vertices[b];
-
-    if (vert.delta)
+    if (!walk.absorbed)
     {
-      continue;
+      L = scene->sampleSky(sampleRay.ray.direction);
     }
-
-    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      vert, scene, randHelper);
-    glm::vec3 Ld(0.0f); // direct illumination
-    if (!lumSample.shadowed)
+  }
+  else
+  {
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+    for (int b = 0; b < walkLen; b++)
     {
-      Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/lumSample.PDF;
-      if (b > 0)
+      PathTraceVertex &vert = walk.vertices[b];
+
+      if (vert.delta)
       {
-        Ld *= walk.vertices[b - 1].cummulative;
+        continue;
       }
-    
-      L += Ld;
+
+      scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+        vert, scene, randHelper);
+      glm::vec3 Ld(0.0f); // direct illumination
+      if (!lumSample.shadowed)
+      {
+        Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/lumSample.PDF;
+        if (b > 0)
+        {
+          Ld *= walk.vertices[b - 1].cummulative;
+        }
+      
+        L += Ld;
+      }
     }
   }
 
@@ -179,53 +187,58 @@ void PathTraceSampler::directIlluminationBounce(
   // in http://www.cs.cornell.edu/courses/cs6630/2012sp/slides/07pathtr-slides.pdf
   RandomWalk walk;
   this->randomWalk(scene, sampleRay.ray, randHelper, walk);
-  const std::size_t walkLen = walk.vertices.size();
+  const int walkLen = static_cast<int>(walk.vertices.size());
 
+  glm::vec3 L(0.0f);
+  
   if (walkLen == 0)
   {
-    camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
-    camera->incrementSampleCnt(sampleRay.xy);
-    return;
+    if (!walk.absorbed)
+    {
+      L = scene->sampleSky(sampleRay.ray.direction);
+    }
   }
-
-  glm::vec3 L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
-  for (std::size_t b = 0; b < walkLen; b++)
+  else
   {
-    PathTraceVertex &vert = walk.vertices[b];
-
-    glm::vec3 LdLum(0.0f); // direct illumination
-    glm::vec3 LdBounce(0.0f); // direct illumination of bounce
-
-    if (!vert.delta)
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
+    for (int b = 0; b < walkLen; b++)
     {
-      scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-        vert, scene, randHelper);
-      
-      if (!lumSample.shadowed)
+      PathTraceVertex &vert = walk.vertices[b];
+
+      glm::vec3 LdLum(0.0f); // direct illumination
+      glm::vec3 LdBounce(0.0f); // direct illumination of bounce
+
+      if (!vert.delta)
       {
-        const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
-        LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+        scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+          vert, scene, randHelper);
+        
+        if (!lumSample.shadowed)
+        {
+          const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
+          LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+        }
       }
-    }
 
-    if (b < walkLen - 1)
-    {
-      PathTraceVertex &nextVert = walk.vertices[b + 1];
-      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
-      LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
-    }
-    else if (!walk.absorbed) // last vertex
-    {
-      LdBounce = scene->sampleSky(vert.out)*vert.bsdf/(vert.bsdfPDF + scene->getSkyPDF());
-    }
-    glm::vec3 Ld = LdLum + LdBounce;
+      if (b < walkLen - 1)
+      {
+        PathTraceVertex &nextVert = walk.vertices[b + 1];
+        const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
+        LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
+      }
+      else if (!walk.absorbed) // last vertex
+      {
+        LdBounce = scene->sampleSky(vert.out)*vert.bsdf/(vert.bsdfPDF + scene->getSkyPDF());
+      }
+      glm::vec3 Ld = LdLum + LdBounce;
 
-    if (b > 0)
-    {
-      Ld *= walk.vertices[b - 1].cummulative;
-    }
-    L += Ld;
+      if (b > 0)
+      {
+        Ld *= walk.vertices[b - 1].cummulative;
+      }
+      L += Ld;
 
+    }
   }
 
   camera->gatherSample(sampleRay.xy, L);
@@ -242,7 +255,7 @@ void PathTraceSampler::bidirectional(
   // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
   RandomWalk eyeWalk;
   this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk);
-  const std::size_t eyeWalkLen = eyeWalk.vertices.size();
+  const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
 
   if (eyeWalkLen == 0 && !eyeWalk.absorbed)
   {
@@ -258,7 +271,7 @@ void PathTraceSampler::bidirectional(
   const glm::vec3 Le = lumRay.emittance/lumRay.randRay.PDF;
 
   this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
-  const std::size_t lightWalkLen = lightWalk.vertices.size();
+  const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
 
   camera::SampleRay srLum;
   if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
@@ -266,10 +279,10 @@ void PathTraceSampler::bidirectional(
   {
     const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
     camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis));
-    camera->incrementSampleCnt(sampleRay.xy);
+    camera->incrementSampleCnt(srLum.xy);
   }
 
-  for (std::size_t i = 0; i < eyeWalkLen; i++)
+  for (int i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
 
@@ -293,7 +306,7 @@ void PathTraceSampler::bidirectional(
       camera->gatherSample(sampleRay.xy, Ld*pathWeighting(i + 1, 0));
     }
 
-    for (std::size_t j = 0; j < lightWalkLen; j++)
+    for (int j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex &lightVert = lightWalk.vertices[j];
 
@@ -306,7 +319,7 @@ void PathTraceSampler::bidirectional(
     }
   }
 
-  for (std::size_t j = 0; j < lightWalkLen; j++)
+  for (int j = 0; j < lightWalkLen; j++)
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
 
@@ -316,7 +329,7 @@ void PathTraceSampler::bidirectional(
     }
 
     camera::SampleRay sr;
-    if (camera->generateRay(lightVert.position, sr) && scene->visible(sr.ray.origin, lightVert.position))
+    if (camera->generateRay(lightVert.offPosition, sr) && scene->visible(sr.ray.origin, lightVert.offPosition))
     {
       glm::vec3 Lc = Le;
       glm::vec3 l2c = sr.ray.origin - lightVert.position;
@@ -386,4 +399,5 @@ glm::vec3 PathTraceSampler::pathRadiance(
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
+  //return lightIndex == 0 ? 1.0f : 0.0f;
 }

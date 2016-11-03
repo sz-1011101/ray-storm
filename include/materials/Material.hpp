@@ -243,7 +243,7 @@ namespace ray_storm
 
     private:
 
-      const float RAY_OFFSET_EPSILON = 0.001f;
+      const float RAY_OFFSET_EPSILON = 0.005f;
 
       AbstractBRDFPtr brdf;
       AbstractBTDFPtr btdf;
