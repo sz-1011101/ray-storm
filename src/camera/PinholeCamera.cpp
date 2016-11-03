@@ -25,16 +25,18 @@ void PinholeCamera::spawnRay(SampleRay &sampleRay, const glm::vec2 &xy)
   sampleRay = SampleRay(ray, xy);
 }
 
-void PinholeCamera::gatherSample(const geometry::Ray &ray, const glm::vec3 &sample)
+bool PinholeCamera::generateRay(const glm::vec3 &point, SampleRay &sampleRay)
 {
-  const glm::vec4 o(ray.origin, 1.0f);
+  const glm::vec4 o(point, 1.0f);
   glm::vec4 cs = this->cameraSetup->projMatrix*this->cameraSetup->cameraMatrix*o;
   cs /= cs.w;
-  AbstractSingleImageCamera::gatherSample(glm::vec2((-cs.x + 1.0f)/2.0f, (-cs.y + 1.0f)/2.0f), sample);
+  glm::vec2 isp((-cs.x + 1.0f)/2.0f, (-cs.y + 1.0f)/2.0f);
 
-}
+  if (isp.x < 0.0f || isp.x >= 1.0f || isp.x < 0.0f || isp.x >= 1.0f)
+  {
+    return false;
+  }
 
-glm::vec3 PinholeCamera::spawnPoint(random::RandomizationHelper &randHelper)
-{
-  return this->cameraSetup->position;
+  sampleRay = SampleRay(geometry::Ray(this->cameraSetup->position, glm::normalize(point - this->cameraSetup->position)), glm::vec2(isp.x, isp.y));
+  return true;
 }

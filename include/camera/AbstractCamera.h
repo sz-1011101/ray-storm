@@ -7,6 +7,7 @@
 #include "utility/common.hpp"
 #include "camera/RayPackage.hpp"
 #include "random/RandomizationHelper.h"
+#include "camera/SampleRay.hpp"
 
 namespace ray_storm
 {
@@ -23,9 +24,9 @@ namespace ray_storm
 
       virtual void gatherSample(const glm::vec2 &xy, const glm::vec3 &sample) = 0;
 
-      virtual void gatherSample(const geometry::Ray &ray, const glm::vec3 &sample) = 0;
+      virtual void incrementSampleCnt(const glm::vec2 &xy) = 0;
 
-      virtual glm::vec3 spawnPoint(random::RandomizationHelper &randHelper) = 0;
+      virtual bool generateRay(const glm::vec3 &point, SampleRay &sampleRay) = 0;
 
     };
 

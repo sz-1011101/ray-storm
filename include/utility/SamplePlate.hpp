@@ -48,7 +48,18 @@ namespace ray_storm
         pixel[0] += rgb.b;
         pixel[1] += rgb.g;
         pixel[2] += rgb.r;
+      }
 
+      void incrementSampleCnt(const glm::vec2 &xy)
+      {
+        if (xy.x < 0.0f || xy.x >= 1.0f || xy.y < 0.0f || xy.y >= 1.0f)
+        {
+          return;
+        }
+
+        const cv::Point pnt(xy.x*this->image.cols, xy.y*this->image.rows);
+
+        std::unique_lock<std::mutex> lock(this->mutex);
         this->sampleCounter.at<ushort>(pnt)++;
       }
 

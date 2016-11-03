@@ -14,7 +14,7 @@ namespace ray_storm
     {
     public:
 
-      PathTraceVertex() : object(nullptr), material(nullptr) {}
+      PathTraceVertex() : object(nullptr), material(nullptr), delta(false) {}
 
       // vertex situation
 

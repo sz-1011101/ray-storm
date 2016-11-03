@@ -57,7 +57,7 @@ namespace ray_storm
         }
         else
         {
-          vertex.bsdf = glm::vec3(1.0f);
+          vertex.bsdf = glm::vec3(1.0f); // FIXME
           vertex.bsdfPDF = 1.0f;
         }
 

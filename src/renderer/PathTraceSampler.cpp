@@ -119,6 +119,7 @@ void PathTraceSampler::naive(
   }
 
   camera->gatherSample(sampleRay.xy, L);
+  camera->incrementSampleCnt(sampleRay.xy);
 
 }
 
@@ -159,6 +160,7 @@ void PathTraceSampler::directIllumination(
   }
 
   camera->gatherSample(sampleRay.xy, L);
+  camera->incrementSampleCnt(sampleRay.xy);
 }
 
 void PathTraceSampler::directIlluminationBounce(
@@ -216,7 +218,7 @@ void PathTraceSampler::directIlluminationBounce(
   }
 
   camera->gatherSample(sampleRay.xy, L);
-
+  camera->incrementSampleCnt(sampleRay.xy);
 }
 
 void PathTraceSampler::bidirectional(
@@ -246,29 +248,28 @@ void PathTraceSampler::bidirectional(
 
     scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
       eyeVert, scene, randHelper);
-    
+      
     if (!lumSample.shadowed)
     {
-      // direct illumination
       glm::vec3 Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, -eyeVert.in)
         *lumSample.emittance/lumSample.PDF;
+
       if (i > 0)
       {
         Ld *= eyeWalk.vertices[i - 1].cummulative;
       }
-    
       camera->gatherSample(sampleRay.xy, Ld*pathWeighting(i + 1, 0));
-
     }
 
     for (std::size_t j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex &lightVert = lightWalk.vertices[j];
+
       if (scene->visible(eyeVert.offPosition, lightVert.offPosition))
       {
         const glm::vec3 Lp = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);
-        camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1));
-      }
+        camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1))
+;      }
 
     }
   }
@@ -277,11 +278,11 @@ void PathTraceSampler::bidirectional(
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
 
-    const glm::vec3 cameraPnt = camera->spawnPoint(randHelper);
-    if (scene->visible(cameraPnt, lightVert.position))
+    camera::SampleRay sr;
+    if (camera->generateRay(lightVert.position, sr) && scene->visible(sr.ray.origin, lightVert.position))
     {
       glm::vec3 Lc = Le;
-      glm::vec3 l2c = cameraPnt - lightVert.position;
+      glm::vec3 l2c = sr.ray.origin - lightVert.position;
       const float l2clen = glm::length(l2c);
       const float l2clenSquared = l2clen*l2clen;
       l2c /= l2clen; // normalize
@@ -294,11 +295,14 @@ void PathTraceSampler::bidirectional(
         }
 
         Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
-        camera->gatherSample(geometry::Ray(lightVert.position, l2c), Lc*pathWeighting(0, j + 1));
+        camera->gatherSample(sr.xy, Lc*pathWeighting(0, j + 1));
+        camera->incrementSampleCnt(sr.xy);
       }
       
     }
   }
+
+  camera->incrementSampleCnt(sampleRay.xy);
 
 }
 
@@ -345,5 +349,4 @@ glm::vec3 PathTraceSampler::pathRadiance(
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
-  //return lightIndex == 0 ? 0.0f : 1.0f; 
 }

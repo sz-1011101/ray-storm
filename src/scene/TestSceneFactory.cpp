@@ -22,7 +22,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   if (lightSources)
   {
-    geometry::EmitterPtr sphereLight1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 8.5f, 2), 0.5f, matWhite, glm::vec3(200.0f)));
+    geometry::EmitterPtr sphereLight1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(200.0f)));
     //geometry::EmitterPtr sphereLight2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
     //scene->add(sphereLight2);

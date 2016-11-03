@@ -40,13 +40,7 @@ void ThinLensCamera::spawnRays(RayPackage &rayPackage, random::RandomizationHelp
   }
 }
 
-void ThinLensCamera::gatherSample(const geometry::Ray &ray, const glm::vec3 &sample)
+bool ThinLensCamera::generateRay(const glm::vec3 &point, SampleRay &sampleRay)
 {
-  // TODO
-}
-
-glm::vec3 ThinLensCamera::spawnPoint(random::RandomizationHelper &randHelper)
-{
-  // TODO
-  return this->cameraSetup->position;
+  return false; // TODO
 }

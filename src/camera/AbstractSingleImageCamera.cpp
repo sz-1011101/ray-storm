@@ -23,6 +23,11 @@ void AbstractSingleImageCamera::gatherSample(const glm::vec2 &xy, const glm::vec
   this->samples.gatherSample(xy, sample);
 }
 
+void AbstractSingleImageCamera::incrementSampleCnt(const glm::vec2 &xy)
+{
+  this->samples.incrementSampleCnt(xy);
+}
+
 void AbstractSingleImageCamera::signal()
 {
   if (this->renderedData != nullptr)

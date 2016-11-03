@@ -52,7 +52,7 @@ namespace ray_storm
         return 0.0f;
       }
 
-      virtual bool delta() const
+      bool delta() const
       {
         return true;
       }

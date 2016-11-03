@@ -19,6 +19,8 @@ namespace ray_storm
 
       void gatherSample(const glm::vec2 &xy, const glm::vec3 &sample);
 
+      void incrementSampleCnt(const glm::vec2 &xy);
+
       void signal();
 
       uint32_t getWidth();

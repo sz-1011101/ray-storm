@@ -32,14 +32,14 @@ int main(int argc, char* argv[])
         )
       ),
       rd,
-      500,
-      500
+      200,
+      200
     )
   );
 
   renderer::AbstractRadianceSamplerPtr pts(
     new renderer::PathTraceSampler(
-      renderer::PathTraceSampler::METHOD::BIDIRECTIONAL));
+      renderer::PathTraceSampler::METHOD::DIRECT));
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
