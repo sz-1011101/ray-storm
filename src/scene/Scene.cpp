@@ -111,6 +111,7 @@ void Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
     lumRay.randRay.ray.origin = -lumRay.randRay.ray.direction*SKY_RAY_OFFSET; // HACK pls fix
     lumRay.randRay.PDF = selectionPDF*random::RandomizationHelper::uniformRandomSpherePDF();
     lumRay.emittance = this->sky->sample(lumRay.randRay.ray.direction);
+    lumRay.directional = true;
   }
 }
 

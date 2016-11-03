@@ -18,7 +18,7 @@ namespace ray_storm
       {
       }
 
-      RandomRay(const geometry::Ray &ray, bool delta) : ray(ray), PDF(0.0f), delta(delta)
+      RandomRay(const geometry::Ray &ray, bool delta) : ray(ray), PDF(1.0f), delta(delta)
       {
       }
 

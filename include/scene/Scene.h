@@ -32,11 +32,14 @@ namespace ray_storm
 
         float PDF;
 
+        bool delta;
+
         LuminaireSample()
         {
           this->shadowed = true;
           this->emittance = glm::vec3(0.0f);
           this->PDF = 0.0f;
+          this->delta = false;
         }
       };
 
@@ -46,10 +49,16 @@ namespace ray_storm
 
         random::RandomRay randRay;
 
+        bool delta;
+
+        bool directional;
+
         LuminaireRay()
         {
           this->emittance = glm::vec3(0.0f);
           this->randRay.PDF = 0.0f;
+          this->delta = false;
+          this->directional = false;
         }
       };
 

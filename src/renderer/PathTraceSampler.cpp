@@ -193,20 +193,19 @@ void PathTraceSampler::directIlluminationBounce(
   {
     PathTraceVertex &vert = walk.vertices[b];
 
-    if (vert.delta)
-    {
-      continue;
-    }
-
-    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      vert, scene, randHelper);
     glm::vec3 LdLum(0.0f); // direct illumination
     glm::vec3 LdBounce(0.0f); // direct illumination of bounce
-    
-    if (!lumSample.shadowed)
+
+    if (!vert.delta)
     {
-      const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
-      LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+      scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+        vert, scene, randHelper);
+      
+      if (!lumSample.shadowed)
+      {
+        const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
+        LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+      }
     }
 
     if (b < walkLen - 1)
@@ -245,10 +244,11 @@ void PathTraceSampler::bidirectional(
   this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk);
   const std::size_t eyeWalkLen = eyeWalk.vertices.size();
 
-  if (eyeWalkLen == 0)
+  if (eyeWalkLen == 0 && !eyeWalk.absorbed)
   {
     camera->gatherSample(sampleRay.xy, scene->sampleSky(sampleRay.ray.direction));
     camera->incrementSampleCnt(sampleRay.xy);
+    return;
   }
 
   RandomWalk lightWalk;
@@ -259,6 +259,15 @@ void PathTraceSampler::bidirectional(
 
   this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
   const std::size_t lightWalkLen = lightWalk.vertices.size();
+
+  camera::SampleRay srLum;
+  if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
+    scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
+  {
+    const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
+    camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis));
+    camera->incrementSampleCnt(sampleRay.xy);
+  }
 
   for (std::size_t i = 0; i < eyeWalkLen; i++)
   {

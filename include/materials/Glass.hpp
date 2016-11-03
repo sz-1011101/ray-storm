@@ -49,7 +49,7 @@ namespace ray_storm
         const glm::vec3 &out
       )
       {
-        return 0.0f;
+        return 1.0f;
       }
 
       bool delta() const
