@@ -288,29 +288,10 @@ void PathTraceSampler::bidirectional(
     camera->incrementSampleCnt(srLum.xy);
   }
 
+  // get direct lighting contribution
   camera->gatherSample(sampleRay.xy, this->pathDirectLighting(eyeWalk, scene, randHelper));
-
-  for (int i = 0; i < eyeWalkLen; i++)
-  {
-    const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
-
-    if (eyeVert.delta)
-    {
-      continue;
-    }
-
-    for (int j = 0; j < lightWalkLen; j++)
-    {
-      const PathTraceVertex &lightVert = lightWalk.vertices[j];
-
-      if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
-      {
-        const glm::vec3 Lp = Le*this->pathRadiance(eyeWalk, lightWalk, i, j);
-        camera->gatherSample(sampleRay.xy, Lp*pathWeighting(i + 1, j + 1));
-      }
-
-    }
-  }
+  // get contribution by combining paths
+  camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
   for (int j = 0; j < lightWalkLen; j++)
   {
@@ -349,7 +330,10 @@ void PathTraceSampler::bidirectional(
 
 }
 
-glm::vec3 PathTraceSampler::pathDirectLighting(const RandomWalk &eyeWalk, scene::Scene *scene, random::RandomizationHelper &randHelper)
+glm::vec3 PathTraceSampler::pathDirectLighting(
+  const RandomWalk &eyeWalk,
+  scene::Scene *scene,
+  random::RandomizationHelper &randHelper)
 {
   glm::vec3 L(0.0f);
   const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
@@ -375,6 +359,41 @@ glm::vec3 PathTraceSampler::pathDirectLighting(const RandomWalk &eyeWalk, scene:
         Ld *= eyeWalk.vertices[i - 1].cummulative;
       }
       L += Ld*this->pathWeighting(i + 1, 0);
+    }
+  }
+  return L;
+}
+
+glm::vec3 PathTraceSampler::pathPathCombination(
+  const glm::vec3 &Le,
+  const RandomWalk &eyeWalk,
+  const RandomWalk &lightWalk,
+  scene::Scene *scene
+)
+{
+  const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
+  const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
+
+  glm::vec3 L(0.0f);
+
+  for (int i = 0; i < eyeWalkLen; i++)
+  {
+    const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
+
+    if (eyeVert.delta)
+    {
+      continue;
+    }
+
+    for (int j = 0; j < lightWalkLen; j++)
+    {
+      const PathTraceVertex &lightVert = lightWalk.vertices[j];
+
+      if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
+      {
+        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*pathWeighting(i + 1, j + 1);
+      }
+
     }
   }
   return L;
