@@ -265,6 +265,10 @@ void PathTraceSampler::bidirectional(
       camera->incrementSampleCnt(sampleRay.xy);
       return;
     }
+  } // HACK to get delta-bounce/sky reflection
+  else if (eyeWalkLen == 1 && eyeWalk.vertices[0].delta && !eyeWalk.absorbed)
+  {
+    camera->gatherSample(sampleRay.xy, scene->sampleSky(eyeWalk.vertices[0].out));
   }
 
   RandomWalk lightWalk;
@@ -293,6 +297,7 @@ void PathTraceSampler::bidirectional(
   // get contribution by combining paths
   camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
+  // get direct light bounce contribution
   for (int j = 0; j < lightWalkLen; j++)
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
@@ -322,7 +327,6 @@ void PathTraceSampler::bidirectional(
         camera->gatherSample(sr.xy, Lc*pathWeighting(0, j + 1));
         camera->incrementSampleCnt(sr.xy);
       }
-      
     }
   }
 
