@@ -232,7 +232,7 @@ void PathTraceSampler::bidirectional(
   }
 
   // get direct lighting contribution
-  camera->gatherSample(sampleRay.xy, this->pathDirectLighting(eyeWalk, scene, randHelper, true));
+  camera->gatherSample(sampleRay.xy, this->pathDirectLightingBounce(eyeWalk, scene, randHelper, true));
   // get contribution by combining paths
   camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
