@@ -61,7 +61,7 @@ namespace ray_storm
         return vertex.material->evaluateBSDF(l, vertex.normal, vertex.uv, v);
       }
 
-      static glm::vec3 emittance(PathTraceVertex &vertex)
+      static glm::vec3 emittance(const PathTraceVertex &vertex)
       {
         dispatchers::EmittanceDispatcher ed;
         vertex.object->accept(&ed);

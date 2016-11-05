@@ -177,45 +177,7 @@ void PathTraceSampler::directIlluminationBounce(
   }
   else
   {
-    L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
-    for (int b = 0; b < walkLen; b++)
-    {
-      PathTraceVertex &vert = walk.vertices[b];
-
-      glm::vec3 LdLum(0.0f); // direct illumination
-      glm::vec3 LdBounce(0.0f); // direct illumination of bounce
-
-      if (!vert.delta)
-      {
-        scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-          vert, scene, randHelper);
-        
-        if (!lumSample.shadowed)
-        {
-          const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
-          LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
-        }
-      }
-
-      if (b < walkLen - 1)
-      {
-        PathTraceVertex &nextVert = walk.vertices[b + 1];
-        const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
-        LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
-      }
-      else if (!walk.absorbed) // last vertex
-      {
-        LdBounce = scene->sampleSky(vert.out)*vert.bsdf/(vert.bsdfPDF + scene->getSkyPDF());
-      }
-      glm::vec3 Ld = LdLum + LdBounce;
-
-      if (b > 0)
-      {
-        Ld *= walk.vertices[b - 1].cummulative;
-      }
-      L += Ld;
-
-    }
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]) + pathDirectLightingBounce(walk, scene, randHelper, false);
   }
 
   camera->gatherSample(sampleRay.xy, L);
@@ -350,6 +312,65 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
       L += Ld;
     }
   }
+  return L;
+}
+
+glm::vec3 PathTraceSampler::pathDirectLightingBounce(
+  const RandomWalk &eyeWalk,
+  scene::Scene *scene,
+  random::RandomizationHelper &randHelper,
+  bool weight
+)
+{
+  const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
+
+  glm::vec3 L(0.0f);
+
+  for (int i = 0; i < eyeWalkLen; i++)
+  {
+    const PathTraceVertex &vert = eyeWalk.vertices[i];
+
+    glm::vec3 LdLum(0.0f); // direct illumination
+    glm::vec3 LdBounce(0.0f); // direct illumination of bounce
+
+    if (!vert.delta)
+    {
+      scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+        vert, scene, randHelper);
+      
+      if (!lumSample.shadowed)
+      {
+        const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
+        LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+      }
+    }
+
+    if (i < eyeWalkLen - 1)
+    {
+      const PathTraceVertex &nextVert = eyeWalk.vertices[i + 1];
+      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
+      LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf/(vert.bsdfPDF + lumBouncePDF);
+    }
+    else if (!eyeWalk.absorbed) // last vertex
+    {
+      LdBounce = scene->sampleSky(vert.out)*vert.bsdf/(vert.bsdfPDF + scene->getSkyPDF());
+    }
+    glm::vec3 Ld = LdLum + LdBounce;
+
+    if (i > 0)
+    {
+      Ld *= eyeWalk.vertices[i - 1].cummulative;
+    }
+
+    if (weight)
+    {
+      Ld *= this->pathWeighting(i + 1, 0);
+    }
+
+    L += Ld;
+
+  }
+
   return L;
 }
 
