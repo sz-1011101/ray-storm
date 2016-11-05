@@ -2,7 +2,6 @@
 #define SPHERE_H_
 
 #include "objects/Emitter.h"
-#include "utility/common.hpp"
 #include "geometry/SpherePrimitive.hpp"
 
 namespace ray_storm

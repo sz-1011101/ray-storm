@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "geometry/Bounded.hpp"
+#include "geometry/SpherePrimitive.hpp"
 #include "objects/Emitter.h"
 #include "objects/Reflector.h"
 #include "geometry/Ray.hpp"
@@ -99,6 +100,8 @@ namespace ray_storm
 
       // for fast object intersecting
       std::unique_ptr<datastructures::SpatialDatastructure<objects::Object>> dataStruct;
+
+      geometry::SpherePrimitive boundingSphere;
       
     };
 

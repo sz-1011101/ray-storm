@@ -61,6 +61,11 @@ namespace ray_storm
         return this->upperBounds;
       }
 
+      glm::vec3 computeCenter() const
+      {
+        return this->origin + (this->upperBounds - this->origin)/2.0f;
+      }
+
       void cover(const glm::vec3 &point)
       {
         if (!initialized)

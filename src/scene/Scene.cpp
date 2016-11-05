@@ -6,7 +6,7 @@ using namespace ray_storm::scene;
 
 const float SKY_RAY_OFFSET = 100.0f; // TODO replace by scaling with scene bbox size
 
-Scene::Scene() : dataStruct(new datastructures::List<objects::Object>())
+Scene::Scene() : dataStruct(new datastructures::List<objects::Object>()), boundingSphere(glm::vec3(0.0f), 0.0f)
 {
 }
 
@@ -177,6 +177,12 @@ void Scene::finalize()
   this->dataStruct->initialize();
   const glm::vec3 &bboxOrigin = this->bbox.getOrigin();
   const glm::vec3 &bboxUpperBounds = this->bbox.getUpperBounds();
+
+  // compute scene bounding sphere
+  const glm::vec3 bboxCenter = this->bbox.computeCenter();
+  const float bSphereRad = glm::distance(bboxOrigin, bboxCenter);
+  this->boundingSphere = geometry::SpherePrimitive(bboxCenter, bSphereRad);
+
   printf("Scene finalized, bbox: (%f, %f, %f) to (%f, %f, %f)\n", bboxOrigin.x, bboxOrigin.y, bboxOrigin.z, 
     bboxUpperBounds.x, bboxUpperBounds.y, bboxUpperBounds.z);
 }

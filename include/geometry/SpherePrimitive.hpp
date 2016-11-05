@@ -1,6 +1,7 @@
 #ifndef SPHERE_PRIMITIVE_H_
 #define SPHERE_PRIMITIVE_H_
 
+#include "utility/common.hpp"
 #include "geometry/Intersectable.h"
 
 namespace ray_storm
