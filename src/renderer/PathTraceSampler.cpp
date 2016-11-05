@@ -207,7 +207,7 @@ void PathTraceSampler::bidirectional(
   } // HACK to get delta-bounce/sky reflection
   else if (eyeWalkLen == 1 && eyeWalk.vertices[0].delta && !eyeWalk.absorbed)
   {
-    camera->gatherSample(sampleRay.xy, scene->sampleSky(eyeWalk.vertices[0].out));
+    camera->gatherSample(sampleRay.xy, eyeWalk.vertices[0].bsdf*scene->sampleSky(eyeWalk.vertices[0].out));
   }
 
   RandomWalk lightWalk;
