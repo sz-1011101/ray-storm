@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
     new renderer::PathTraceSampler(
       renderer::PathTraceSampler::METHOD::BIDIRECTIONAL));
 
-  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, false);
+  scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, true);
   
-  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
+  renderer::DefaultRenderer dr(scene, camera, pts, 100);
 
   dr.render();
 

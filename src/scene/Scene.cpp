@@ -4,8 +4,6 @@
 
 using namespace ray_storm::scene;
 
-const float SKY_RAY_OFFSET = 100.0f; // TODO replace by scaling with scene bbox size
-
 Scene::Scene() : dataStruct(new datastructures::List<objects::Object>()), boundingSphere(glm::vec3(0.0f), 0.0f)
 {
 }
@@ -111,11 +109,11 @@ bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
   {
     // starting pos
     const glm::vec3 dir = randHelper.drawUniformRandomSphereDirection();
-    lumRay.randRay.ray.origin = dir*SKY_RAY_OFFSET;
+    lumRay.randRay.ray.origin = dir*this->boundingSphere.getRadius();
     lumRay.randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(-dir, 1.0f);
     // pdf = cos-direction towards scene*selection of scene*sphere area
     lumRay.randRay.PDF = randHelper.cosineRandomHemispherePDF(glm::dot(-dir, lumRay.randRay.ray.direction), 1.0f)*
-      selectionPDF/(4.0f*static_cast<float>(M_PI)*SKY_RAY_OFFSET*SKY_RAY_OFFSET);
+      selectionPDF/(this->boundingSphere.getSurfaceArea());
     lumRay.emittance = this->sampleSky(dir);
     lumRay.directional = true;
   }
@@ -180,8 +178,7 @@ void Scene::finalize()
 
   // compute scene bounding sphere
   const glm::vec3 bboxCenter = this->bbox.computeCenter();
-  const float bSphereRad = glm::distance(bboxOrigin, bboxCenter);
-  this->boundingSphere = geometry::SpherePrimitive(bboxCenter, bSphereRad);
+  this->boundingSphere = geometry::SpherePrimitive(bboxCenter, glm::distance(bboxOrigin, bboxUpperBounds));
 
   printf("Scene finalized, bbox: (%f, %f, %f) to (%f, %f, %f)\n", bboxOrigin.x, bboxOrigin.y, bboxOrigin.z, 
     bboxUpperBounds.x, bboxUpperBounds.y, bboxUpperBounds.z);
