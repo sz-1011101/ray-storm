@@ -55,6 +55,11 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
       light.shadowed = false;
       light.emittance = luminaire->getEmittance(-light.direction, intersectL.intersection.normal);
       light.PDF = this->getLuminairePDF(luminaire, shadowRay, pos, intersectL.intersection.normal);
+      // in case of zero pdf, we assume shadowed
+      if (light.PDF == 0.0f)
+      {
+        light.shadowed = true;
+      }
     }
   }
   else // sky light sampling

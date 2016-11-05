@@ -24,7 +24,7 @@ namespace ray_storm
       {
         this->emitting = emitter->isEmitting();
         this->emittance = emitter->getEmittance(this->l, this->n);
-        this->PDF = this->emitting ? emitter->getPDF() : 0.0f;
+        this->PDF = this->emitting ? emitter->getPDF(this->l, this->n) : 0.0f;
       }
       
       void dispatch(objects::Reflector *reflector)

@@ -218,18 +218,19 @@ void PathTraceSampler::bidirectional(
   {
     Le = lumRay.emittance/lumRay.randRay.PDF;
     this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk);
+
+    camera::SampleRay srLum;
+    if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
+      scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
+    {
+      // TODO G term needed?
+      //const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
+      camera->gatherSample(srLum.xy, lumRay.emittance);
+      camera->incrementSampleCnt(srLum.xy);
+    }
   }
   
   const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
-
-  camera::SampleRay srLum;
-  if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
-    scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
-  {
-    const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
-    camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis));
-    camera->incrementSampleCnt(srLum.xy);
-  }
 
   // get direct lighting contribution
   camera->gatherSample(sampleRay.xy, this->pathDirectLightingBounce(eyeWalk, scene, randHelper, true));

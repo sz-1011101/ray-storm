@@ -17,17 +17,17 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   materials::MaterialPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
   // at 435 nm (green)
   materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523, 1.8009);
-  materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f), 500.0f);
-  materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 33.0f, 1.5f);
+  materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f), 100.0f);
+  materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 100.0f, 1.5f);
 
   if (lightSources)
   {
-    objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(200.0f)));
+    objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(100.0f)));
     scene->add(sphereLight1);
     // ceiling light
-    //objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.995f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
-    //objects::EmitterPtr ceilLight = objects::EmitterPtr(new objects::Rectangle(ceilLightRp, matWhite, glm::vec3(50.0f)));
-    //scene->add(ceilLight);
+    objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.9f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
+    objects::EmitterPtr ceilLight = objects::EmitterPtr(new objects::Rectangle(ceilLightRp, matWhite, glm::vec3(20.0f)));
+    scene->add(ceilLight);
   }
 
   if (naturalLighting)

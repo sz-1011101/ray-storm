@@ -34,11 +34,11 @@ namespace ray_storm
 
       virtual void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample) = 0;
 
-      virtual float getPDF() = 0;
+      virtual float getPDF(const glm::vec3 &l, const glm::vec3 &n) = 0;
 
       virtual glm::vec3 getEmittance(const glm::vec3 &l, const glm::vec3 &n)
       {
-        return this->emittance;
+        return glm::dot(l, n) > 0.0f ? this->emittance : glm::vec3(0.0f);
       }
 
       virtual bool isEmitting()

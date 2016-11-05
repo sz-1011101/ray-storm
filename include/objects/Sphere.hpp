@@ -50,13 +50,13 @@ namespace ray_storm
         raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
         const glm::vec3 n = glm::normalize(raySample.randRay.ray.origin - this->sphere.getPosition());
         raySample.randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        raySample.randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
+        raySample.randRay.PDF = this->getPDF(raySample.randRay.ray.direction, n)*random::RandomizationHelper::uniformRandomHemispherePDF();
         raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n);
       }
 
-      float getPDF()
+      float getPDF(const glm::vec3 &l, const glm::vec3 &n)
       {
-        return 1.0f/this->getSurfaceArea();
+        return glm::dot(l, n) > 0.0f ? 1.0f/this->getSurfaceArea() : 0.0f;
       }
 
     protected:
