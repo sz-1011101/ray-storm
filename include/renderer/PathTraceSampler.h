@@ -86,6 +86,8 @@ namespace ray_storm
         int lightLen
       );
 
+      glm::vec3 pathDirectLighting(const RandomWalk &eyeWalk, scene::Scene *scene, random::RandomizationHelper &randHelper);
+
       float pathWeighting(int eyeIndex, int lightIndex);
 
     };

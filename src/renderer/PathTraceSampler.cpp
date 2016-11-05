@@ -288,6 +288,8 @@ void PathTraceSampler::bidirectional(
     camera->incrementSampleCnt(srLum.xy);
   }
 
+  camera->gatherSample(sampleRay.xy, this->pathDirectLighting(eyeWalk, scene, randHelper));
+
   for (int i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
@@ -295,21 +297,6 @@ void PathTraceSampler::bidirectional(
     if (eyeVert.delta)
     {
       continue;
-    }
-
-    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-      eyeVert, scene, randHelper);
-      
-    if (!lumSample.shadowed)
-    {
-      glm::vec3 Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, -eyeVert.in)
-        *lumSample.emittance/lumSample.PDF;
-
-      if (i > 0)
-      {
-        Ld *= eyeWalk.vertices[i - 1].cummulative;
-      }
-      camera->gatherSample(sampleRay.xy, Ld*pathWeighting(i + 1, 0));
     }
 
     for (int j = 0; j < lightWalkLen; j++)
@@ -360,6 +347,37 @@ void PathTraceSampler::bidirectional(
 
   camera->incrementSampleCnt(sampleRay.xy);
 
+}
+
+glm::vec3 PathTraceSampler::pathDirectLighting(const RandomWalk &eyeWalk, scene::Scene *scene, random::RandomizationHelper &randHelper)
+{
+  glm::vec3 L(0.0f);
+  const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
+  for (int i = 0; i < eyeWalkLen; i++)
+  {
+    const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
+
+    if (eyeVert.delta)
+    {
+      continue;
+    }
+
+    scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
+      eyeVert, scene, randHelper);
+      
+    if (!lumSample.shadowed)
+    {
+      glm::vec3 Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, -eyeVert.in)
+        *lumSample.emittance/lumSample.PDF;
+
+      if (i > 0)
+      {
+        Ld *= eyeWalk.vertices[i - 1].cummulative;
+      }
+      L += Ld*this->pathWeighting(i + 1, 0);
+    }
+  }
+  return L;
 }
 
 glm::vec3 PathTraceSampler::pathRadiance(
