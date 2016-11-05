@@ -1,5 +1,5 @@
-#ifndef MATERIAL_INTERACTION_H_
-#define MATERIAL_INTERACTION_H_
+#ifndef RENDERABLE_H_
+#define RENDERABLE_H_
 
 #include <memory>
 
@@ -7,19 +7,19 @@
 
 namespace ray_storm
 {
-  namespace geometry
+  namespace objects
   {
-    class MaterialInteraction
+    class Renderable
     {
 
     public:
 
-      MaterialInteraction(const materials::MaterialPtr &material) : material(material)
+      Renderable(const materials::MaterialPtr &material) : material(material)
       {
         
       }
 
-      virtual ~MaterialInteraction() {};
+      virtual ~Renderable() {};
 
       materials::Material *getMaterial();
 

@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "geometry/Bounded.hpp"
-#include "geometry/Emitter.h"
-#include "geometry/Reflector.h"
+#include "objects/Emitter.h"
+#include "objects/Reflector.h"
 #include "geometry/Ray.hpp"
 #include "datastructures/SpatialDatastructure.h"
 #include "random/RandomizationHelper.h"
@@ -62,17 +62,17 @@ namespace ray_storm
 
       Scene();
 
-      bool intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const;
+      bool intersect(const geometry::Ray &ray, geometry::Intersection<objects::Object> &intersection) const;
 
       void sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::RandomizationHelper &randHelper, LuminaireSample &light);
 
       bool sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay);
 
-      float getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
+      float getLuminairePDF(objects::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n);
 
-      void add(const geometry::EmitterPtr &emitter);
+      void add(const objects::EmitterPtr &emitter);
 
-      void add(const geometry::ReflectorPtr &reflector);
+      void add(const objects::ReflectorPtr &reflector);
 
       void finalize();
 
@@ -89,16 +89,16 @@ namespace ray_storm
     private:
 
       // scene objects that interact with the light
-      std::vector<geometry::ObjectPtr> objects;
+      std::vector<objects::ObjectPtr> objects;
 
       // scene objects that additionally can act as a light source
-      std::vector<geometry::EmitterPtr> lights;
+      std::vector<objects::EmitterPtr> lights;
 
       // skylight
       AbstractSkyPtr sky;
 
       // for fast object intersecting
-      std::unique_ptr<datastructures::SpatialDatastructure<geometry::Object>> dataStruct;
+      std::unique_ptr<datastructures::SpatialDatastructure<objects::Object>> dataStruct;
       
     };
 

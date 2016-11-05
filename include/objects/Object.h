@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "geometry/Renderable.h"
+#include "objects/Renderable.h"
 #include "geometry/Intersectable.h"
 #include "geometry/Bounded.hpp"
 
@@ -15,10 +15,10 @@ namespace ray_storm
     class AbstractObjectDispatcher;
   }
 
-  namespace geometry
+  namespace objects
   {
 
-    class Object : public Renderable, public Intersectable<Object>, public Bounded
+    class Object : public Renderable, public geometry::Intersectable<Object>, public geometry::Bounded
     {
     public: 
 

@@ -4,7 +4,7 @@
 #include "geometry/Ray.hpp"
 #include "scene/Scene.h"
 #include "random/RandomizationHelper.h"
-#include "geometry/Object.h"
+#include "objects/Object.h"
 
 namespace ray_storm
 {
@@ -37,7 +37,7 @@ namespace ray_storm
 
       glm::vec3 cummulative;
 
-      geometry::Object *object;
+      objects::Object *object;
 
       materials::Material *material;
 

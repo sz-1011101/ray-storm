@@ -1,7 +1,7 @@
 #ifndef REFLECTOR_H_
 #define REFLECTOR_H_
 
-#include "geometry/Object.h"
+#include "objects/Object.h"
 
 namespace ray_storm
 {
@@ -11,7 +11,7 @@ namespace ray_storm
     class AbstractObjectDispatcher;
   }
 
-  namespace geometry
+  namespace objects
   {
 
     class Reflector : public Object

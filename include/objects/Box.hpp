@@ -1,12 +1,12 @@
 #ifndef BOX_H_
 #define BOX_H_
 
-#include "geometry/Reflector.h"
+#include "objects/Reflector.h"
 #include "geometry/AxisAlignedBox.hpp"
 
 namespace ray_storm
 {
-  namespace geometry
+  namespace objects
   {
     class Box : public Reflector
     {
@@ -21,8 +21,8 @@ namespace ray_storm
         this->bbox = this->aaBox;
       }
 
-      inline bool intersect(const Ray &ray, Intersection<Object> &intersection) {
-        Intersection<AxisAlignedBox> aaIntersect;
+      inline bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection) {
+        geometry::Intersection<geometry::AxisAlignedBox> aaIntersect;
 
         if (!this->aaBox.intersect(ray, aaIntersect))
         {
@@ -39,7 +39,7 @@ namespace ray_storm
     private:
 
       // the actual box
-      AxisAlignedBox aaBox;
+      geometry::AxisAlignedBox aaBox;
       glm::vec3 origin;
       glm::vec3 extends;
       

@@ -1,7 +1,7 @@
-#include "geometry/Emitter.h"
+#include "objects/Emitter.h"
 #include "dispatchers/AbstractObjectDispatcher.h"
 
-using namespace ray_storm::geometry;
+using namespace ray_storm::objects;
 
 void Emitter::accept(dispatchers::AbstractObjectDispatcher *dispatcher)
 {

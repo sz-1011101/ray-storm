@@ -1,7 +1,7 @@
 #include "scene/TestSceneFactory.h"
-#include "geometry/Sphere.hpp"
-#include "geometry/Rectangle.hpp"
-#include "geometry/Box.hpp"
+#include "objects/Sphere.hpp"
+#include "objects/Rectangle.hpp"
+#include "objects/Box.hpp"
 #include "materials/MaterialFactory.h"
 #include "scene/ConstantSky.hpp"
 #include "scene/SunSky.hpp"
@@ -22,8 +22,8 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   if (lightSources)
   {
-    geometry::EmitterPtr sphereLight1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(200.0f)));
-    //geometry::EmitterPtr sphereLight2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
+    objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(200.0f)));
+    //objects::EmitterPtr sphereLight2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
     //scene->add(sphereLight2);
   }
@@ -36,12 +36,12 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  geometry::EmitterPtr sphere1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
-  geometry::EmitterPtr sphere2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 2, 2), 1.0f, matGlass));
-  geometry::EmitterPtr sphere3 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
-  geometry::EmitterPtr sphere4 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
+  objects::EmitterPtr sphere1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
+  objects::EmitterPtr sphere2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 2, 2), 1.0f, matGlass));
+  objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
+  objects::EmitterPtr sphere4 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
-  geometry::ReflectorPtr box = geometry::ReflectorPtr(new geometry::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal1));
+  objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal1));
 
   // add our components
   scene->add(sphere1);
@@ -61,65 +61,14 @@ ScenePtr TestSceneFactory::createReflectionTest()
   materials::MaterialPtr matShiny2 = materials::MaterialFactory::MaterialFactory::createMetalFresnel(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f, 0.1f);
   materials::MaterialPtr matLambertian = materials::MaterialFactory::createLambertian(glm::vec3(0.2f));
 
-  geometry::EmitterPtr sphere1 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1));
-  geometry::EmitterPtr sphere2 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f, matShiny2));
-  geometry::EmitterPtr sphere3 = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(5.0f, 5.0f, 0.0f), 1.0f, matLambertian));
+  objects::EmitterPtr sphere1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1));
+  objects::EmitterPtr sphere2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f, matShiny2));
+  objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(5.0f, 5.0f, 0.0f), 1.0f, matLambertian));
 
   scene->add(sphere1);
   scene->add(sphere2);
   scene->add(sphere3);
   scene->finalize();
-
-  return scene;
-}
-
-ScenePtr TestSceneFactory::createSolarSystem()
-{
-  ScenePtr scene(new scene::Scene());
-
-  materials::MaterialPtr matBlack = materials::MaterialFactory::createLambertian(glm::vec3(0.0f));
-  materials::MaterialPtr matMercury = materials::MaterialFactory::createMetal(glm::vec3(0.25), glm::vec3(0.2), 35.0f);
-  materials::MaterialPtr matVenus = materials::MaterialFactory::createLambertian(glm::vec3(0.65f, 0.3f, 0.15f));
-  materials::MaterialPtr matEarth = materials::MaterialFactory::createShiny(glm::vec3(0.1, 0.6, 0.9), glm::vec3(0.8, 0.8, 1.0), 150.0f);
-  materials::MaterialPtr matMars = materials::MaterialFactory::createLambertian(glm::vec3(0.8, 0.3, 0.3));
-  materials::MaterialPtr matJupiter = materials::MaterialFactory::createLambertian(glm::vec3(0.8, 0.7, 0.1));
-  materials::MaterialPtr matSaturn = materials::MaterialFactory::createLambertian(glm::vec3(0.65, 0.6, 0.1));
-  materials::MaterialPtr matUranus = materials::MaterialFactory::createLambertian(glm::vec3(0.75, 0.8, 1.0));
-  materials::MaterialPtr matNeptune = materials::MaterialFactory::createLambertian(glm::vec3(0.2, 0.1, 8.0));
-
-  // objects scale correct, distance not
-  // unit length = 10000 km
-  const float x = -95.0f;
-  const float z = -50.0f;
-  geometry::EmitterPtr sun = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x, 0, z), 69.57f, matBlack, glm::vec3(1.0f)));
-
-  geometry::EmitterPtr mercury = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 73.50f, 0, z), 0.2439f, matMercury));
-
-  geometry::EmitterPtr venus = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 75.50f, 0, z), 0.60518f, matVenus));
-
-  geometry::EmitterPtr earth = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 77.50f, 0, z), 0.6371f, matEarth));
-
-  geometry::EmitterPtr mars = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 79.50f, 0, z), 0.33895f, matMars));
-
-  geometry::EmitterPtr jupiter = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 90.0f, 0, z), 6.9911f, matJupiter));
-
-  geometry::EmitterPtr saturn = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 110.0f, 0, z), 5.8232f, matSaturn));
-
-  geometry::EmitterPtr uranus = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 125.0f, 0, z), 2.5362f, matUranus));
-
-  geometry::EmitterPtr neptune = geometry::EmitterPtr(new geometry::Sphere(glm::vec3(x + 135.0f, 0, z), 2.4622f, matNeptune));
-
-  scene->add(sun);
-  scene->add(mercury);
-  scene->add(venus);
-  scene->add(earth);
-  scene->add(mars);
-  scene->add(jupiter);
-  scene->add(saturn);
-  scene->add(uranus);
-  scene->add(neptune);
-  scene->finalize();
-  // sorry pluto :(
 
   return scene;
 }
@@ -133,28 +82,28 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
   
   // floor
-  geometry::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  geometry::EmitterPtr floor = geometry::EmitterPtr(new geometry::Rectangle(floorRp, matWhite));
+  objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
+  objects::EmitterPtr floor = objects::EmitterPtr(new objects::Rectangle(floorRp, matWhite));
 
   // ceiling
-  geometry::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  geometry::EmitterPtr ceiling = geometry::EmitterPtr(new geometry::Rectangle(ceilingRp, matWhite));
+  objects::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
+  objects::EmitterPtr ceiling = objects::EmitterPtr(new objects::Rectangle(ceilingRp, matWhite));
 
   // left wall
-  geometry::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
-  geometry::EmitterPtr leftWall = geometry::EmitterPtr(new geometry::Rectangle(leftWallRp, matRed));
+  objects::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
+  objects::EmitterPtr leftWall = objects::EmitterPtr(new objects::Rectangle(leftWallRp, matRed));
 
   // right wall
-  geometry::Rectangle::RectParams rightWallRp(glm::vec3(5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
-  geometry::EmitterPtr rightWall = geometry::EmitterPtr(new geometry::Rectangle(rightWallRp, matBlue));
+  objects::Rectangle::RectParams rightWallRp(glm::vec3(5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
+  objects::EmitterPtr rightWall = objects::EmitterPtr(new objects::Rectangle(rightWallRp, matBlue));
 
   // back wall
-  geometry::Rectangle::RectParams backWallRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
-  geometry::EmitterPtr backWall = geometry::EmitterPtr(new geometry::Rectangle(backWallRp, matWhite));
+  objects::Rectangle::RectParams backWallRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  objects::EmitterPtr backWall = objects::EmitterPtr(new objects::Rectangle(backWallRp, matWhite));
 
   // front wall
-  //geometry::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
-  //geometry::ObjectPtr frontWall = geometry::ObjectPtr(new geometry::Rectangle(frontWallRp, matWhite));
+  //objects::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
+  //objects::ObjectPtr frontWall = objects::ObjectPtr(new objects::Rectangle(frontWallRp, matWhite));
 
   box->add(floor);
   box->add(ceiling);
@@ -172,8 +121,8 @@ ScenePtr TestSceneFactory::buildBigWall()
 
   materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
 
-  geometry::Rectangle::RectParams wallRp(glm::vec3(-50.0f, 50.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 100.0f, 100.0f);
-  geometry::EmitterPtr _wall = geometry::EmitterPtr(new geometry::Rectangle(wallRp, matWhite, glm::vec3(1.0f)));
+  objects::Rectangle::RectParams wallRp(glm::vec3(-50.0f, 50.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 100.0f, 100.0f);
+  objects::EmitterPtr _wall = objects::EmitterPtr(new objects::Rectangle(wallRp, matWhite, glm::vec3(1.0f)));
 
   wall->add(_wall);
 

@@ -1,6 +1,6 @@
-#include "geometry/Renderable.h"
+#include "objects/Renderable.h"
 
-using namespace ray_storm::geometry;
+using namespace ray_storm::objects;
 
 ray_storm::materials::Material *Renderable::getMaterial()
 {

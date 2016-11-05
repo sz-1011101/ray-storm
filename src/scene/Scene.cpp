@@ -6,11 +6,11 @@ using namespace ray_storm::scene;
 
 const float SKY_RAY_OFFSET = 100.0f; // TODO replace by scaling with scene bbox size
 
-Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
+Scene::Scene() : dataStruct(new datastructures::List<objects::Object>())
 {
 }
 
-bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<geometry::Object> &intersection) const
+bool Scene::intersect(const geometry::Ray &ray, geometry::Intersection<objects::Object> &intersection) const
 {
   return this->dataStruct->intersect(ray, intersection);
 }
@@ -40,13 +40,13 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
 
   if (objDrawn) // object luminaire
   {
-    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
+    objects::Emitter *luminaire = this->lights.at(objIndex).get();
     const glm::vec3 pos = luminaire->drawRandomSurfacePoint(randHelper);
     light.direction = glm::normalize(pos - x);
 
     geometry::Ray shadowRay(x, light.direction);
 
-    geometry::Intersection<geometry::Object> intersectL;
+    geometry::Intersection<objects::Object> intersectL;
     if (glm::dot(light.direction, n) > 0.0f // hemisphere
       && this->intersect(shadowRay, intersectL) // should happen except at edges
       && intersectL.intersected == luminaire // we hit the drawn object
@@ -63,7 +63,7 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
     light.direction = randHelper.drawUniformRandomHemisphereDirection(n);
     geometry::Ray shadowRay(x, light.direction);
 
-    geometry::Intersection<geometry::Object> intersectL;
+    geometry::Intersection<objects::Object> intersectL;
     if (!this->intersect(shadowRay, intersectL)) // skylight hit?
     {
       light.shadowed = false;
@@ -102,7 +102,7 @@ bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
 
   if (objDrawn)
   {
-    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
+    objects::Emitter *luminaire = this->lights.at(objIndex).get();
     luminaire->drawRandomRay(randHelper, lumRay.randRay);
     lumRay.randRay.PDF *= selectionPDF;
     lumRay.emittance = luminaire->getEmittance();
@@ -123,7 +123,7 @@ bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
   return true;
 }
 
-float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n)
+float Scene::getLuminairePDF(objects::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n)
 {
   const int lCnt = this->sky == nullptr ? static_cast<int>(this->lights.size()) : static_cast<int>(this->lights.size()) + 1;
   
@@ -141,7 +141,7 @@ float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray,
   return 0.0f;
 }
 
-void Scene::add(const geometry::ReflectorPtr &reflector)
+void Scene::add(const objects::ReflectorPtr &reflector)
 {
   if (reflector == nullptr)
   {
@@ -151,7 +151,7 @@ void Scene::add(const geometry::ReflectorPtr &reflector)
   this->bbox.cover(reflector->getBBox());
 }
 
-void Scene::add(const geometry::EmitterPtr &emitter)
+void Scene::add(const objects::EmitterPtr &emitter)
 {
   if (emitter == nullptr)
   {
@@ -169,7 +169,7 @@ void Scene::add(const geometry::EmitterPtr &emitter)
 void Scene::finalize()
 {
   // build the thing
-  for (geometry::ObjectPtr &o : this->objects)
+  for (objects::ObjectPtr &o : this->objects)
   {
     this->dataStruct->add(o.get());
   }
@@ -208,7 +208,7 @@ float Scene::getSkyPDF()
 bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target)
 {
   geometry::Ray vRay(origin, glm::normalize(target - origin));
-  geometry::Intersection<geometry::Object> intersect;
+  geometry::Intersection<objects::Object> intersect;
   
   if (!this->intersect(vRay, intersect))
   {
@@ -227,7 +227,7 @@ bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target)
 bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target, const glm::vec3 &targetNormal)
 {
   geometry::Ray vRay(origin, glm::normalize(target - origin));
-  geometry::Intersection<geometry::Object> intersect;
+  geometry::Intersection<objects::Object> intersect;
   
   if (!this->intersect(vRay, intersect))
   {

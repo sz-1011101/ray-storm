@@ -2,8 +2,8 @@
 #define DEFAULT_OBJECT_DISPATCHER_H_
 
 #include "dispatchers/AbstractObjectDispatcher.h"
-#include "geometry/Emitter.h"
-#include "geometry/Reflector.h"
+#include "objects/Emitter.h"
+#include "objects/Reflector.h"
 
 namespace ray_storm
 {
@@ -15,14 +15,14 @@ namespace ray_storm
 
     public:
 
-      void dispatch(geometry::Emitter *emitter)
+      void dispatch(objects::Emitter *emitter)
       {
         this->emittance = emitter->getEmittance();
         this->emitting = emitter->isEmitting();
         this->PDF = this->emitting ? emitter->getPDF() : 0.0f;
       }
       
-      void dispatch(geometry::Reflector *reflector)
+      void dispatch(objects::Reflector *reflector)
       {
         this->emittance = glm::vec3(0.0f);
         this->emitting = false;

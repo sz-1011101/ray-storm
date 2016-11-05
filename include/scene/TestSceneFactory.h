@@ -16,8 +16,6 @@ namespace ray_storm
 
       static ScenePtr createReflectionTest();
 
-      static ScenePtr createSolarSystem();
-
     private:
 
       TestSceneFactory() {};

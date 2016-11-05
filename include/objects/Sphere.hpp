@@ -1,12 +1,12 @@
 #ifndef SPHERE_H_
 #define SPHERE_H_
 
-#include "geometry/Emitter.h"
+#include "objects/Emitter.h"
 #include "utility/common.hpp"
 
 namespace ray_storm
 {
-  namespace geometry
+  namespace objects
   {
     
     class Sphere : public Emitter
@@ -22,10 +22,10 @@ namespace ray_storm
       {
         this->position = position;
         this->radius = radius;
-        this->bbox = AxisAlignedBox(position - glm::vec3(radius), glm::vec3(2.0f*radius));
+        this->bbox = geometry::AxisAlignedBox(position - glm::vec3(radius), glm::vec3(2.0f*radius));
       }
 
-      inline bool intersect(const Ray &ray, Intersection<Object> &intersection) {
+      inline bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection) {
         const float a = glm::dot(ray.direction, ray.direction);
         const glm::vec3 orgMinusCenter = ray.origin - this->position;
         const float b = 2.0f*glm::dot(ray.direction, orgMinusCenter);
@@ -54,7 +54,8 @@ namespace ray_storm
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
         
         const glm::vec3 spherical = utility::Math::cartesianToSpherical(iPoint - position);
-        intersection.intersection = SimpleIntersection (iPoint, glm::normalize(iPoint - this->position), glm::vec2(spherical.y/(2.0f*M_PI), spherical.z/M_PI));
+        intersection.intersection = geometry::SimpleIntersection (iPoint, glm::normalize(iPoint - this->position),
+          glm::vec2(spherical.y/(2.0f*M_PI), spherical.z/M_PI));
         return true;
       }
 

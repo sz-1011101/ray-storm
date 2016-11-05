@@ -1,12 +1,12 @@
 #ifndef RECTANGLE_H_
 #define RECTANGLE_H_
 
-#include "geometry/Object.h"
+#include "objects/Object.h"
 #include "geometry/Plane.hpp"
 
 namespace ray_storm
 {
-  namespace geometry
+  namespace objects
   {
 
     class Rectangle : public Emitter
@@ -55,9 +55,9 @@ namespace ray_storm
         this->bbox.cover(this->rectParams.origin + this->wSide + this->hSide);
       }
 
-      inline bool intersect(const Ray &ray, Intersection<Object> &intersection)
+      inline bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection)
       {
-        Intersection<Plane> pInters;
+        geometry::Intersection<geometry::Plane> pInters;
 
         // only intersect on one side, other side is invisible
         if (!this->plane.intersect(ray, pInters))
@@ -119,7 +119,7 @@ namespace ray_storm
       glm::vec3 hSide;
 
       // the rectangle's plane
-      Plane plane;
+      geometry::Plane plane;
       
     };
 

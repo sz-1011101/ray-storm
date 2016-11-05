@@ -6,7 +6,7 @@
 
 namespace ray_storm
 {
-  namespace geometry
+  namespace objects
   {
     class Emitting
     {

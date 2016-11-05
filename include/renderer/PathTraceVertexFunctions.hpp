@@ -19,7 +19,7 @@ namespace ray_storm
 
       static bool intersect(const geometry::Ray &ray, scene::Scene *scene, PathTraceVertex &vertex)
       {
-        geometry::Intersection<geometry::Object> isect;
+        geometry::Intersection<objects::Object> isect;
         if (!scene->intersect(ray, isect))
         {
           return false;

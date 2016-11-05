@@ -4,7 +4,7 @@
 namespace ray_storm
 {
 
-  namespace geometry
+  namespace objects
   {
     class Emitter;
 
@@ -20,9 +20,9 @@ namespace ray_storm
 
       virtual ~AbstractObjectDispatcher() {};
 
-      virtual void dispatch(geometry::Emitter *emitter) = 0;
+      virtual void dispatch(objects::Emitter *emitter) = 0;
       
-      virtual void dispatch(geometry::Reflector *reflector) = 0;
+      virtual void dispatch(objects::Reflector *reflector) = 0;
 
     };
   }

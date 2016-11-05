@@ -1,7 +1,7 @@
-#include "geometry/Reflector.h"
+#include "objects/Reflector.h"
 #include "dispatchers/AbstractObjectDispatcher.h"
 
-using namespace ray_storm::geometry;
+using namespace ray_storm::objects;
 
 void Reflector::accept(dispatchers::AbstractObjectDispatcher *dispatcher)
 {

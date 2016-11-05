@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include "geometry/Renderable.h"
 #include "geometry/Intersection.hpp"
 
 namespace ray_storm

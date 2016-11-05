@@ -1,8 +1,8 @@
 #ifndef EMITTER_H_
 #define EMITTER_H_
 
-#include "geometry/Object.h"
-#include "geometry/Emitting.h"
+#include "objects/Object.h"
+#include "objects/Emitting.h"
 
 namespace ray_storm
 {
@@ -12,7 +12,7 @@ namespace ray_storm
     class AbstractObjectDispatcher;
   }
 
-  namespace geometry
+  namespace objects
   {
 
     class Emitter : public Object, public Emitting
