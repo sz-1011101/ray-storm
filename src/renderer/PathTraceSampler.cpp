@@ -146,30 +146,7 @@ void PathTraceSampler::directIllumination(
   }
   else
   {
-    L = PathTraceVertexFunctions::emittance(walk.vertices[0]);
-    for (int b = 0; b < walkLen; b++)
-    {
-      PathTraceVertex &vert = walk.vertices[b];
-
-      if (vert.delta)
-      {
-        continue;
-      }
-
-      scene::Scene::LuminaireSample lumSample = PathTraceVertexFunctions::sampleLuminaire(
-        vert, scene, randHelper);
-      glm::vec3 Ld(0.0f); // direct illumination
-      if (!lumSample.shadowed)
-      {
-        Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*lumSample.emittance/lumSample.PDF;
-        if (b > 0)
-        {
-          Ld *= walk.vertices[b - 1].cummulative;
-        }
-      
-        L += Ld;
-      }
-    }
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]) + this->pathDirectLighting(walk, scene, randHelper, false);
   }
 
   camera->gatherSample(sampleRay.xy, L);
@@ -293,7 +270,7 @@ void PathTraceSampler::bidirectional(
   }
 
   // get direct lighting contribution
-  camera->gatherSample(sampleRay.xy, this->pathDirectLighting(eyeWalk, scene, randHelper));
+  camera->gatherSample(sampleRay.xy, this->pathDirectLighting(eyeWalk, scene, randHelper, true));
   // get contribution by combining paths
   camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
@@ -337,7 +314,9 @@ void PathTraceSampler::bidirectional(
 glm::vec3 PathTraceSampler::pathDirectLighting(
   const RandomWalk &eyeWalk,
   scene::Scene *scene,
-  random::RandomizationHelper &randHelper)
+  random::RandomizationHelper &randHelper,
+  bool weight
+)
 {
   glm::vec3 L(0.0f);
   const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
@@ -362,7 +341,13 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
       {
         Ld *= eyeWalk.vertices[i - 1].cummulative;
       }
-      L += Ld*this->pathWeighting(i + 1, 0);
+
+      if (weight)
+      {
+        Ld *= this->pathWeighting(i + 1, 0);
+      }
+
+      L += Ld;
     }
   }
   return L;
@@ -395,7 +380,7 @@ glm::vec3 PathTraceSampler::pathPathCombination(
 
       if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
       {
-        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*pathWeighting(i + 1, j + 1);
+        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*this->pathWeighting(i + 1, j + 1);
       }
 
     }

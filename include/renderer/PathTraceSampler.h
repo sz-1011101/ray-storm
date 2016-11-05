@@ -89,7 +89,8 @@ namespace ray_storm
       glm::vec3 pathDirectLighting(
         const RandomWalk &eyeWalk,
         scene::Scene *scene,
-        random::RandomizationHelper &randHelper
+        random::RandomizationHelper &randHelper,
+        bool weight
       );
 
       glm::vec3 pathPathCombination(
