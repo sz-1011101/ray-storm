@@ -38,8 +38,7 @@ namespace ray_storm
 
       float getSurfaceArea()
       {
-        float rad = this->sphere.getRadius();
-        return 4.0f*static_cast<float>(M_PI)*rad*rad;
+        return this->sphere.getSurfaceArea();
       }
 
       glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)

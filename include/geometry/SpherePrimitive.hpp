@@ -51,6 +51,11 @@ namespace ray_storm
         return true;
       }
 
+      float getSurfaceArea() const
+      {
+        return 4.0f*static_cast<float>(M_PI)*this->radius*this->radius;
+      }
+
       const glm::vec3 &getPosition() const
       {
         return this->position;
