@@ -11,6 +11,7 @@ namespace ray_storm
     {
 
     private:
+
       enum BOX_SIDE
       {
         X_PLANE = 0, Y_PLANE, Z_PLANE
@@ -30,12 +31,38 @@ namespace ray_storm
         return glm::vec3(0.0f);
       }
 
+      bool initialized;
+
     public:
+
+      AxisAlignedBox()
+      {
+        this->origin = glm::vec3(0.0f);
+        this->upperBounds = glm::vec3(0.0f);
+        this->initialized = false;
+      }
 
       AxisAlignedBox(const glm::vec3 &origin, const glm::vec3 &extends)
       {
         this->origin = origin;
         this->upperBounds = this->origin + extends;
+        this->initialized = true;
+      }
+
+      void cover(const glm::vec3 &point)
+      {
+        if (!initialized)
+        {
+          // some paranoia epsilon
+          this->origin = point - glm::vec3(0.01);
+          this->upperBounds = point + glm::vec3(0.01);
+          initialized = true;
+        }
+        else
+        {
+          this->origin = glm::min(this->origin, point - glm::vec3(0.01));
+          this->upperBounds = glm::max(this->upperBounds, point + glm::vec3(0.01));
+        }
       }
       
       bool intersect(const Ray &ray, Intersection<AxisAlignedBox> &intersection)

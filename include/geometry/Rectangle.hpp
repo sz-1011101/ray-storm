@@ -49,6 +49,10 @@ namespace ray_storm
         this->normal = rectParams.calcNormal();
         this->wSide = rectParams.wAxis*rectParams.width;
         this->hSide = rectParams.hAxis*rectParams.height;
+        this->bbox.cover(this->rectParams.origin);
+        this->bbox.cover(this->rectParams.origin + this->wSide);
+        this->bbox.cover(this->rectParams.origin + this->hSide);
+        this->bbox.cover(this->rectParams.origin + this->wSide + this->hSide);
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection)

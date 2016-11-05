@@ -4,7 +4,7 @@
 
 using namespace ray_storm::scene;
 
-const float SKY_RAY_OFFSET = 999999.0f; // TODO replace by scaling with scene bbox size
+const float SKY_RAY_OFFSET = 100.0f; // TODO replace by scaling with scene bbox size
 
 Scene::Scene() : dataStruct(new datastructures::List<geometry::Object>())
 {
@@ -76,21 +76,49 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
 bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, LuminaireRay &lumRay)
 {
   const int lCnt = static_cast<int>(this->lights.size());
-  int objIndex;
 
-  if (lCnt == 0)
+  if (lCnt == 0 && this->sky == nullptr)
   {
     return false;
   }
 
-  objIndex = randHelper.drawUniformRandom(0, lCnt);
+  int objIndex;
+  bool objDrawn = false;
+  float selectionPDF = 0.0f;
 
-  const float selectionPDF = 1.0f/this->lights.size();
+  if (this->sky != nullptr)
+  {
+    objIndex = randHelper.drawUniformRandom(0, lCnt + 1);
+    objDrawn = objIndex == lCnt ? false : true;
+    selectionPDF = 1.0f/(this->lights.size() + 1);
+  }
+  else
+  {
+    objIndex = randHelper.drawUniformRandom(0, lCnt);
+    objDrawn = true;
+    selectionPDF = 1.0f/(this->lights.size());
+  }
 
-  geometry::Emitter *luminaire = this->lights.at(objIndex).get();
-  luminaire->drawRandomRay(randHelper, lumRay.randRay);
-  lumRay.randRay.PDF *= selectionPDF;
-  lumRay.emittance = luminaire->getEmittance();
+
+  if (objDrawn)
+  {
+    geometry::Emitter *luminaire = this->lights.at(objIndex).get();
+    luminaire->drawRandomRay(randHelper, lumRay.randRay);
+    lumRay.randRay.PDF *= selectionPDF;
+    lumRay.emittance = luminaire->getEmittance();
+  }
+  else
+  {
+    // starting pos
+    const glm::vec3 dir = randHelper.drawUniformRandomSphereDirection();
+    lumRay.randRay.ray.origin = dir*SKY_RAY_OFFSET;
+    lumRay.randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(-dir, 1.0f);
+    // pdf = cos-direction towards scene*selection of scene*sphere area
+    lumRay.randRay.PDF = randHelper.cosineRandomHemispherePDF(glm::dot(-dir, lumRay.randRay.ray.direction), 1.0f)*
+      selectionPDF/(4.0f*static_cast<float>(M_PI)*SKY_RAY_OFFSET*SKY_RAY_OFFSET);
+    lumRay.emittance = this->sampleSky(dir);
+    lumRay.directional = true;
+  }
 
   return true;
 }
@@ -181,4 +209,23 @@ bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target)
 
   return glm::distance(origin, intersect.intersection.position) >= glm::distance(origin, target);
 
+}
+
+bool Scene::visible(const glm::vec3 &origin, const glm::vec3 &target, const glm::vec3 &targetNormal)
+{
+  geometry::Ray vRay(origin, glm::normalize(target - origin));
+  geometry::Intersection<geometry::Object> intersect;
+  
+  if (!this->intersect(vRay, intersect))
+  {
+    return true;
+  }
+
+  if (glm::distance(intersect.intersection.position, target) < 0.001f)
+  {
+    return true;
+  }
+
+  return glm::distance(origin, intersect.intersection.position) >= glm::distance(origin, target) &&
+    glm::dot(intersect.intersection.normal, targetNormal) > 0.0f;
 }

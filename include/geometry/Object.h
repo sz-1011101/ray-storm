@@ -5,6 +5,7 @@
 
 #include "geometry/Renderable.h"
 #include "geometry/Intersectable.h"
+#include "geometry/Bounded.hpp"
 
 namespace ray_storm
 {
@@ -17,7 +18,7 @@ namespace ray_storm
   namespace geometry
   {
 
-    class Object : public Renderable, public Intersectable<Object>
+    class Object : public Renderable, public Intersectable<Object>, public Bounded
     {
     public: 
 

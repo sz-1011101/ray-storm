@@ -18,6 +18,7 @@ namespace ray_storm
       {
         this->origin = origin;
         this->extends = extends;
+        this->bbox = this->aaBox;
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection) {

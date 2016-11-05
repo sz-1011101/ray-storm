@@ -39,11 +39,11 @@ int main(int argc, char* argv[])
 
   renderer::AbstractRadianceSamplerPtr pts(
     new renderer::PathTraceSampler(
-      renderer::PathTraceSampler::METHOD::DIRECT));
+      renderer::PathTraceSampler::METHOD::BIDIRECTIONAL));
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, false);
   
-  renderer::DefaultRenderer dr(scene, camera, pts, 50);
+  renderer::DefaultRenderer dr(scene, camera, pts, 1000);
 
   dr.render();
 

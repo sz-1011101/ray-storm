@@ -22,6 +22,7 @@ namespace ray_storm
       {
         this->position = position;
         this->radius = radius;
+        this->bbox = AxisAlignedBox(position - glm::vec3(radius), glm::vec3(2.0f*radius));
       }
 
       inline bool intersect(const Ray &ray, Intersection<Object> &intersection) {

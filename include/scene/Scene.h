@@ -49,15 +49,12 @@ namespace ray_storm
 
         random::RandomRay randRay;
 
-        bool delta;
-
         bool directional;
 
         LuminaireRay()
         {
           this->emittance = glm::vec3(0.0f);
           this->randRay.PDF = 0.0f;
-          this->delta = false;
           this->directional = false;
         }
       };
@@ -85,6 +82,8 @@ namespace ray_storm
       float getSkyPDF();
 
       bool visible(const glm::vec3 &origin, const glm::vec3 &target);
+
+      bool visible(const glm::vec3 &origin, const glm::vec3 &target, const glm::vec3 &targetNormal);
 
     private:
 
