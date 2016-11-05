@@ -63,7 +63,7 @@ namespace ray_storm
 
       static glm::vec3 emittance(const PathTraceVertex &vertex)
       {
-        dispatchers::EmittanceDispatcher ed;
+        dispatchers::EmittanceDispatcher ed(-vertex.in, vertex.normal);
         vertex.object->accept(&ed);
         return ed.getEmittance();
       }

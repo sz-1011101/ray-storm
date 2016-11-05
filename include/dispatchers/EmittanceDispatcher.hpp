@@ -1,7 +1,7 @@
-#ifndef DEFAULT_OBJECT_DISPATCHER_H_
-#define DEFAULT_OBJECT_DISPATCHER_H_
+#ifndef EMITTANCE_DISPATCHER_H_
+#define EMITTANCE_DISPATCHER_H_
 
-#include "dispatchers/AbstractObjectDispatcher.h"
+#include "dispatchers/EmittanceDeciderDispatcher.hpp"
 #include "objects/Emitter.h"
 #include "objects/Reflector.h"
 
@@ -10,33 +10,33 @@ namespace ray_storm
   namespace dispatchers
   {
 
-    class EmittanceDispatcher : public AbstractObjectDispatcher
+    class EmittanceDispatcher : public EmittanceDeciderDispatcher
     {
 
     public:
 
+      EmittanceDispatcher(const glm::vec3 &l, const glm::vec3 &n) : l(l), n(n)
+      {
+
+      }
+
       void dispatch(objects::Emitter *emitter)
       {
-        this->emittance = emitter->getEmittance();
         this->emitting = emitter->isEmitting();
+        this->emittance = emitter->getEmittance(this->l, this->n);
         this->PDF = this->emitting ? emitter->getPDF() : 0.0f;
       }
       
       void dispatch(objects::Reflector *reflector)
       {
-        this->emittance = glm::vec3(0.0f);
         this->emitting = false;
+        this->emittance = glm::vec3(0.0f);
         this->PDF = 0.0f;
       }
 
       glm::vec3 getEmittance() const
       {
         return this->emittance;
-      }
-
-      bool isEmitting() const
-      {
-        return this->emitting;
       }
 
       float getPDF() const
@@ -46,9 +46,11 @@ namespace ray_storm
       
     private:
 
-      glm::vec3 emittance;
+      glm::vec3 l;
+      
+      glm::vec3 n;
 
-      bool emitting;
+      glm::vec3 emittance;
 
       float PDF;
 

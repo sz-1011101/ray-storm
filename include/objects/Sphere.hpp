@@ -45,11 +45,13 @@ namespace ray_storm
         return this->sphere.getPosition() + randHelper.drawUniformRandomSphereDirection()*(this->sphere.getRadius() + Emitter::SURFACE_POINT_OFFSET);
       }
 
-      void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample)
       {
-        randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
-        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(randRay.ray.origin - this->sphere.getPosition()));
-        randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
+        raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
+        const glm::vec3 n = glm::normalize(raySample.randRay.ray.origin - this->sphere.getPosition());
+        raySample.randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
+        raySample.randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
+        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n);
       }
 
       float getPDF()

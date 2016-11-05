@@ -1,6 +1,7 @@
 #include "scene/Scene.h"
 #include "datastructures/List.hpp"
 #include "dispatchers/EmittanceDispatcher.hpp"
+#include "dispatchers/EmittanceDeciderDispatcher.hpp"
 
 using namespace ray_storm::scene;
 
@@ -52,7 +53,7 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
     )
     {
       light.shadowed = false;
-      light.emittance = luminaire->getEmittance();
+      light.emittance = luminaire->getEmittance(-light.direction, intersectL.intersection.normal);
       light.PDF = this->getLuminairePDF(luminaire, shadowRay, pos, intersectL.intersection.normal);
     }
   }
@@ -97,13 +98,14 @@ bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
     selectionPDF = 1.0f/(this->lights.size());
   }
 
-
   if (objDrawn)
   {
     objects::Emitter *luminaire = this->lights.at(objIndex).get();
-    luminaire->drawRandomRay(randHelper, lumRay.randRay);
+    objects::Emitter::RaySample rs;
+    luminaire->drawRandomRay(randHelper, rs);
+    lumRay.randRay = rs.randRay;
     lumRay.randRay.PDF *= selectionPDF;
-    lumRay.emittance = luminaire->getEmittance();
+    lumRay.emittance = rs.emittance;
   }
   else
   {
@@ -125,7 +127,7 @@ float Scene::getLuminairePDF(objects::Object *object, const geometry::Ray &ray, 
 {
   const int lCnt = this->sky == nullptr ? static_cast<int>(this->lights.size()) : static_cast<int>(this->lights.size()) + 1;
   
-  dispatchers::EmittanceDispatcher ed;
+  dispatchers::EmittanceDispatcher ed(-ray.direction, n);
   object->accept(&ed);
 
   if (object != nullptr && ed.isEmitting())
@@ -157,7 +159,7 @@ void Scene::add(const objects::EmitterPtr &emitter)
   }
   this->objects.push_back(emitter);
   this->bbox.cover(emitter->getBBox());
-  dispatchers::EmittanceDispatcher ed;
+  dispatchers::EmittanceDeciderDispatcher ed;
   emitter->accept(&ed);
   if (ed.isEmitting()) {
     this->lights.push_back(emitter);

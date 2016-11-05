@@ -23,9 +23,11 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   if (lightSources)
   {
     objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(200.0f)));
-    //objects::EmitterPtr sphereLight2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(2, 8, -1), 0.1f, matWhite, glm::vec3(200.0f)));
     scene->add(sphereLight1);
-    //scene->add(sphereLight2);
+    // ceiling light
+    //objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.995f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
+    //objects::EmitterPtr ceilLight = objects::EmitterPtr(new objects::Rectangle(ceilLightRp, matWhite, glm::vec3(50.0f)));
+    //scene->add(ceilLight);
   }
 
   if (naturalLighting)

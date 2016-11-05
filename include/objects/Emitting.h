@@ -12,6 +12,15 @@ namespace ray_storm
     {
     public:
 
+      struct RaySample
+      {
+        random::RandomRay randRay;
+
+        glm::vec3 emittance;
+
+        RaySample() : emittance(glm::vec3(0.0f)) {};
+      };
+
       Emitting(const glm::vec3 &emittance)
       {
         this->emittance = emittance;
@@ -23,11 +32,11 @@ namespace ray_storm
 
       virtual glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper) = 0;
 
-      virtual void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay) = 0;
+      virtual void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample) = 0;
 
       virtual float getPDF() = 0;
 
-      virtual glm::vec3 getEmittance()
+      virtual glm::vec3 getEmittance(const glm::vec3 &l, const glm::vec3 &n)
       {
         return this->emittance;
       }

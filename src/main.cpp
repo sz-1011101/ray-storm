@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(true, true);
   
-  renderer::DefaultRenderer dr(scene, camera, pts, 100);
+  renderer::DefaultRenderer dr(scene, camera, pts, 25);
 
   dr.render();
 

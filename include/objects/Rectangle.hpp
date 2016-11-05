@@ -97,11 +97,12 @@ namespace ray_storm
         return this->rectParams.origin + u*this->wSide + v*this->hSide + this->normal*Emitter::SURFACE_POINT_OFFSET;
       }
 
-      void drawRandomRay(random::RandomizationHelper &randHelper, random::RandomRay &randRay)
+      void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample)
       {
-        randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
-        randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(this->normal));
-        randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
+        raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
+        raySample.randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(glm::normalize(this->normal));
+        raySample.randRay.PDF = this->getPDF()*random::RandomizationHelper::uniformRandomHemispherePDF();
+        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, this->normal);
       }
 
       float getPDF()
