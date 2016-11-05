@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "geometry/Bounded.hpp"
 #include "geometry/Emitter.h"
 #include "geometry/Reflector.h"
 #include "geometry/Ray.hpp"
@@ -16,7 +17,7 @@ namespace ray_storm
   namespace scene
   {
     
-    class Scene
+    class Scene : public geometry::Bounded
     {
 
     public:

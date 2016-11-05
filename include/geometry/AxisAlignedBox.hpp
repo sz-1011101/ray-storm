@@ -1,6 +1,8 @@
 #ifndef AXIS_ALIGNED_BOX_H_
 #define AXIS_ALIGNED_BOX_H_
 
+#include <vector>
+
 #include "geometry/Intersectable.h"
 
 namespace ray_storm
@@ -49,6 +51,16 @@ namespace ray_storm
         this->initialized = true;
       }
 
+      const glm::vec3 &getOrigin() const
+      {
+        return this->origin;
+      }
+
+      const glm::vec3 &getUpperBounds() const
+      {
+        return this->upperBounds;
+      }
+
       void cover(const glm::vec3 &point)
       {
         if (!initialized)
@@ -63,6 +75,12 @@ namespace ray_storm
           this->origin = glm::min(this->origin, point - glm::vec3(0.01));
           this->upperBounds = glm::max(this->upperBounds, point + glm::vec3(0.01));
         }
+      }
+
+      void cover(const AxisAlignedBox &box)
+      {
+        this->cover(box.getOrigin());
+        this->cover(box.getUpperBounds());
       }
       
       bool intersect(const Ray &ray, Intersection<AxisAlignedBox> &intersection)

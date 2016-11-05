@@ -11,7 +11,7 @@ namespace ray_storm
     {
     public:
 
-      const AxisAlignedBox &getBBox()
+      const AxisAlignedBox &getBBox() const
       {
         return this->bbox;
       }

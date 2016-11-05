@@ -143,12 +143,22 @@ float Scene::getLuminairePDF(geometry::Object *object, const geometry::Ray &ray,
 
 void Scene::add(const geometry::ReflectorPtr &reflector)
 {
+  if (reflector == nullptr)
+  {
+    return;
+  }
   this->objects.push_back(reflector);
+  this->bbox.cover(reflector->getBBox());
 }
 
 void Scene::add(const geometry::EmitterPtr &emitter)
 {
+  if (emitter == nullptr)
+  {
+    return;
+  }
   this->objects.push_back(emitter);
+  this->bbox.cover(emitter->getBBox());
   dispatchers::EmittanceDispatcher ed;
   emitter->accept(&ed);
   if (ed.isEmitting()) {
@@ -165,7 +175,10 @@ void Scene::finalize()
   }
 
   this->dataStruct->initialize();
-  puts("Scene finalized");
+  const glm::vec3 &bboxOrigin = this->bbox.getOrigin();
+  const glm::vec3 &bboxUpperBounds = this->bbox.getUpperBounds();
+  printf("Scene finalized, bbox: (%f, %f, %f) to (%f, %f, %f)\n", bboxOrigin.x, bboxOrigin.y, bboxOrigin.z, 
+    bboxUpperBounds.x, bboxUpperBounds.y, bboxUpperBounds.z);
 }
 
 void Scene::setSky(const AbstractSkyPtr &sky)
