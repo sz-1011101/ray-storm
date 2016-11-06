@@ -223,10 +223,8 @@ void PathTraceSampler::bidirectional(
     if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
       scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
     {
-      // TODO G term needed?
-      //const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
-      camera->gatherSample(srLum.xy, lumRay.emittance);
-      camera->incrementSampleCnt(srLum.xy);
+      const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
+      camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis)*this->pathWeighting(0, 0));
     }
   }
   
