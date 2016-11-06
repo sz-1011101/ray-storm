@@ -37,7 +37,8 @@ namespace ray_storm
 
       static bool bounce(
         random::RandomizationHelper &randHelper,
-        PathTraceVertex &vertex
+        PathTraceVertex &vertex,
+        bool eye
       )
       {
         random::RandomRay ray;
@@ -45,11 +46,17 @@ namespace ray_storm
         {
           return false;
         }
-
         vertex.out = ray.ray.direction;
         vertex.offPosition = ray.ray.origin;
-
-        vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
+        if (eye)
+        {
+          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
+        }
+        else
+        {
+          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(-vertex.in, vertex, vertex.out);
+        }
+        
         vertex.bsdfPDF = ray.PDF;
         vertex.delta = ray.delta;
 

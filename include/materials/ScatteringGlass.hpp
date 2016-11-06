@@ -44,7 +44,7 @@ namespace ray_storm
         glm::vec3 t;
         MaterialHelper::refract(1.0f, this->indexOfRefraction, -l, n, t, nRef);
 
-        return this->lambertian*std::abs(glm::dot(n, l)) + this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(t, v)), this->e));
+        return this->lambertian + this->specular*glm::vec3(std::pow(std::max(0.0f, glm::dot(t, v)), this->e));
       }
 
       void drawDirection(

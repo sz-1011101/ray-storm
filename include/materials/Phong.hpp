@@ -37,13 +37,8 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        float cosTerm = glm::dot(n, l);
-        if (cosTerm < 0.0f)
-        {
-          return glm::vec3(0.0f);
-        }
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        return this->lambertian*cosTerm + 
+        return this->lambertian + 
           this->specular*std::pow(std::max(0.0f, dot(r, v)), this->e);
       }
 

@@ -47,7 +47,8 @@ namespace ray_storm
         scene::Scene *scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper,
-        RandomWalk &walk
+        RandomWalk &walk,
+        bool eye
       );
 
       // TODO move these out to seperate samplers?
