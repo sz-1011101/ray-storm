@@ -17,6 +17,7 @@ namespace ray_storm
         NAIVE = 0,
         DIRECT,
         DIRECT_BOUNCE,
+        LIGHTPATHTRACING,
         BIDIRECTIONAL
       };
 
@@ -67,6 +68,13 @@ namespace ray_storm
       );
 
       void directIlluminationBounce(
+        scene::Scene *scene,
+        camera::AbstractCamera *camera,
+        const camera::SampleRay &sampleRay,
+        random::RandomizationHelper &randHelper
+      );
+
+      void lightPathTracing(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,

@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
   renderer::AbstractRadianceSamplerPtr pts(
     new renderer::PathTraceSampler(
-      renderer::PathTraceSampler::METHOD::NAIVE));
+      renderer::PathTraceSampler::METHOD::LIGHTPATHTRACING));
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
