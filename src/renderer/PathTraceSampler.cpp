@@ -87,6 +87,10 @@ void PathTraceSampler::randomWalk
     {
       absorbed = true;
     }
+
+    if (b == 1) {
+      absorbed = true;
+    }
   }
 
   walk.absorbed = absorbed;
@@ -237,10 +241,10 @@ void PathTraceSampler::lightPathTracing(
         Lc *= std::max(0.0f, glm::dot(lightVert.normal, l2c));
         Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
         camera->gatherSample(sr.xy, Lc);
-        camera->incrementSampleCnt(sr.xy);
       }
     }
   }
+  camera->incrementSampleCnt(sampleRay.xy);
 }
 
 void PathTraceSampler::bidirectional(

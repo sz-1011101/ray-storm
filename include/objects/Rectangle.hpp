@@ -103,9 +103,11 @@ namespace ray_storm
         // randomly flip normal on the other side
         const glm::vec3 n = randHelper.drawUniformRandom() < 0.5 ? this->normal : -this->normal;
         raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper) + n*SURFACE_POINT_OFFSET;
-        raySample.randRay.ray.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        raySample.randRay.PDF = 0.5f*this->getPDF(raySample.randRay.ray.direction, n)*random::RandomizationHelper::uniformRandomHemispherePDF();
-        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n)*glm::dot(n, raySample.randRay.ray.direction);
+        raySample.randRay.ray.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
+        const float cosTheta = glm::dot(n, raySample.randRay.ray.direction);
+        raySample.randRay.PDF = 0.5f*this->getPDF(raySample.randRay.ray.direction, n)
+          *random::RandomizationHelper::cosineRandomHemispherePDF(cosTheta, 1.0f);
+        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n)*cosTheta;
       }
 
       float getPDF(const glm::vec3 &l, const glm::vec3 &n)
