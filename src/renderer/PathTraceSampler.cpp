@@ -88,11 +88,12 @@ void PathTraceSampler::randomWalk
       absorbed = true;
       break;
     }
-
+#ifdef LIMIT_PATHS
     if (b == 0) {
       absorbed = true;
       break;
     }
+#endif
   }
 
   walk.absorbed = absorbed;
@@ -259,8 +260,6 @@ void PathTraceSampler::bidirectional(
       camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis)*this->pathWeighting(0, 0));
     }
   }
-  
-  const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
 
   // get direct lighting contribution
   camera->gatherSample(sampleRay.xy, this->pathDirectLightingBounce(eyeWalk, scene, randHelper, true));
@@ -268,38 +267,7 @@ void PathTraceSampler::bidirectional(
   camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
   // get direct light bounce contribution
-  for (int j = 0; j < lightWalkLen; j++)
-  {
-    const PathTraceVertex &lightVert = lightWalk.vertices[j];
-
-    if (lightVert.delta)
-    {
-      continue;
-    }
-
-    camera::SampleRay sr;
-    if (camera->generateRay(lightVert.offPosition, sr) && scene->visible(sr.ray.origin, lightVert.offPosition, lightVert.normal))
-    {
-      glm::vec3 Lc = Le;
-      glm::vec3 l2c = sr.ray.origin - lightVert.position;
-      const float l2clen = glm::length(l2c);
-      const float l2clenSquared = l2clen*l2clen;
-      l2c /= l2clen; // normalize
-
-      if (l2clenSquared >= 0.05f)
-      {
-        if (j > 0)
-        {
-          Lc *= lightWalk.vertices[j - 1].cummulative;
-        }
-        //Lc *= std::abs(glm::dot(lightVert.normal, -lightVert.in));
-        const float cosTheta = std::max(0.0f, glm::dot(lightVert.normal, l2c));
-        Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)*cosTheta/l2clenSquared;
-        camera->gatherSample(sr.xy, Lc*pathWeighting(0, j + 1));
-        //camera->incrementSampleCnt(sr.xy);
-      }
-    }
-  }
+  this->pathLightPath(Le, lightWalk, camera, scene, randHelper, true);
 
   camera->incrementSampleCnt(sampleRay.xy);
 
@@ -488,10 +456,6 @@ void PathTraceSampler::pathLightPath(
         {
           Lc *= this->pathWeighting(0, j + 1);
         }
-        else
-        {
-          Lc *= (1.0f/lightWalkLen); // ...?
-        }
         camera->gatherSample(sr.xy, Lc);
       }
     }
@@ -541,5 +505,5 @@ glm::vec3 PathTraceSampler::pathRadiance(
 float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
-  //return lightIndex == 1 && eyeIndex == 0 ? 1.0f : 0.0f;
+  //return lightIndex == 3 && eyeIndex == 0 ? 1.0f : 0.0f;
 }
