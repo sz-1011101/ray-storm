@@ -25,7 +25,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     //objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(100.0f)));
     //scene->add(sphereLight1);
     // ceiling light
-    objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 5.0f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
+    objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.9f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
     objects::EmitterPtr ceilLight = objects::EmitterPtr(new objects::Rectangle(ceilLightRp, matWhite, glm::vec3(20.0f)));
     scene->add(ceilLight);
   }
@@ -43,14 +43,14 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
   objects::EmitterPtr sphere4 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
-  objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal1));
+  objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror));
 
   // add our components
   //scene->add(sphere1);
-  //scene->add(sphere2);
+  scene->add(sphere2);
   //scene->add(sphere3);
   //scene->add(sphere4);
-  //scene->add(box);
+  scene->add(box);
   scene->finalize();
 
   return scene;

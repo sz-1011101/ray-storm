@@ -282,6 +282,8 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
 {
   glm::vec3 L(0.0f);
   const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
+
+  int ic = 0;
   for (int i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
@@ -307,11 +309,12 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
 
       if (weight)
       {
-        Ld *= this->pathWeighting(i + 1, 0);
+        Ld *= this->pathWeighting(ic + 1, 0);
       }
 
       L += Ld;
     }
+    ic++;
   }
   return L;
 }
@@ -327,6 +330,7 @@ glm::vec3 PathTraceSampler::pathDirectLightingBounce(
 
   glm::vec3 L(0.0f);
 
+  int ic = 0;
   for (int i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &vert = eyeWalk.vertices[i];
@@ -368,11 +372,16 @@ glm::vec3 PathTraceSampler::pathDirectLightingBounce(
 
     if (weight)
     {
-      Ld *= this->pathWeighting(i + 1, 0);
+      Ld *= this->pathWeighting(ic + 1, 0);
     }
 
     L += Ld;
 
+    // this is strange ...?
+    if (!vert.delta)
+    {
+      ic++;
+    }
   }
 
   return L;
@@ -390,6 +399,7 @@ glm::vec3 PathTraceSampler::pathPathCombination(
 
   glm::vec3 L(0.0f);
 
+  int ic = 0;
   for (int i = 0; i < eyeWalkLen; i++)
   {
     const PathTraceVertex &eyeVert = eyeWalk.vertices[i];
@@ -399,16 +409,23 @@ glm::vec3 PathTraceSampler::pathPathCombination(
       continue;
     }
 
+    int jc = 0;
     for (int j = 0; j < lightWalkLen; j++)
     {
       const PathTraceVertex &lightVert = lightWalk.vertices[j];
 
-      if (!lightVert.delta && scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
+      if (lightVert.delta)
       {
-        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*this->pathWeighting(i + 1, j + 1);
+        continue;
       }
 
+      if (scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
+      {
+        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*this->pathWeighting(ic + 1, jc + 1);
+      }
+      jc++;
     }
+    ic++;
   }
   return L;
 }
@@ -424,6 +441,7 @@ void PathTraceSampler::pathLightPath(
 {
   const int lightWalkLen = static_cast<int>(lightWalk.vertices.size());
 
+  int jc = 0;
   for (int j = 0; j < lightWalkLen; j++)
   {
     const PathTraceVertex &lightVert = lightWalk.vertices[j];
@@ -449,16 +467,16 @@ void PathTraceSampler::pathLightPath(
           Lc *= lightWalk.vertices[j - 1].cummulative;
         }
 
-        //Lc *= std::abs(glm::dot(lightVert.normal, -lightVert.in));
         Lc *= std::max(0.0f, glm::dot(lightVert.normal, l2c));
         Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
         if (weight)
         {
-          Lc *= this->pathWeighting(0, j + 1);
+          Lc *= this->pathWeighting(0, jc + 1);
         }
         camera->gatherSample(sr.xy, Lc);
       }
     }
+    jc++;
   }
 }
 
