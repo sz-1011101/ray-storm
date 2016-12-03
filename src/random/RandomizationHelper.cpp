@@ -47,6 +47,15 @@ glm::vec3 RandomizationHelper::drawCosineWeightedRandomHemisphereDirection(const
   return RandomizationHelper::transform(n, glm::normalize(dir));
 }
 
+glm::vec3 RandomizationHelper::drawCosineDistributedDirection(const glm::vec3 &n)
+{
+  const float u = this->engine.draw();
+  const float v = this->engine.draw();
+  const float theta = 2.0f*M_PI*v;
+  const float phi = std::acos(std::sqrt(1.0f - u));
+  return RandomizationHelper::transform(n, utility::Math::sphericalToCartesian(glm::vec3(1.0f, theta, phi)));
+}
+
 glm::vec3 RandomizationHelper::transform(const glm::vec3 &n, const glm::vec3 &vector)
 {
   glm::vec3 u = glm::cross(n, glm::vec3(1, 0, 0));

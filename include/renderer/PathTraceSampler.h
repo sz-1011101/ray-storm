@@ -116,6 +116,15 @@ namespace ray_storm
         scene::Scene *scene
       );
 
+      void pathLightPath(
+        const glm::vec3 &Le,
+        const RandomWalk &lightWalk,
+        camera::AbstractCamera *camera,
+        scene::Scene *scene,
+        random::RandomizationHelper &randHelper,
+        bool weight
+      );
+
       float pathWeighting(int eyeIndex, int lightIndex);
 
     };
