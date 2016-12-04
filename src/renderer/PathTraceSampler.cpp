@@ -467,7 +467,7 @@ void PathTraceSampler::pathLightPath(
           Lc *= lightWalk.vertices[j - 1].cummulative;
         }
 
-        Lc *= std::max(0.0f, glm::dot(lightVert.normal, l2c));
+        Lc *= std::abs(glm::dot(lightVert.normal, l2c));
         Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
         if (weight)
         {
