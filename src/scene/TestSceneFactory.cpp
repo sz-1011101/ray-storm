@@ -46,10 +46,10 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror));
 
   // add our components
-  //scene->add(sphere1);
+  scene->add(sphere1);
   scene->add(sphere2);
-  //scene->add(sphere3);
-  //scene->add(sphere4);
+  scene->add(sphere3);
+  scene->add(sphere4);
   scene->add(box);
   scene->finalize();
 
