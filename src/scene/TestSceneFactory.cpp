@@ -2,6 +2,7 @@
 #include "objects/Sphere.hpp"
 #include "objects/Rectangle.hpp"
 #include "objects/Box.hpp"
+#include "objects/DistSphere.hpp"
 #include "materials/MaterialFactory.h"
 #include "scene/ConstantSky.hpp"
 #include "scene/SunSky.hpp"
@@ -43,6 +44,9 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
   objects::EmitterPtr sphere4 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
+  // distance field sphere
+  objects::ReflectorPtr sphere5 = objects::ReflectorPtr(new objects::DistSphere(glm::vec3(0, 2, 0), 1.0f, matMirror));
+
   objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror));
 
   // add our components
@@ -50,6 +54,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   scene->add(sphere2);
   scene->add(sphere3);
   scene->add(sphere4);
+  scene->add(sphere5);
   scene->add(box);
   scene->finalize();
 
