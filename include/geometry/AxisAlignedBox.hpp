@@ -12,12 +12,14 @@ namespace ray_storm
     class AxisAlignedBox : public Intersectable<AxisAlignedBox>
     {
 
-    private:
+    public:
 
       enum BOX_SIDE
       {
         X_PLANE = 0, Y_PLANE, Z_PLANE
       };
+
+    private:
 
       glm::vec3 mapNormal(BOX_SIDE side)
       {
@@ -36,6 +38,12 @@ namespace ray_storm
       bool initialized;
 
     public:
+
+      struct BBoxIntersectionInterval
+      {
+        float tmin, tmax;
+        BOX_SIDE tminSide, tmaxSide;
+      };
 
       AxisAlignedBox()
       {
@@ -87,15 +95,16 @@ namespace ray_storm
         this->cover(box.getOrigin());
         this->cover(box.getUpperBounds());
       }
-      
-      bool intersect(const Ray &ray, Intersection<AxisAlignedBox> &intersection)
+
+      bool intersect(const Ray &ray, BBoxIntersectionInterval &bboxIsect)
       {
         // Sample code from http://www.cs.utah.edu/~awilliam/box/box.pdf
         // TODO optimize and remove div-by-0 problem
         float tmin, tmax, tymin, tymax, tzmin, tzmax;
         const glm::vec3 &ro = ray.origin;
         const glm::vec3 &rd = ray.direction;
-        BOX_SIDE side = X_PLANE;
+        BOX_SIDE tminSide = X_PLANE;
+        BOX_SIDE tmaxSide = X_PLANE;
 
         float t1 = (this->origin.x - ro.x) / rd.x;
         float t2 = (this->upperBounds.x - ro.x) / rd.x;
@@ -133,10 +142,15 @@ namespace ray_storm
         if (tymin > tmin)
         {
           tmin = tymin;
-          side = Y_PLANE;
+          tminSide = Y_PLANE;
         }
 
-        tmax = std::min(tymax, tmax);
+        //tmax = std::min(tymax, tmax);
+        if (tymax < tmax)
+        {
+          tmax = tymax;
+          tmaxSide = Y_PLANE;
+        }
 
         t1 = (this->origin.z - ro.z) / rd.z;
         t2 = (this->upperBounds.z - ro.z) / rd.z;
@@ -160,36 +174,56 @@ namespace ray_storm
         if (tmin < tzmin)
         {
           tmin = tzmin;
-          side = Z_PLANE;
+          tminSide = Z_PLANE;
         }
-        tmax = std::min(tmax, tzmax);
+        // tmax = std::min(tmax, tzmax);
+        if (tzmax < tmax)
+        {
+          tmax = tzmax;
+          tmaxSide = Z_PLANE;
+        }
+
+        bboxIsect.tmin = tmin;
+        bboxIsect.tmax = tmax;
+        bboxIsect.tminSide = tminSide;
+        bboxIsect.tmaxSide = tmaxSide;
+        return true;
+      }
+      
+      bool intersect(const Ray &ray, Intersection<AxisAlignedBox> &intersection)
+      {
+        BBoxIntersectionInterval bboxIsect;
+        if (!intersect(ray, bboxIsect))
+        {
+          return false;
+        }
 
         glm::vec3 iNormal;
 
-        if (tmin >= 0.0f) // box is in front of ray
+        if (bboxIsect.tmin >= 0.0f) // box is in front of ray
         {
-          intersection.t = tmin;
-          iNormal = this->mapNormal(side);
-          if (glm::dot(iNormal, rd) > 0.0f)
+          intersection.t = bboxIsect.tmin;
+          iNormal = this->mapNormal(bboxIsect.tminSide);
+          if (glm::dot(iNormal, ray.direction) > 0.0f)
           {
             iNormal = -iNormal;
           }
         }
-        else if (tmax <= 0.0f) // box is behind ray
+        else if (bboxIsect.tmax <= 0.0f) // box is behind ray
         {
           return false;
         }
         else // we are inside the box
         {
-          intersection.t = tmax;
-          iNormal = this->mapNormal(side);
-          if (glm::dot(iNormal, rd) < 0.0f)
+          intersection.t = bboxIsect.tmax;
+          iNormal = this->mapNormal(bboxIsect.tmaxSide);
+          if (glm::dot(iNormal, ray.direction) < 0.0f)
           {
             iNormal = -iNormal;
           }
         }
         
-        const glm::vec3 iPoint = ro + intersection.t*rd;
+        const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
 
         // TODO texture coordinate
         intersection.intersection = SimpleIntersection (iPoint, iNormal, glm::vec2(0.0f));
