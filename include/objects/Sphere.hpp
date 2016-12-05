@@ -20,7 +20,7 @@ namespace ray_storm
         const glm::vec3 &emittance = glm::vec3(0.0f)
       ) : Emitter(material, emittance), sphere(position, radius)
       {
-        this->bbox = geometry::AxisAlignedBox(position - glm::vec3(radius), glm::vec3(2.0f*radius));
+        this->bbox = this->sphere.computeBBox();
       }
 
       bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection) {

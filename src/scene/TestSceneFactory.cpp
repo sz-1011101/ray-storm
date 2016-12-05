@@ -45,7 +45,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   objects::EmitterPtr sphere4 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
 
   // distance field sphere
-  objects::ReflectorPtr sphere5 = objects::ReflectorPtr(new objects::DistSphere(glm::vec3(0, 2, 0), 1.0f, matMirror));
+  objects::ReflectorPtr sphere5 = objects::ReflectorPtr(new objects::DistSphere(glm::vec3(0, 2, 0), 1.0f, matGlass));
 
   objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror));
 

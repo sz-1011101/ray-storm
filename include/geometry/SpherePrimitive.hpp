@@ -3,12 +3,14 @@
 
 #include "utility/common.hpp"
 #include "geometry/Intersectable.h"
+#include "geometry/Marchable.h"
+#include "geometry/AxisAlignedBox.hpp"
 
 namespace ray_storm
 {
   namespace geometry
   {
-    class SpherePrimitive : public Intersectable<SpherePrimitive>
+    class SpherePrimitive : public Intersectable<SpherePrimitive>, public Marchable
     {
     public:
 
@@ -65,6 +67,21 @@ namespace ray_storm
       float getRadius() const
       {
         return this->radius;
+      }
+
+      virtual float distance(const glm::vec3 &p) const
+      {
+        return glm::length(p) - this->radius;
+      }
+
+      virtual const glm::vec3 &getCenter() const
+      {
+        return this->position;
+      }
+
+      virtual AxisAlignedBox computeBBox()
+      {
+        return geometry::AxisAlignedBox(this->position - glm::vec3(this->radius), glm::vec3(2.0f*this->radius));
       }
 
     protected:

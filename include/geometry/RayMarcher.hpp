@@ -24,7 +24,7 @@ namespace ray_storm
         float stepLen = 0.0f;
         for (int i = 0; i < itr; i++)
         {
-          stepLen = marchable->distance(current);
+          stepLen = std::abs(marchable->distance(current));
           if (stepLen < eps)
           {
             intersection.normal = marchable->estimateNormal(current);
