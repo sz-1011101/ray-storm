@@ -67,7 +67,7 @@ void PathTraceSampler::randomWalk
     if (PathTraceVertexFunctions::isReflecting(vert) &&
       PathTraceVertexFunctions::bounce(randHelper, vert, eye) &&
       (vert.delta || randHelper.drawUniformRandom() < rr) &&
-      glm::all(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.00001f)))
+      glm::any(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.00001f)))
     )
     { // we do always bounce on in case of dirac delta function...
       const float cosTheta = std::abs(glm::dot(vert.normal, vert.out));

@@ -15,7 +15,11 @@ namespace ray_storm
     {
     public:
 
-      MarchableUnion(const glm::vec3 &center) : center(center) {};
+      MarchableUnion(const glm::vec3 &center, float smoothingK)
+        : center(center), smoothingK(smoothingK)
+      {
+
+      };
 
       // Marchables are relative to the center of this Marchable
       void add(const MarchablePtr &marchable)
@@ -25,17 +29,15 @@ namespace ray_storm
 
       float distance(const glm::vec3 &p) const
       {
-        float min = 999999.0f; // FIXME ugly magic number
-        bool first = true;
+        // See http://iquilezles.org/www/articles/smin/smin.htm for the smoothing
+        float res = 0.0f;
         for (const MarchablePtr &m : this->marchableUnion)
         {
           const glm::vec3 mp = p - this->center;
-          min = first ? m->distance(mp) : std::min(min, m->distance(mp));
-          first = false;
+          res += std::exp(-smoothingK*m->distance(mp));
         }
 
-        return min;
-
+        return -std::log(res)/smoothingK;
       }
 
       AxisAlignedBox computeMarchingCube() const
@@ -53,6 +55,8 @@ namespace ray_storm
     private:
 
       glm::vec3 center;
+
+      float smoothingK;
 
       std::vector<MarchablePtr> marchableUnion;
       

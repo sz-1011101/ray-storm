@@ -20,12 +20,14 @@ ReflectorPtr ObjectFactory::createSphereUnion(
   const glm::vec3 &position, const materials::MaterialPtr &material
 )
 {
-  geometry::MarchablePtr sphere1(new geometry::DistSphere(glm::vec3(-0.5f, 0.0f, 0.0f), 1.5f));
-  geometry::MarchablePtr sphere2(new geometry::DistSphere(glm::vec3(0.5f, 0.0f, 0.0f), 1.5f));
-  geometry::MarchableUnionPtr u(new geometry::MarchableUnion(position));
-  
+  geometry::MarchablePtr sphere1(new geometry::DistSphere(glm::vec3(0.0f, 1.0f, 0.0f), 1.0f));
+  geometry::MarchablePtr sphere2(new geometry::DistSphere(glm::vec3(0.0f, 3.25f, 0.0f), 0.75f));
+  geometry::MarchablePtr sphere3(new geometry::DistSphere(glm::vec3(0.0f, 5.0f, 0.0f), 0.5f));
+  geometry::MarchableUnionPtr u(new geometry::MarchableUnion(position, 2.5f));
+
   u->add(sphere1);
   u->add(sphere2);
+  u->add(sphere3);
 
   return ReflectorPtr(
     new DefaultDistanceField(u, material)

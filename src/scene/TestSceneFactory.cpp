@@ -38,11 +38,11 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   }
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(3, 2, 2), 1.0f, matMetal1);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 0.75f, matMetal1);
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
-  objects::ReflectorPtr sphere5 = objects::ObjectFactory::createSphereUnion(glm::vec3(1, 5, 1), matWhite);
+  objects::ReflectorPtr sphere5 = objects::ObjectFactory::createSphereUnion(glm::vec3(3, 0, 2), matGlass);
 
   objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 
