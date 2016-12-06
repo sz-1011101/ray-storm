@@ -18,6 +18,10 @@ namespace ray_storm
         const glm::vec3 &position, float radius, const materials::MaterialPtr &material
       );
 
+      static ReflectorPtr createSphereUnion(
+        const glm::vec3 &position, const materials::MaterialPtr &material
+      );
+
       static ReflectorPtr createBox(
         const glm::vec3 &origin, const glm::vec3 &extends, const materials::MaterialPtr &material
       );
