@@ -37,8 +37,8 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 0.75f, matMetal1);
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matDiffGlass);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 2.5, 2), 0.5f, matMetal1, glm::vec3(15, 2, 0));
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
