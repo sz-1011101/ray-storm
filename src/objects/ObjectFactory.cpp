@@ -23,8 +23,10 @@ ReflectorPtr ObjectFactory::createSphereUnion(
   geometry::MarchablePtr sphere1(new geometry::DistSphere(glm::vec3(-0.5f, 0.0f, 0.0f), 1.5f));
   geometry::MarchablePtr sphere2(new geometry::DistSphere(glm::vec3(0.5f, 0.0f, 0.0f), 1.5f));
   geometry::MarchableUnionPtr u(new geometry::MarchableUnion(position));
+  
   u->add(sphere1);
   u->add(sphere2);
+
   return ReflectorPtr(
     new DefaultDistanceField(u, material)
   );

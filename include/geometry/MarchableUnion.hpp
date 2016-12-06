@@ -25,20 +25,15 @@ namespace ray_storm
 
       float distance(const glm::vec3 &p) const
       {
-        float min = -1.0f;
-
+        float min = 999999.0f;
+        bool first = true;
         for (const MarchablePtr &m : this->marchableUnion)
         {
           // object space of the Marchable
           const glm::vec3 p2 = p - m->getCenter();
-          if (min < 0.0f)
-          {
-            min = m->distance(p2);
-          }
-          else
-          {
-            min = std::min(min, m->distance(p2));
-          }
+
+          min = first ? m->distance(p2) : std::min(min, m->distance(p2));
+          first = false;
         }
 
         return min;
@@ -55,8 +50,10 @@ namespace ray_storm
         AxisAlignedBox bbox;
         for (const MarchablePtr &m : this->marchableUnion)
         {
-          bbox.cover(m->computeMarchingCube());
+          AxisAlignedBox mbbox = m->computeMarchingCube();
+          bbox.cover(mbbox);
         }
+        bbox.translate(this->center);
         return bbox;
       }
 

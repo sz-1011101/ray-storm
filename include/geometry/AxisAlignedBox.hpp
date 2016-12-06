@@ -96,6 +96,12 @@ namespace ray_storm
         this->cover(box.getUpperBounds());
       }
 
+      void translate(const glm::vec3 &translation)
+      {
+        this->origin += translation;
+        this->upperBounds += translation;
+      }
+
       bool intersect(const Ray &ray, BBoxIntersectionInterval &bboxIsect)
       {
         // Sample code from http://www.cs.utah.edu/~awilliam/box/box.pdf
