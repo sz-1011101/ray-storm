@@ -28,7 +28,7 @@ namespace ray_storm
         }
 
         geometry::SimpleIntersection sInters;
-        if (!geometry::RayMarcher::march(ray, this->marchable.get(), sInters))
+        if (!geometry::RayMarcher::march(ray, bboxIntersect, this->marchable.get(), sInters))
         {
           return false;
         }
