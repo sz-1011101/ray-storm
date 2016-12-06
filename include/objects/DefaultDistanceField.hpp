@@ -1,23 +1,21 @@
-#ifndef DIST_SPHERE_H_
-#define DIST_SPHERE_H_
+#ifndef DEFAULT_DISTANCE_FIELD_H_
+#define DEFAULT_DISTANCE_FIELD_H_
 
-#include "geometry/SpherePrimitive.hpp"
-#include "objects/Reflector.h"
+#include "objects/AbstractDistanceField.h"
 #include "geometry/RayMarcher.hpp"
 
 namespace ray_storm
 {
   namespace objects
   {
-    class DistSphere : public Reflector
+    class DefaultDistanceField : public AbstractDistanceField
     {
-
     public:
 
-      DistSphere(const glm::vec3 &position, float radius, const materials::MaterialPtr &material)
-        : Reflector(material), sphere(position, radius)
+      DefaultDistanceField(const geometry::MarchablePtr &marchable, const materials::MaterialPtr &material)
+        : AbstractDistanceField(material), marchable(marchable)
       {
-        this->bbox = this->sphere.computeBBox();
+        this->bbox = marchable->computeMarchingCube();
       }
 
       inline bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection)
@@ -30,7 +28,7 @@ namespace ray_storm
         }
 
         geometry::SimpleIntersection sInters;
-        if (!geometry::RayMarcher::march(ray, &this->sphere, sInters))
+        if (!geometry::RayMarcher::march(ray, this->marchable.get(), sInters))
         {
           return false;
         }
@@ -44,10 +42,9 @@ namespace ray_storm
 
     private:
 
-      geometry::SpherePrimitive sphere;
-
+      geometry::MarchablePtr marchable;
+      
     };
-
   }
 }
 

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "utility/common.hpp"
+#include "geometry/AxisAlignedBox.hpp"
 
 namespace ray_storm
 {
@@ -31,6 +32,9 @@ namespace ray_storm
         const float z = this->distance(p + zDir) - this->distance(p - zDir);
         return glm::normalize(glm::vec3(x, y, z));
       }
+
+      virtual AxisAlignedBox computeMarchingCube() const = 0;
+
     };
 
     typedef std::shared_ptr<Marchable> MarchablePtr;
