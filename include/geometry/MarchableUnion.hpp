@@ -25,24 +25,17 @@ namespace ray_storm
 
       float distance(const glm::vec3 &p) const
       {
-        float min = 999999.0f;
+        float min = 999999.0f; // FIXME ugly magic number
         bool first = true;
         for (const MarchablePtr &m : this->marchableUnion)
         {
-          // object space of the Marchable
-          const glm::vec3 p2 = p - m->getCenter();
-
-          min = first ? m->distance(p2) : std::min(min, m->distance(p2));
+          const glm::vec3 mp = p - this->center;
+          min = first ? m->distance(mp) : std::min(min, m->distance(mp));
           first = false;
         }
 
         return min;
 
-      }
-
-      const glm::vec3 &getCenter() const
-      {
-        return this->center;
       }
 
       AxisAlignedBox computeMarchingCube() const

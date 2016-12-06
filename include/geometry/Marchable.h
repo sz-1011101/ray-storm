@@ -19,8 +19,6 @@ namespace ray_storm
       // object space distance
       virtual float distance(const glm::vec3 &p) const = 0;
 
-      virtual const glm::vec3 &getCenter() const = 0;
-
       virtual glm::vec3 estimateNormal(const glm::vec3 &p) {
         // see https://www.reddit.com/r/twotriangles/comments/1hy5qy/tutorial_1_writing_a_simple_distance_field/
         const float eps = 0.1f;

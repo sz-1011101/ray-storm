@@ -19,12 +19,7 @@ namespace ray_storm
 
       float distance(const glm::vec3 &p) const
       {
-        return glm::length(p) - this->sphere.getRadius();
-      }
-
-      const glm::vec3 &getCenter() const
-      {
-        return this->sphere.getPosition();
+        return glm::length(p - sphere.getPosition()) - this->sphere.getRadius();
       }
 
       AxisAlignedBox computeMarchingCube() const

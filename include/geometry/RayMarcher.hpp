@@ -23,9 +23,8 @@ namespace ray_storm
       )
       {
         const float eps = 0.001f;
-        const glm::vec3 &center = marchable->getCenter();
-        // go to object space
-        glm::vec3 current = ray.origin - center;
+
+        glm::vec3 current = ray.origin;
         float stepLen = 0.0f;
         for (uint32_t i = 0; i < itr; i++)
         {
@@ -33,7 +32,7 @@ namespace ray_storm
           if (stepLen < eps)
           {
             intersection.normal = marchable->estimateNormal(current);
-            intersection.position = current + center;
+            intersection.position = current;
             return true;
           }
           current += stepLen*ray.direction;
@@ -57,7 +56,6 @@ namespace ray_storm
         }
 
         const float eps = 0.001f;
-        const glm::vec3 &center = marchable->getCenter();
         
         glm::vec3 current;
         float maxLen;
@@ -72,8 +70,6 @@ namespace ray_storm
           current = ray.origin;
           maxLen = interval.tmax;
         }
-        // go to object space
-        current -= center;
 
         float walked = 0.0f;
         for (uint32_t i = 0; i < itr; i++)
@@ -86,8 +82,9 @@ namespace ray_storm
           const float stepLen = std::abs(marchable->distance(current));
           if (stepLen < eps)
           {
+            // TODO set uv
             intersection.normal = marchable->estimateNormal(current);
-            intersection.position = current + center; // back to world space
+            intersection.position = current;
             return true;
           }
           // do a step
