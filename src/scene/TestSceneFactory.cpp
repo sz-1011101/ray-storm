@@ -2,7 +2,7 @@
 #include "objects/Sphere.hpp"
 #include "objects/Rectangle.hpp"
 #include "objects/Box.hpp"
-#include "objects/DistanceFieldFactory.h"
+#include "objects/ObjectFactory.h"
 #include "materials/MaterialFactory.h"
 #include "scene/ConstantSky.hpp"
 #include "scene/SunSky.hpp"
@@ -23,11 +23,9 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   if (lightSources)
   {
-    //objects::EmitterPtr sphereLight1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 8.5f, 2), 0.2f, matWhite, glm::vec3(100.0f)));
-    //scene->add(sphereLight1);
     // ceiling light
-    objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.9f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
-    objects::EmitterPtr ceilLight = objects::EmitterPtr(new objects::Rectangle(ceilLightRp, matWhite, glm::vec3(20.0f)));
+    const objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.9f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
+    objects::EmitterPtr ceilLight = objects::ObjectFactory::createRectangle(ceilLightRp, matWhite, glm::vec3(20.0f));
     scene->add(ceilLight);
   }
 
@@ -39,12 +37,12 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  objects::EmitterPtr sphere1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass));
-  objects::EmitterPtr sphere2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 2, 2), 1.0f, matGlass));
-  objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating));
-  objects::EmitterPtr sphere4 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-2, 2, -2), 2.0f, matMirror));
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-1, 1, 2), 1.0f, matDiffGlass);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(3, 2, 2), 1.0f, matGlass);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating);
+  objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
-  objects::ReflectorPtr box = objects::ReflectorPtr(new objects::Box(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror));
+  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 
   // add our components
   scene->add(sphere1);
@@ -64,9 +62,9 @@ ScenePtr TestSceneFactory::createReflectionTest()
   materials::MaterialPtr matShiny2 = materials::MaterialFactory::MaterialFactory::createMetalFresnel(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f, 0.1f);
   materials::MaterialPtr matLambertian = materials::MaterialFactory::createLambertian(glm::vec3(0.2f));
 
-  objects::EmitterPtr sphere1 = objects::EmitterPtr(new objects::Sphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1));
-  objects::EmitterPtr sphere2 = objects::EmitterPtr(new objects::Sphere(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f, matShiny2));
-  objects::EmitterPtr sphere3 = objects::EmitterPtr(new objects::Sphere(glm::vec3(5.0f, 5.0f, 0.0f), 1.0f, matLambertian));
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f, matShiny2);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(5.0f, 5.0f, 0.0f), 1.0f, matLambertian);
 
   scene->add(sphere1);
   scene->add(sphere2);
@@ -86,27 +84,27 @@ ScenePtr TestSceneFactory::buildBox()
   
   // floor
   objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  objects::EmitterPtr floor = objects::EmitterPtr(new objects::Rectangle(floorRp, matWhite));
+  objects::EmitterPtr floor = objects::ObjectFactory::createRectangle(floorRp, matWhite);
 
   // ceiling
   objects::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  objects::EmitterPtr ceiling = objects::EmitterPtr(new objects::Rectangle(ceilingRp, matWhite));
+  objects::EmitterPtr ceiling = objects::ObjectFactory::createRectangle(ceilingRp, matWhite);
 
   // left wall
   objects::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
-  objects::EmitterPtr leftWall = objects::EmitterPtr(new objects::Rectangle(leftWallRp, matRed));
+  objects::EmitterPtr leftWall = objects::ObjectFactory::createRectangle(leftWallRp, matRed);
 
   // right wall
   objects::Rectangle::RectParams rightWallRp(glm::vec3(5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);
-  objects::EmitterPtr rightWall = objects::EmitterPtr(new objects::Rectangle(rightWallRp, matBlue));
+  objects::EmitterPtr rightWall = objects::ObjectFactory::createRectangle(rightWallRp, matBlue);
 
   // back wall
   objects::Rectangle::RectParams backWallRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
-  objects::EmitterPtr backWall = objects::EmitterPtr(new objects::Rectangle(backWallRp, matWhite));
+  objects::EmitterPtr backWall = objects::ObjectFactory::createRectangle(backWallRp, matWhite);
 
   // front wall
   //objects::Rectangle::RectParams frontWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 10.0f, 10.0f);
-  //objects::ObjectPtr frontWall = objects::ObjectPtr(new objects::Rectangle(frontWallRp, matWhite));
+  //objects::EmitterPtr frontWall = objects::ObjectFactory::createRectangle(frontWallRp, matWhite);
 
   box->add(floor);
   box->add(ceiling);
@@ -125,7 +123,7 @@ ScenePtr TestSceneFactory::buildBigWall()
   materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
 
   objects::Rectangle::RectParams wallRp(glm::vec3(-50.0f, 50.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 100.0f, 100.0f);
-  objects::EmitterPtr _wall = objects::EmitterPtr(new objects::Rectangle(wallRp, matWhite, glm::vec3(1.0f)));
+  objects::EmitterPtr _wall = objects::ObjectFactory::createRectangle(wallRp, matWhite, glm::vec3(1.0f));
 
   wall->add(_wall);
 

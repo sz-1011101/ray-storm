@@ -3,6 +3,7 @@
 
 #include "objects/Object.h"
 #include "geometry/Plane.hpp"
+#include "objects/Emitter.h"
 
 namespace ray_storm
 {
@@ -42,7 +43,7 @@ namespace ray_storm
 
       Rectangle(
         const RectParams &rectParams,
-        materials::MaterialPtr &material,
+        const materials::MaterialPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       ) : Emitter(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {

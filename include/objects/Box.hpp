@@ -13,7 +13,7 @@ namespace ray_storm
     public:
       
       Box(const glm::vec3 &origin, const glm::vec3 &extends,
-        materials::MaterialPtr &material
+        const materials::MaterialPtr &material
       ) : Reflector(material), aaBox(origin, extends)
       {
         this->origin = origin;
