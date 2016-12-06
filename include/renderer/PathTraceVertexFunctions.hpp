@@ -70,7 +70,7 @@ namespace ray_storm
 
       static glm::vec3 emittance(const PathTraceVertex &vertex)
       {
-        dispatchers::EmittanceDispatcher ed(-vertex.in, vertex.normal);
+        dispatchers::EmittanceDispatcher ed(-vertex.in, vertex.normal, vertex.uv);
         vertex.object->accept(&ed);
         return ed.getEmittance();
       }
@@ -91,7 +91,7 @@ namespace ray_storm
 
       static float luminarePDF(const glm::vec3 &position, const PathTraceVertex &vertex, scene::Scene *scene)
       {
-        return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.in), vertex.position, vertex.normal);
+        return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.in), vertex.position, vertex.normal, vertex.uv);
       }
 
     private:

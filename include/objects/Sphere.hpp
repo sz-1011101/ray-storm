@@ -40,18 +40,25 @@ namespace ray_storm
         return this->sphere.getSurfaceArea();
       }
 
-      glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
+      PointSample drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
       {
-        return this->sphere.getPosition() + randHelper.drawUniformRandomSphereDirection()*(this->sphere.getRadius() + Emitter::SURFACE_POINT_OFFSET);
+        const glm::vec3 dir = randHelper.drawUniformRandomSphereDirection();
+        const glm::vec3 spherical = utility::Math::cartesianToSpherical(dir);
+        const glm::vec2 uv(spherical.y/(2.0f*M_PI), spherical.z/M_PI);
+        return PointSample(
+          this->sphere.getPosition() + dir*(this->sphere.getRadius() + Emitter::SURFACE_POINT_OFFSET),
+          uv
+        );
       }
 
       void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample)
       {
-        raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper);
+        PointSample ps = this->drawRandomSurfacePoint(randHelper);
+        raySample.randRay.ray.origin = ps.point;
         const glm::vec3 n = glm::normalize(raySample.randRay.ray.origin - this->sphere.getPosition());
         raySample.randRay.ray.direction = randHelper.drawCosineDistributedDirection(n);
         raySample.randRay.PDF = this->getPDF(raySample.randRay.ray.direction, n);
-        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n)*glm::dot(n, raySample.randRay.ray.direction);
+        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n, ps.uv);
       }
 
       float getPDF(const glm::vec3 &l, const glm::vec3 &n)

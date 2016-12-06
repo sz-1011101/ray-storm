@@ -15,7 +15,7 @@ namespace ray_storm
 
     public:
 
-      EmittanceDispatcher(const glm::vec3 &l, const glm::vec3 &n) : l(l), n(n)
+      EmittanceDispatcher(const glm::vec3 &l, const glm::vec3 &n, const glm::vec2 &uv) : l(l), n(n), uv(uv)
       {
 
       }
@@ -23,7 +23,7 @@ namespace ray_storm
       void dispatch(objects::Emitter *emitter)
       {
         this->emitting = emitter->isEmitting();
-        this->emittance = emitter->getEmittance(this->l, this->n);
+        this->emittance = emitter->getEmittance(this->l, this->n, this->uv);
         this->PDF = this->emitting ? emitter->getPDF(this->l, this->n) : 0.0f;
       }
       
@@ -49,6 +49,8 @@ namespace ray_storm
       glm::vec3 l;
       
       glm::vec3 n;
+
+      glm::vec2 uv;
 
       glm::vec3 emittance;
 

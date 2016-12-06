@@ -92,21 +92,21 @@ namespace ray_storm
         return this->rectParams.width*this->rectParams.height*2.0f;
       }
 
-      glm::vec3 drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
+      PointSample drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
       {
-        float u = randHelper.drawUniformRandom();
-        float v = randHelper.drawUniformRandom();
-        return this->rectParams.origin + u*this->wSide + v*this->hSide;
+        glm::vec2 uv(randHelper.drawUniformRandom(), randHelper.drawUniformRandom());
+        return PointSample(this->rectParams.origin + uv.x*this->wSide + uv.y*this->hSide, uv);
       }
 
       void drawRandomRay(random::RandomizationHelper &randHelper, RaySample &raySample)
       {
         // randomly flip normal on the other side
         const glm::vec3 n = randHelper.drawUniformRandom() < 0.5 ? this->normal : -this->normal;
-        raySample.randRay.ray.origin = this->drawRandomSurfacePoint(randHelper) + n*SURFACE_POINT_OFFSET;
+        const PointSample ps = this->drawRandomSurfacePoint(randHelper);
+        raySample.randRay.ray.origin = ps.point + n*SURFACE_POINT_OFFSET;
         raySample.randRay.ray.direction = randHelper.drawCosineDistributedDirection(n);
         raySample.randRay.PDF = 0.5f*this->getPDF(raySample.randRay.ray.direction, n);
-        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n);
+        raySample.emittance = this->getEmittance(raySample.randRay.ray.direction, n, ps.uv);
       }
 
       float getPDF(const glm::vec3 &l, const glm::vec3 &n)

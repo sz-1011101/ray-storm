@@ -40,8 +40,8 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
   if (objDrawn) // object luminaire
   {
     objects::Emitter *luminaire = this->lights.at(objIndex).get();
-    const glm::vec3 pos = luminaire->drawRandomSurfacePoint(randHelper);
-    light.direction = glm::normalize(pos - x);
+    objects::Emitter::PointSample ps = luminaire->drawRandomSurfacePoint(randHelper);
+    light.direction = glm::normalize(ps.point - x);
 
     geometry::Ray shadowRay(x, light.direction);
 
@@ -49,12 +49,22 @@ void Scene::sampleLuminaire(const glm::vec3 &x, const glm::vec3 &n, random::Rand
     if (glm::dot(light.direction, n) > 0.0f // hemisphere
       && this->intersect(shadowRay, intersectL) // should happen except at edges
       && intersectL.intersected == luminaire // we hit the drawn object
-      && glm::distance(intersectL.intersection.position, pos) < 0.001f // intersection is at sample pnt
+      && glm::distance(intersectL.intersection.position, ps.point) < 0.001f // intersection is at sample pnt
     )
     {
       light.shadowed = false;
-      light.emittance = luminaire->getEmittance(-light.direction, intersectL.intersection.normal);
-      light.PDF = this->getLuminairePDF(luminaire, shadowRay, pos, intersectL.intersection.normal);
+      light.emittance = luminaire->getEmittance(
+        -light.direction,
+        intersectL.intersection.normal,
+        intersectL.intersection.texCoords
+      );
+      light.PDF = this->getLuminairePDF(
+        luminaire,
+        shadowRay,
+        ps.point,
+        intersectL.intersection.normal,
+        intersectL.intersection.texCoords
+      );
       // in case of zero pdf, we assume shadowed
       if (light.PDF == 0.0f)
       {
@@ -128,11 +138,17 @@ bool Scene::sampleLuminaireRay(random::RandomizationHelper &randHelper, Luminair
   return true;
 }
 
-float Scene::getLuminairePDF(objects::Object *object, const geometry::Ray &ray, const glm::vec3 &x, const glm::vec3 &n)
+float Scene::getLuminairePDF(
+  objects::Object *object,
+  const geometry::Ray &ray,
+  const glm::vec3 &x,
+  const glm::vec3 &n,
+  const glm::vec2 &uv
+)
 {
   const int lCnt = this->sky == nullptr ? static_cast<int>(this->lights.size()) : static_cast<int>(this->lights.size()) + 1;
   
-  dispatchers::EmittanceDispatcher ed(-ray.direction, n);
+  dispatchers::EmittanceDispatcher ed(-ray.direction, n, uv);
   object->accept(&ed);
 
   if (object != nullptr && ed.isEmitting())
