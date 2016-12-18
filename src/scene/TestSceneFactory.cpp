@@ -38,11 +38,13 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   }
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matDiffGlass);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 2.5, 2), 0.5f, matMetal1, glm::vec3(15, 2, 0));
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
-  objects::ReflectorPtr sphere5 = objects::ObjectFactory::createSphereUnion(glm::vec3(3, 0, 2), matGlass);
+  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(2.5, 3, 2), matGlass);
+
+  objects::ReflectorPtr sphereUnion2 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 4, 2), matMetal1);
 
   objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 
@@ -51,7 +53,8 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   scene->add(sphere2);
   scene->add(sphere3);
   scene->add(sphere4);
-  scene->add(sphere5);
+  scene->add(sphereUnion1);
+  scene->add(sphereUnion2);
   scene->add(box);
   scene->finalize();
 

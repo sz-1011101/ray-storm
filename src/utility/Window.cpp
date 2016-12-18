@@ -2,7 +2,7 @@
 
 #include "utility/Window.h"
 
-const std::string WINDOW_NAME = "Render result";
+const std::string WINDOW_NAME = "ray-storm";
 
 using namespace ray_storm::utility;
 
@@ -24,6 +24,7 @@ void Window::setRenderedData(RenderedDataPtr renderedData)
 void Window::refresh()
 {
   cv::imshow(WINDOW_NAME, this->renderedData->getData());
+  cv::updateWindow(WINDOW_NAME);
   cv::waitKey(5);
 }
 
