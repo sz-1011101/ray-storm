@@ -1,40 +1,21 @@
-#ifndef PATH_TRACE_SAMPLER
-#define PATH_TRACE_SAMPLER
+#ifndef PATH_TRACE_HELPER_H_
+#define PATH_TRACE_HELPER_H_
 
-#include "renderer/AbstractRadianceSampler.h"
-#include "renderer/PathTraceVertex.hpp"
+#include "camera/AbstractCamera.h"
+#include "scene/Scene.h"
+#include "integrators/PathTraceVertex.hpp"
 
 namespace ray_storm
 {
-  namespace renderer
+  namespace integrators
   {
-    class PathTraceSampler : public AbstractRadianceSampler
+    class PathTraceHelper
     {
-    public:
-
-      enum METHOD
-      {
-        NAIVE = 0,
-        DIRECT,
-        DIRECT_BOUNCE,
-        LIGHTPATHTRACING,
-        BIDIRECTIONAL
-      };
-
-      PathTraceSampler(METHOD method);
-
-      void sample(
-        scene::Scene *scene,
-        camera::AbstractCamera *camera,
-        const camera::SampleRay &sampleRay,
-        random::RandomizationHelper &randHelper
-      );
-
-    protected:
-
-      METHOD method;
-
     private:
+
+      PathTraceHelper();
+
+    public:
 
       struct RandomWalk
       {
@@ -44,7 +25,7 @@ namespace ray_storm
         std::vector<PathTraceVertex> vertices;
       };
 
-      void randomWalk(
+      static void randomWalk(
         scene::Scene *scene,
         const geometry::Ray &initialRay,
         random::RandomizationHelper &randHelper,
@@ -53,70 +34,70 @@ namespace ray_storm
       );
 
       // TODO move these out to seperate samplers?
-      void naive(
+      static void naive(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
-      void directIllumination(
+      static void directIllumination(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
-      void directIlluminationBounce(
+      static void directIlluminationBounce(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
-      void lightPathTracing(
+      static void lightPathTracing(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
-      void bidirectional(
+      static void bidirectional(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
 
-      glm::vec3 pathRadiance(
+      static glm::vec3 pathRadiance(
         const RandomWalk &eyeWalk,
         const RandomWalk &lightWalk,
         int eyeLen,
         int lightLen
       );
 
-      glm::vec3 pathDirectLighting(
+      static glm::vec3 pathDirectLighting(
         const RandomWalk &eyeWalk,
         scene::Scene *scene,
         random::RandomizationHelper &randHelper,
         bool weight
       );
 
-      glm::vec3 pathDirectLightingBounce(
+      static glm::vec3 pathDirectLightingBounce(
         const RandomWalk &eyeWalk,
         scene::Scene *scene,
         random::RandomizationHelper &randHelper,
         bool weight
       );
 
-      glm::vec3 pathPathCombination(
+      static glm::vec3 pathPathCombination(
         const glm::vec3 &Le,
         const RandomWalk &eyeWalk,
         const RandomWalk &lightWalk,
         scene::Scene *scene
       );
 
-      void pathLightPath(
+      static void pathLightPath(
         const glm::vec3 &Le,
         const RandomWalk &lightWalk,
         camera::AbstractCamera *camera,
@@ -125,8 +106,7 @@ namespace ray_storm
         bool weight
       );
 
-      float pathWeighting(int eyeIndex, int lightIndex);
-
+      static float pathWeighting(int eyeIndex, int lightIndex);
     };
   }
 }

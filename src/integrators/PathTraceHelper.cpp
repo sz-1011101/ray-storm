@@ -1,45 +1,13 @@
-#include "renderer/PathTraceSampler.h"
-#include "dispatchers/EmittanceDispatcher.hpp"
-#include "renderer/PathTraceVertexFunctions.hpp"
-#include "scene/Scene.h"
-#include "camera/AbstractCamera.h"
+#include "integrators/PathTraceHelper.h"
+#include "integrators/PathTraceVertexFunctions.hpp"
 
-using namespace ray_storm::renderer;
+const float RUSSIAN_ROULETTE_ALPHA = 0.25f;
 
-const float RUSSIAN_ROULETTE_ALPHA = 0.85f;
-const uint32_t EXPECTED_BOUNCES = static_cast<uint32_t>(1.0f/(1.0f - RUSSIAN_ROULETTE_ALPHA));
+const float EXPECTED_BOUNCES = 1.0f/RUSSIAN_ROULETTE_ALPHA;
 
-PathTraceSampler::PathTraceSampler(METHOD method)
-{
-  this->method = method;
-}
+using namespace ray_storm::integrators;
 
-void PathTraceSampler::sample
-(
-  scene::Scene *scene,
-  camera::AbstractCamera *camera,
-  const camera::SampleRay &sampleRay,
-  random::RandomizationHelper &randHelper
-)
-{
-  switch (this->method)
-  {
-    case NAIVE:
-    this->naive(scene, camera, sampleRay, randHelper);break;
-    case DIRECT:
-    this->directIllumination(scene, camera, sampleRay, randHelper);break;
-    case DIRECT_BOUNCE:
-    this->directIlluminationBounce(scene, camera, sampleRay, randHelper);break;
-    case LIGHTPATHTRACING:
-    this->lightPathTracing(scene, camera, sampleRay, randHelper);break;
-    case BIDIRECTIONAL:
-    this->bidirectional(scene, camera, sampleRay, randHelper);break;
-    default:
-    break;
-  }
-}
-
-void PathTraceSampler::randomWalk
+void PathTraceHelper::randomWalk
 (
   scene::Scene *scene,
   const geometry::Ray &initialRay,
@@ -88,18 +56,13 @@ void PathTraceSampler::randomWalk
       absorbed = true;
       break;
     }
-#ifdef LIMIT_PATHS
-    if (b == 0) {
-      absorbed = true;
-      break;
-    }
-#endif
+
   }
 
   walk.absorbed = absorbed;
 }
 
-void PathTraceSampler::naive(
+void PathTraceHelper::naive(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
@@ -107,7 +70,7 @@ void PathTraceSampler::naive(
 )
 {
   RandomWalk walk;
-  this->randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
   const int walkLen = static_cast<int>(walk.vertices.size());
   glm::vec3 L(0.0f);
 
@@ -137,7 +100,7 @@ void PathTraceSampler::naive(
 
 }
 
-void PathTraceSampler::directIllumination(
+void PathTraceHelper::directIllumination(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
@@ -145,7 +108,7 @@ void PathTraceSampler::directIllumination(
 )
 {
   RandomWalk walk;
-  this->randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
   const int walkLen = static_cast<int>(walk.vertices.size());
   glm::vec3 L(0.0f);
   
@@ -158,14 +121,14 @@ void PathTraceSampler::directIllumination(
   }
   else
   {
-    L = PathTraceVertexFunctions::emittance(walk.vertices[0]) + this->pathDirectLighting(walk, scene, randHelper, false);
+    L = PathTraceVertexFunctions::emittance(walk.vertices[0]) + PathTraceHelper::pathDirectLighting(walk, scene, randHelper, false);
   }
 
   camera->gatherSample(sampleRay.xy, L);
   camera->incrementSampleCnt(sampleRay.xy);
 }
 
-void PathTraceSampler::directIlluminationBounce(
+void PathTraceHelper::directIlluminationBounce(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
@@ -175,7 +138,7 @@ void PathTraceSampler::directIlluminationBounce(
   // details for the bsdf/luminaire sample weighting 
   // in http://www.cs.cornell.edu/courses/cs6630/2012sp/slides/07pathtr-slides.pdf
   RandomWalk walk;
-  this->randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
   const int walkLen = static_cast<int>(walk.vertices.size());
 
   glm::vec3 L(0.0f);
@@ -196,7 +159,7 @@ void PathTraceSampler::directIlluminationBounce(
   camera->incrementSampleCnt(sampleRay.xy);
 }
 
-void PathTraceSampler::lightPathTracing(
+void PathTraceHelper::lightPathTracing(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
@@ -210,14 +173,14 @@ void PathTraceSampler::lightPathTracing(
   if (scene->sampleLuminaireRay(randHelper, lumRay))
   {
     Le = lumRay.emittance/lumRay.randRay.PDF;
-    this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
+    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
   }
-  this->pathLightPath(Le, lightWalk, camera, scene, randHelper, false);
+  PathTraceHelper::pathLightPath(Le, lightWalk, camera, scene, randHelper, false);
 
   camera->incrementSampleCnt(sampleRay.xy);
 }
 
-void PathTraceSampler::bidirectional(
+void PathTraceHelper::bidirectional(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
@@ -226,7 +189,7 @@ void PathTraceSampler::bidirectional(
 {
   // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
   RandomWalk eyeWalk;
-  this->randomWalk(scene, sampleRay.ray, randHelper, eyeWalk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, eyeWalk, true);
   const int eyeWalkLen = static_cast<int>(eyeWalk.vertices.size());
 
   if (eyeWalkLen == 0)
@@ -250,30 +213,30 @@ void PathTraceSampler::bidirectional(
   if (scene->sampleLuminaireRay(randHelper, lumRay))
   {
     Le = lumRay.emittance/lumRay.randRay.PDF;
-    this->randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
+    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
 
     camera::SampleRay srLum;
     if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
       scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
     {
       const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
-      camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis)*this->pathWeighting(0, 0));
+      camera->gatherSample(srLum.xy, lumRay.emittance/(lumDis*lumDis)*PathTraceHelper::pathWeighting(0, 0));
     }
   }
 
   // get direct lighting contribution
-  camera->gatherSample(sampleRay.xy, this->pathDirectLightingBounce(eyeWalk, scene, randHelper, true));
+  camera->gatherSample(sampleRay.xy, PathTraceHelper::pathDirectLightingBounce(eyeWalk, scene, randHelper, true));
   // get contribution by combining paths
-  camera->gatherSample(sampleRay.xy, this->pathPathCombination(Le, eyeWalk, lightWalk, scene));
+  camera->gatherSample(sampleRay.xy, PathTraceHelper::pathPathCombination(Le, eyeWalk, lightWalk, scene));
 
   // get direct light bounce contribution
-  this->pathLightPath(Le, lightWalk, camera, scene, randHelper, true);
+  PathTraceHelper::pathLightPath(Le, lightWalk, camera, scene, randHelper, true);
 
   camera->incrementSampleCnt(sampleRay.xy);
 
 }
 
-glm::vec3 PathTraceSampler::pathDirectLighting(
+glm::vec3 PathTraceHelper::pathDirectLighting(
   const RandomWalk &eyeWalk,
   scene::Scene *scene,
   random::RandomizationHelper &randHelper,
@@ -309,7 +272,7 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
 
       if (weight)
       {
-        Ld *= this->pathWeighting(ic + 1, 0);
+        Ld *= PathTraceHelper::pathWeighting(ic + 1, 0);
       }
 
       L += Ld;
@@ -319,7 +282,7 @@ glm::vec3 PathTraceSampler::pathDirectLighting(
   return L;
 }
 
-glm::vec3 PathTraceSampler::pathDirectLightingBounce(
+glm::vec3 PathTraceHelper::pathDirectLightingBounce(
   const RandomWalk &eyeWalk,
   scene::Scene *scene,
   random::RandomizationHelper &randHelper,
@@ -372,7 +335,7 @@ glm::vec3 PathTraceSampler::pathDirectLightingBounce(
 
     if (weight)
     {
-      Ld *= this->pathWeighting(ic + 1, 0);
+      Ld *= PathTraceHelper::pathWeighting(ic + 1, 0);
     }
 
     L += Ld;
@@ -387,7 +350,7 @@ glm::vec3 PathTraceSampler::pathDirectLightingBounce(
   return L;
 }
 
-glm::vec3 PathTraceSampler::pathPathCombination(
+glm::vec3 PathTraceHelper::pathPathCombination(
   const glm::vec3 &Le,
   const RandomWalk &eyeWalk,
   const RandomWalk &lightWalk,
@@ -421,7 +384,7 @@ glm::vec3 PathTraceSampler::pathPathCombination(
 
       if (scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
       {
-        L += Le*this->pathRadiance(eyeWalk, lightWalk, i, j)*this->pathWeighting(ic + 1, jc + 1);
+        L += Le*PathTraceHelper::pathRadiance(eyeWalk, lightWalk, i, j)*PathTraceHelper::pathWeighting(ic + 1, jc + 1);
       }
       jc++;
     }
@@ -430,7 +393,7 @@ glm::vec3 PathTraceSampler::pathPathCombination(
   return L;
 }
 
-void PathTraceSampler::pathLightPath(
+void PathTraceHelper::pathLightPath(
   const glm::vec3 &Le,
   const RandomWalk &lightWalk,
   camera::AbstractCamera *camera,
@@ -471,7 +434,7 @@ void PathTraceSampler::pathLightPath(
         Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
         if (weight)
         {
-          Lc *= this->pathWeighting(0, jc + 1);
+          Lc *= PathTraceHelper::pathWeighting(0, jc + 1);
         }
         camera->gatherSample(sr.xy, Lc);
       }
@@ -480,7 +443,7 @@ void PathTraceSampler::pathLightPath(
   }
 }
 
-glm::vec3 PathTraceSampler::pathRadiance(
+glm::vec3 PathTraceHelper::pathRadiance(
   const RandomWalk &eyeWalk,
   const RandomWalk &lightWalk,
   int eyeLen,
@@ -520,7 +483,7 @@ glm::vec3 PathTraceSampler::pathRadiance(
   return L;
 }
 
-float PathTraceSampler::pathWeighting(int eyeIndex, int lightIndex)
+float PathTraceHelper::pathWeighting(int eyeIndex, int lightIndex)
 {
   return 1.0f/(1.0f + eyeIndex + lightIndex);
   //return lightIndex == 3 && eyeIndex == 0 ? 1.0f : 0.0f;

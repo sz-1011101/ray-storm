@@ -8,7 +8,7 @@
 
 namespace ray_storm
 {
-  namespace renderer
+  namespace integrators
   {
     struct PathTraceVertex
     {

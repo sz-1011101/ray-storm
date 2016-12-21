@@ -10,7 +10,7 @@
 #include "camera/LensFactory.h"
 
 #include "scene/TestSceneFactory.h"
-#include "renderer/PathTraceSampler.h"
+#include "integrators/PathTracer.h"
 #include "renderer/DefaultRenderer.h"
 #include "utility/Window.h"
 #include "utility/RenderedData.h"
@@ -65,9 +65,7 @@ int main(int argc, char* argv[])
     )
   );
 
-  renderer::AbstractRadianceSamplerPtr pts(
-    new renderer::PathTraceSampler(
-      renderer::PathTraceSampler::METHOD::BIDIRECTIONAL));
+  integrators::AbstractIntegratorPtr pts(new integrators::PathTracer());
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   

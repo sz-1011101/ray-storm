@@ -10,9 +10,9 @@ using namespace ray_storm::renderer;
 DefaultRenderer::DefaultRenderer(
   const scene::ScenePtr &scene,
   const camera::AbstractSingleImageCameraPtr &camera,
-  const AbstractRadianceSamplerPtr &sampler,
+  const integrators::AbstractIntegratorPtr &integrator,
   uint32_t samples
-) : scene(scene), camera(camera), sampler(sampler), samples(samples)
+) : scene(scene), camera(camera), integrator(integrator), samples(samples)
 {
 
 }
@@ -74,7 +74,7 @@ void DefaultRenderer::render()
 
             for (const camera::SampleRay &sr : rp.rays)
             {
-              this->sampler->sample(this->scene.get(), this->camera.get(), 
+              this->integrator->sample(this->scene.get(), this->camera.get(), 
                 sr, randHelpers[currentThread]);
             }
 

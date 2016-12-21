@@ -7,7 +7,7 @@
 
 namespace ray_storm
 {
-  namespace renderer
+  namespace integrators
   {
 
     class EmittanceDispatcher : public geometry::AbstractObjectDispatcher

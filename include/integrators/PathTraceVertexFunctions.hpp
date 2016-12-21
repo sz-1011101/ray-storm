@@ -1,12 +1,13 @@
 #ifndef PATH_TRACE_VERTEX_FUNCTIONS_H_
 #define PATH_TRACE_VERTEX_FUNCTIONS_H_
 
-#include "renderer/PathTraceVertex.hpp"
+#include "integrators/PathTraceVertex.hpp"
+#include "dispatchers/EmittanceDispatcher.hpp"
 #include "scene/Scene.h"
 
 namespace ray_storm
 {
-  namespace renderer
+  namespace integrators
   {
     class PathTraceVertexFunctions
     {

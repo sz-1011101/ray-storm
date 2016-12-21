@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "renderer/AbstractRenderer.h"
-#include "renderer/AbstractRadianceSampler.h"
+#include "integrators/AbstractIntegrator.h"
 #include "camera/AbstractSingleImageCamera.h"
 
 namespace ray_storm
@@ -17,7 +17,7 @@ namespace ray_storm
       DefaultRenderer(
         const scene::ScenePtr &scene,
         const camera::AbstractSingleImageCameraPtr &camera,
-        const AbstractRadianceSamplerPtr &sampler,
+        const integrators::AbstractIntegratorPtr &integrator,
         uint32_t samples
       );
 
@@ -31,7 +31,7 @@ namespace ray_storm
 
       camera::AbstractSingleImageCameraPtr camera;
 
-      AbstractRadianceSamplerPtr sampler;
+      integrators::AbstractIntegratorPtr integrator;
 
       uint32_t samples;
       

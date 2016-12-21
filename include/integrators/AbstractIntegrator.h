@@ -1,9 +1,8 @@
-#ifndef ABSTRACT_RADIANCE_SAMPLER_H_
-#define ABSTRACT_RADIANCE_SAMPLER_H_
+#ifndef ABSTRACT_INTEGRATOR_H_
+#define ABSTRACT_INTEGRATOR_H_
 
 #include <memory>
 
-#include "utility/common.hpp"
 #include "random/RandomizationHelper.h"
 #include "camera/SampleRay.hpp"
 
@@ -20,14 +19,14 @@ namespace ray_storm
     class AbstractCamera;
   }
 
-  namespace renderer
+  namespace integrators
   {
-    class AbstractRadianceSampler
+    class AbstractIntegrator
     {
     public:
-
-      virtual ~AbstractRadianceSampler() {};
       
+      virtual ~AbstractIntegrator() {};
+
       virtual void sample(
         scene::Scene *scene,
         camera::AbstractCamera *camera,
@@ -37,7 +36,7 @@ namespace ray_storm
 
     };
 
-    typedef std::shared_ptr<AbstractRadianceSampler> AbstractRadianceSamplerPtr;
+    typedef std::shared_ptr<AbstractIntegrator> AbstractIntegratorPtr;
   }
 }
 
