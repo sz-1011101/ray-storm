@@ -30,7 +30,7 @@ bool PinholeCamera::generateRay(const glm::vec3 &point, SampleRay &sampleRay)
   const glm::vec4 o(point, 1.0f);
   glm::vec4 cs = this->cameraSetup->projMatrix*this->cameraSetup->cameraMatrix*o;
   cs /= cs.w;
-  glm::vec2 isp((-cs.x + 1.0f)/2.0f, (-cs.y + 1.0f)/2.0f);
+  glm::vec2 isp((cs.x + 1.0f)/2.0f, (cs.y + 1.0f)/2.0f);
 
   if (isp.x < 0.0f || isp.x >= 1.0f || isp.x < 0.0f || isp.x >= 1.0f)
   {
