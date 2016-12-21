@@ -28,19 +28,14 @@ void PinholeCamera::spawnRay(SampleRay &sampleRay, const glm::vec2 &xy)
 bool PinholeCamera::generateRay(const glm::vec3 &point, SampleRay &sampleRay)
 {
   const glm::vec4 o(point, 1.0f);
-  glm::vec4 cs = this->cameraSetup->cameraMatrix*o;
-  glm::vec3 is = this->cameraSetup->projMatrix*glm::vec3(cs.x, cs.y, cs.z);
-  is /= is.z; // perspective division
+  glm::vec4 cs = this->cameraSetup->projMatrix*this->cameraSetup->cameraMatrix*o;
+  cs /= cs.w;
 
-  // bring to [0,1]x[0,1] image space
-  is += 1.0f; 
-  is /= 2.0f;
-
-  if (is.x < 0.0f || is.x >= 1.0f || is.x < 0.0f || is.x >= 1.0f)
+  if (cs.x < 0.0f || cs.x >= 1.0f || cs.x < 0.0f || cs.x >= 1.0f)
   {
     return false;
   }
 
-  sampleRay = SampleRay(geometry::Ray(this->cameraSetup->position, glm::normalize(point - this->cameraSetup->position)), glm::vec2(is.x, is.y));
+  sampleRay = SampleRay(geometry::Ray(this->cameraSetup->position, glm::normalize(point - this->cameraSetup->position)), glm::vec2(cs.x, cs.y));
   return true;
 }
