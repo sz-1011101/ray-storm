@@ -11,7 +11,7 @@
 #include "camera/LensFactory.h"
 
 #include "scene/TestSceneFactory.h"
-#include "integrators/IntegratorFactory.h"
+#include "integrators/IntegratorGeneratorFactory.h"
 #include "renderer/DefaultRenderer.h"
 #include "utility/Window.h"
 #include "utility/RenderedData.h"
@@ -25,26 +25,26 @@ const std::string METHOD_DPT = "DPT";
 const std::string METHOD_D_MIS_PT = "D_MIS_PT";
 const std::string METHOD_BIDIR_PT = "BIDIR_PT";
 
-integrators::AbstractIntegratorPtr parseMethod(const std::string &name)
+integrators::AbstractIntegratorGeneratorPtr parseMethod(const std::string &name)
 {
   if (name == METHOD_PT)
   {
-    return integrators::IntegratorFactory::createPathTracer();
+    return integrators::IntegratorGeneratorFactory::createPathTracerGenerator();
   }
   else if (name == METHOD_DPT)
   {
-    return integrators::IntegratorFactory::createDirectLightingPathTracer(false);
+    return integrators::IntegratorGeneratorFactory::createDirectLightingPathTracerGenerator(false);
   }
   else if (name == METHOD_D_MIS_PT)
   {
-    return integrators::IntegratorFactory::createDirectLightingPathTracer(true);
+    return integrators::IntegratorGeneratorFactory::createDirectLightingPathTracerGenerator(true);
   }
   else if (name == METHOD_BIDIR_PT)
   {
-    return integrators::IntegratorFactory::createBidirectionalPathTracer();
+    return integrators::IntegratorGeneratorFactory::createBidirectionalPathTracerGenerator();
   }
 
-  return integrators::AbstractIntegratorPtr();
+  return integrators::AbstractIntegratorGeneratorPtr();
 }
 
 int main(int argc, char* argv[])
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   }
 
   int spp = 10;
-  integrators::AbstractIntegratorPtr pts;
+  integrators::AbstractIntegratorGeneratorPtr pts;
 
   if (vm.count(SPP_ARG.c_str()))
   {
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-    pts = integrators::IntegratorFactory::createPathTracer();
+    pts = integrators::IntegratorGeneratorFactory::createPathTracerGenerator();
   }
 
   utility::RenderedDataPtr rd(new utility::RenderedData());
@@ -111,8 +111,6 @@ int main(int argc, char* argv[])
       500
     )
   );
-
-  
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   

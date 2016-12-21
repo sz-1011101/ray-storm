@@ -10,9 +10,9 @@ using namespace ray_storm::renderer;
 DefaultRenderer::DefaultRenderer(
   const scene::ScenePtr &scene,
   const camera::AbstractSingleImageCameraPtr &camera,
-  const integrators::AbstractIntegratorPtr &integrator,
+  const integrators::AbstractIntegratorGeneratorPtr &integratorGen,
   uint32_t samples
-) : scene(scene), camera(camera), integrator(integrator), samples(samples)
+) : scene(scene), camera(camera), integratorGen(integratorGen), samples(samples)
 {
 
 }
@@ -45,6 +45,9 @@ void DefaultRenderer::render()
   std::vector<random::RandomizationHelper> randHelpers(maxThreads);
   // each threads working data
   std::vector<camera::RayPackage> rayPackages(maxThreads, camera::RayPackage(this->samples));
+  // every thread has its own integrator
+  std::vector<integrators::AbstractIntegratorPtr> integrators;
+  this->fill(maxThreads, integrators);
 
   // used to refresh data
   int jobsDone = 0;
@@ -58,6 +61,7 @@ void DefaultRenderer::render()
     // current thread id used to id different random engines
     const int currentThread = omp_get_thread_num();
     camera::RayPackage &rp = rayPackages[currentThread];
+    integrators::AbstractIntegrator *integrator = integrators[currentThread].get();
     for (uint32_t x = 0; x < job.width; x++)
     {
       for (uint32_t y = 0; y < job.height; y++)
@@ -74,7 +78,7 @@ void DefaultRenderer::render()
 
             for (const camera::SampleRay &sr : rp.rays)
             {
-              this->integrator->sample(this->scene.get(), this->camera.get(), 
+              integrator->sample(this->scene.get(), this->camera.get(), 
                 sr, randHelpers[currentThread]);
             }
 
@@ -97,4 +101,12 @@ void DefaultRenderer::render()
   this->camera->signal();
 
   puts("done!");
+}
+
+void DefaultRenderer::fill(int n, std::vector<integrators::AbstractIntegratorPtr> &integrators)
+{
+  for (int i = 0; i < n; i++)
+  {
+    integrators.push_back(this->integratorGen->createIntegrator());
+  }
 }

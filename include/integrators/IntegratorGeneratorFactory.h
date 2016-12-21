@@ -7,6 +7,7 @@ namespace ray_storm
 {
   namespace integrators
   {
+
     class IntegratorGeneratorFactory
     {
     private:
@@ -15,13 +16,13 @@ namespace ray_storm
 
     public:
 
-      AbstractIntegratorGeneratorPtr createPathTracerGenerator();
+      static AbstractIntegratorGeneratorPtr createPathTracerGenerator();
 
-      AbstractIntegratorGeneratorPtr createDirectLightingPathTracerGenerator(bool mis);
+      static AbstractIntegratorGeneratorPtr createDirectLightingPathTracerGenerator(bool mis);
 
-      AbstractIntegratorGeneratorPtr createLightPathTracerGenerator();
+      static AbstractIntegratorGeneratorPtr createLightPathTracerGenerator();
 
-      AbstractIntegratorGeneratorPtr createBidirectionalPathTracerGenerator();
+      static AbstractIntegratorGeneratorPtr createBidirectionalPathTracerGenerator();
 
     };
   }
