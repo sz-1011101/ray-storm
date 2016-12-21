@@ -19,6 +19,8 @@
 using namespace ray_storm;
 
 const std::string SPP_ARG = "spp";
+const std::string WIDTH_ARG = "width";
+const std::string HEIGHT_ARG = "height";
 const std::string METHOD_ARG = "method";
 const std::string METHOD_PT = "PT";
 const std::string METHOD_DPT = "DPT";
@@ -53,8 +55,10 @@ int main(int argc, char* argv[])
   boost::program_options::options_description desc("Options");
   desc.add_options()
   ("help", "show help message")
-  (SPP_ARG.c_str(), boost::program_options::value<int>(), "samples per pixel")
-  (METHOD_ARG.c_str(), boost::program_options::value<std::string>(), "integration method."); // TODO show methods
+  (SPP_ARG.c_str(), boost::program_options::value<int>(), "Samples per pixel")
+  (WIDTH_ARG.c_str(), boost::program_options::value<int>(), "Image width in pixels.")
+  (HEIGHT_ARG.c_str(), boost::program_options::value<int>(), "Image height in pixels.")
+  (METHOD_ARG.c_str(), boost::program_options::value<std::string>(), "Integration method."); // TODO show methods
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -67,12 +71,26 @@ int main(int argc, char* argv[])
   }
 
   int spp = 10;
+  int width = 500;
+  int height = 500;
   integrators::AbstractIntegratorGeneratorPtr pts;
 
   if (vm.count(SPP_ARG.c_str()))
   {
     spp = vm[SPP_ARG.c_str()].as<int>();
     std::cout << "samples per pixel set to " << spp << '\n';
+  }
+
+  if (vm.count(WIDTH_ARG.c_str()) && vm.count(HEIGHT_ARG.c_str()))
+  {
+    width = vm[WIDTH_ARG.c_str()].as<int>();
+    height = vm[HEIGHT_ARG.c_str()].as<int>();
+    std::cout << "image resolution set to " << width << ", " << height << '\n';
+  }
+  else if (vm.count(WIDTH_ARG.c_str()) || vm.count(HEIGHT_ARG.c_str()))
+  {
+    std::cout << "give both " << WIDTH_ARG << " and " << HEIGHT_ARG << '\n';
+    return -1;
   }
 
   if (vm.count(METHOD_ARG.c_str()))
@@ -102,13 +120,13 @@ int main(int argc, char* argv[])
         glm::vec3(0, 5.0f, 9.5f),
         glm::vec3(0, 5, -10),
         glm::vec3(0, 1, 0),
-        1.0f,
+        static_cast<float>(width)/height,
         75.0f
         )
       ),
       rd,
-      500,
-      500
+      width,
+      height
     )
   );
 
