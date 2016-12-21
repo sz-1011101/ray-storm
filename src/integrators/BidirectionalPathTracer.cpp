@@ -11,5 +11,5 @@ void BidirectionalPathTracer::sample(
   random::RandomizationHelper &randHelper
 )
 {
-  PathTraceHelper::bidirectional(scene, camera, sampleRay, randHelper);
+  PathTraceHelper::bidirectional(scene, camera, sampleRay, this->eyeWalk, this->lightWalk, randHelper);
 }

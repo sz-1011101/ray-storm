@@ -2,6 +2,7 @@
 #define BIDIRECTIONAL_PATH_TRACER_H_
 
 #include "integrators/AbstractIntegrator.h"
+#include "integrators/RandomWalk.hpp"
 
 namespace ray_storm
 {
@@ -17,6 +18,12 @@ namespace ray_storm
         const camera::SampleRay &sampleRay,
         random::RandomizationHelper &randHelper
       );
+
+    private:
+
+      RandomWalk eyeWalk;
+
+      RandomWalk lightWalk;
       
     };
   }

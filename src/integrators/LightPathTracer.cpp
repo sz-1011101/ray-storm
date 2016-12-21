@@ -11,5 +11,5 @@ void LightPathTracer::sample(
   random::RandomizationHelper &randHelper
 )
 {
-  PathTraceHelper::bidirectional(scene, camera, sampleRay, randHelper);
+  PathTraceHelper::lightPathTracing(scene, camera, sampleRay, this->walk, randHelper);
 }

@@ -39,6 +39,7 @@ namespace ray_storm
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
+        RandomWalk &walk,
         random::RandomizationHelper &randHelper
       );
 
@@ -46,6 +47,7 @@ namespace ray_storm
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
+        RandomWalk &walk,
         random::RandomizationHelper &randHelper
       );
 
@@ -53,6 +55,7 @@ namespace ray_storm
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
+        RandomWalk &walk,
         random::RandomizationHelper &randHelper
       );
 
@@ -60,6 +63,8 @@ namespace ray_storm
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
+        RandomWalk &eyeWalk,
+        RandomWalk &lightWalk,
         random::RandomizationHelper &randHelper
       );
 

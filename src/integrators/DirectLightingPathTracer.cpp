@@ -18,10 +18,10 @@ void DirectLightingPathTracer::sample(
 {
   if (this->mis)
   {
-    PathTraceHelper::directIlluminationBounce(scene, camera, sampleRay, randHelper);
+    PathTraceHelper::directIlluminationBounce(scene, camera, sampleRay, this->walk, randHelper);
   }
   else
   {
-    PathTraceHelper::directIllumination(scene, camera, sampleRay, randHelper);
+    PathTraceHelper::directIllumination(scene, camera, sampleRay, this->walk, randHelper);
   }
 }
