@@ -8,6 +8,10 @@ include(FindPkgConfig)
 # opencv
 find_package(OpenCV REQUIRED)
 
+# boost
+find_package(Boost 1.58 COMPONENTS program_options REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+
 # glm includes
 include_directories(lib/glm/glm)
 
@@ -18,4 +22,4 @@ include_directories(include)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 add_executable(ray_storm ${SOURCES})
-target_link_libraries(ray_storm ${OpenCV_LIBRARIES})
+target_link_libraries(ray_storm ${OpenCV_LIBRARIES} ${Boost_LIBRARIES})
