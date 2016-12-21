@@ -25,6 +25,7 @@ const std::string METHOD_ARG = "method";
 const std::string METHOD_PT = "PT";
 const std::string METHOD_DPT = "DPT";
 const std::string METHOD_D_MIS_PT = "D_MIS_PT";
+const std::string METHOD_LPT = "LPT";
 const std::string METHOD_BIDIR_PT = "BIDIR_PT";
 
 integrators::AbstractIntegratorGeneratorPtr parseMethod(const std::string &name)
@@ -40,6 +41,10 @@ integrators::AbstractIntegratorGeneratorPtr parseMethod(const std::string &name)
   else if (name == METHOD_D_MIS_PT)
   {
     return integrators::IntegratorGeneratorFactory::createDirectLightingPathTracerGenerator(true);
+  }
+  else if (name == METHOD_LPT)
+  {
+    return integrators::IntegratorGeneratorFactory::createLightPathTracerGenerator();
   }
   else if (name == METHOD_BIDIR_PT)
   {
