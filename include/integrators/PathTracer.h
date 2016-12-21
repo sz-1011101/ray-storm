@@ -2,6 +2,7 @@
 #define PATH_TRACER_H_
 
 #include "integrators/AbstractIntegrator.h"
+#include "integrators/RandomWalk.hpp"
 
 namespace ray_storm
 {
@@ -20,6 +21,8 @@ namespace ray_storm
 
     private:
       
+      RandomWalk walk;
+
     };
   }
 }

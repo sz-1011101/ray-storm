@@ -23,6 +23,8 @@ void PathTraceHelper::randomWalk
 
   glm::vec3 Lrefl(1.0f);
   bool absorbed = false;
+  int length = 0;
+
   for (uint32_t b = 0; b < maxBounces; b++) // bounds this loop, biased in theory though
   {
     PathTraceVertex vert;
@@ -43,7 +45,17 @@ void PathTraceHelper::randomWalk
       
       vert.cummulative = Lrefl;
       ray = geometry::Ray(vert.offPosition, vert.out);
-      walk.vertices.push_back(vert);
+      // overwrite old vertex
+      if (walk.vertices.size() > b)
+      {
+        walk.vertices[b] = vert;
+      }
+      else // push new vertex
+      {
+        walk.vertices.push_back(vert);
+      }
+      
+      length++;
     }
     else
     {
@@ -58,7 +70,7 @@ void PathTraceHelper::randomWalk
     }
 
   }
-
+  walk.length = length;
   walk.absorbed = absorbed;
 }
 
@@ -66,12 +78,12 @@ void PathTraceHelper::naive(
   scene::Scene *scene,
   camera::AbstractCamera *camera,
   const camera::SampleRay &sampleRay,
+  RandomWalk &walk,
   random::RandomizationHelper &randHelper
 )
 {
-  RandomWalk walk;
   PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
-  const int walkLen = static_cast<int>(walk.vertices.size());
+  const int walkLen = walk.length;
   glm::vec3 L(0.0f);
 
   if (walkLen == 0)

@@ -4,6 +4,7 @@
 #include "camera/AbstractCamera.h"
 #include "scene/Scene.h"
 #include "integrators/PathTraceVertex.hpp"
+#include "integrators/RandomWalk.hpp"
 
 namespace ray_storm
 {
@@ -16,14 +17,6 @@ namespace ray_storm
       PathTraceHelper();
 
     public:
-
-      struct RandomWalk
-      {
-        RandomWalk() : absorbed(true) {}
-
-        bool absorbed;
-        std::vector<PathTraceVertex> vertices;
-      };
 
       static void randomWalk(
         scene::Scene *scene,
@@ -38,6 +31,7 @@ namespace ray_storm
         scene::Scene *scene,
         camera::AbstractCamera *camera,
         const camera::SampleRay &sampleRay,
+        RandomWalk &walk,
         random::RandomizationHelper &randHelper
       );
 

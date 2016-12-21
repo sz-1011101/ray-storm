@@ -11,5 +11,5 @@ void PathTracer::sample(
   random::RandomizationHelper &randHelper
 )
 {
-  PathTraceHelper::naive(scene, camera, sampleRay, randHelper);
+  PathTraceHelper::naive(scene, camera, sampleRay, this->walk, randHelper);
 }
