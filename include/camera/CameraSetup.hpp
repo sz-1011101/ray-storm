@@ -40,12 +40,11 @@ namespace ray_storm
         );
 
         //this->projMatrix = glm::infinitePerspective(utility::Math::degToRad(this->fov_degrees/aspectRatio), aspectRatio, 0.1f);
-        this->projMatrix = glm::mat4(
-          1.0f/tanFovHalvedW, 0.0f, 0.0f, 0.0f,
-          0.0f, 1.0f/tanFovHalvedH, 0.0f, 0.0f,
-          0.0f, 0.0f, 1.0f, 1.0f,
-          0.0f, 0.0f, 0.0f, 0.0f
-        ); // not invertable!
+        this->projMatrix = glm::mat3(
+          1.0f/tanFovHalvedW, 0.0f, 0.0f, 
+          0.0f, 1.0f/tanFovHalvedH, 0.0f,
+          0.0f, 0.0f, 1.0f
+        );
         this->inverseCameraMatrix = glm::inverse(this->cameraMatrix);
       }
 
@@ -68,7 +67,7 @@ namespace ray_storm
       glm::mat4 cameraMatrix;
       glm::mat4 inverseCameraMatrix;
 
-      glm::mat4 projMatrix;
+      glm::mat3 projMatrix;
     };
 
     typedef std::shared_ptr<CameraSetup> CameraSetupPtr;
