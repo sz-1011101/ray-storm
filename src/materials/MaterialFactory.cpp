@@ -12,7 +12,7 @@
 
 using namespace ray_storm::materials;
 
-ray_storm::materials::MaterialPtr MaterialFactory::createLambertian(const glm::vec3 &color)
+MaterialPtr MaterialFactory::createLambertian(const glm::vec3 &color)
 {
   AbstractBRDFPtr lambertianBRDF(new materials::Lambertian(color));
   return MaterialPtr(new Material(lambertianBRDF));
@@ -24,7 +24,7 @@ MaterialPtr MaterialFactory::createLambertian(const textures::Abstract2DTextureP
   return MaterialPtr(new Material(lambertianBRDF));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createMetal(
+MaterialPtr MaterialFactory::createMetal(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness
@@ -34,7 +34,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createMetal(
   return MaterialPtr(new Material(phongBRDF));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createMetalFresnel(
+MaterialPtr MaterialFactory::createMetalFresnel(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness,
@@ -47,7 +47,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createMetalFresnel(
   return MaterialPtr(new Material(phongBRDF, indexOfRefraction, conductor));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createMirror
+MaterialPtr MaterialFactory::createMirror
 (
   const glm::vec3 &color
 )
@@ -64,7 +64,7 @@ MaterialPtr MaterialFactory::createMirror(
   return MaterialPtr(new Material(mirrorBRDF));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
+MaterialPtr MaterialFactory::createGlass(
   const glm::vec3 &color,
   float indexOfRefraction
 )
@@ -75,7 +75,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
   return MaterialPtr(new Material(mirrorBRDF, glassBTDF, dielectric));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createDiffuseGlass(
+MaterialPtr MaterialFactory::createDiffuseGlass(
         const glm::vec3 &diffuse,
         const glm::vec3 &specular,
         float scattering, 
@@ -86,7 +86,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createDiffuseGlass(
   return MaterialPtr(new Material(scatteringGlassBTDF));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
+MaterialPtr MaterialFactory::createShiny(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness,
@@ -98,7 +98,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
   return MaterialPtr(new Material(phongBRDF, indexOfRefraction, dielectric));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
+MaterialPtr MaterialFactory::createShiny(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness
@@ -118,7 +118,7 @@ MaterialPtr MaterialFactory::createShiny(
   return MaterialPtr(new Material(phongBRDF));
 }
 
-ray_storm::materials::MaterialPtr MaterialFactory::createCombined(
+MaterialPtr MaterialFactory::createCombined(
   const AbstractBRDFPtr &brdf,
   const AbstractBTDFPtr &btdf,
   float constReflectance
