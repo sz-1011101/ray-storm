@@ -108,6 +108,16 @@ ray_storm::materials::MaterialPtr MaterialFactory::createShiny(
   return MaterialPtr(new Material(phongBRDF));
 }
 
+MaterialPtr MaterialFactory::createShiny(
+  const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
+  const textures::Abstract2DTexturePtr<glm::vec3> &specular,
+  const textures::Abstract2DTexturePtr<float> &shinyness
+)
+{
+  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
+  return MaterialPtr(new Material(phongBRDF));
+}
+
 ray_storm::materials::MaterialPtr MaterialFactory::createCombined(
   const AbstractBRDFPtr &brdf,
   const AbstractBTDFPtr &btdf,

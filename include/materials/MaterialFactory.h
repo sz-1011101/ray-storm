@@ -67,6 +67,12 @@ namespace ray_storm
         float shinyness
       );
 
+      static MaterialPtr createShiny(
+        const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
+        const textures::Abstract2DTexturePtr<glm::vec3> &specular,
+        const textures::Abstract2DTexturePtr<float> &shinyness
+      );
+
       static MaterialPtr createCombined(
         const AbstractBRDFPtr &brdf,
         const AbstractBTDFPtr &btdf,

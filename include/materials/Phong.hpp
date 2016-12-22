@@ -15,19 +15,20 @@ namespace ray_storm
       Phong(const glm::vec3 &kD, const glm::vec3 &kS, float e)
       {
         // the famous three phong parameters
+        this->kD = textures::TextureFactory::createConstant2DTexture<glm::vec3>(kD);
+        this->kS = textures::TextureFactory::createConstant2DTexture<glm::vec3>(kS);
+        this->e = textures::TextureFactory::createConstant2DTexture<float>(e);
+      }
+
+      Phong(
+        const textures::Abstract2DTexturePtr<glm::vec3> &kD,
+        const textures::Abstract2DTexturePtr<glm::vec3> &kS,
+        const textures::Abstract2DTexturePtr<float> &e)
+      {
+        // the famous three phong parameters
         this->kD = kD;
         this->kS = kS;
         this->e = e;
-        this->samplingExponent = this->e;
-
-        this->lambertian = this->kD/static_cast<float>(M_PI);
-        this->specular = this->kS*(this->e + 2.0f)/(2.0f*static_cast<float>(M_PI));
-
-        const float ll = glm::length(this->lambertian);
-        const float ls = glm::length(this->specular);
-
-        this->specProb = std::min(0.85f, ls/(ll + ls));
-        this->diffProb = 1.0f - this->specProb;
       }
 
       glm::vec3 evaluate(
@@ -38,8 +39,9 @@ namespace ray_storm
       )
       {
         const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        return this->lambertian + 
-          this->specular*std::pow(std::max(0.0f, dot(r, v)), this->e);
+        const float e_uv = this->e->sample(uv);
+        return this->kD->sample(uv)/static_cast<float>(M_PI) + 
+          (this->kS->sample(uv)*(e_uv + 2.0f)/(2.0f*static_cast<float>(M_PI)))*std::pow(std::max(0.0f, dot(r, v)), e_uv);
       }
 
       void drawDirection(
@@ -49,19 +51,10 @@ namespace ray_storm
         random::RandomizationHelper &randHelper, 
         random::RandomDirection &randDir)
       {
-        // MIS the phong brdf
-        const float prob = randHelper.drawUniformRandom();
 
-        if (prob < this->specProb)
-        {
-          glm::vec3 r = glm::normalize(glm::reflect(in, n));
-          randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, this->samplingExponent);
-        }
-        else
-        {
-          randDir.direction = randHelper.drawUniformRandomHemisphereDirection(n);
-        }
-
+        glm::vec3 r = glm::normalize(glm::reflect(in, n));
+        const float e_uv = this->e->sample(uv);
+        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, e_uv);
         randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
       }
 
@@ -73,20 +66,15 @@ namespace ray_storm
       )
       {
         glm::vec3 r = glm::normalize(glm::reflect(in, n));
-
-        // specular pdf + diffuse pdf
-        return this->specProb*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(r, out), this->samplingExponent) +
-          this->diffProb*random::RandomizationHelper::uniformRandomHemispherePDF();
+        const float e_uv = this->e->sample(uv);
+        return random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(r, out), e_uv);
       }
 
     private:
 
-      glm::vec3 kS;
-      glm::vec3 kD;
-      float e;
-
-      glm::vec3 lambertian;
-      glm::vec3 specular;
+      textures::Abstract2DTexturePtr<glm::vec3> kD;
+      textures::Abstract2DTexturePtr<glm::vec3> kS;
+      textures::Abstract2DTexturePtr<float> e;
 
       float samplingExponent;
       float specProb;
