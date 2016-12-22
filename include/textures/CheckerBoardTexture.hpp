@@ -8,32 +8,32 @@ namespace ray_storm
   namespace textures
   {
 
-    class CheckerBoardTexture : public Abstract2DTexture<glm::vec3>
+    template<typename T> class CheckerBoardTexture : public Abstract2DTexture<T>
     {
     public:
 
-      CheckerBoardTexture(float freqency, const glm::vec3 &color1, const glm::vec3 &color2) :
-        freqency(freqency), color1(color1), color2(color2) {}
+      CheckerBoardTexture(float freqency, const T &c1, const T &c2) :
+        freqency(freqency), c1(c1), c2(c2) {}
 
-      glm::vec3 sample(const glm::vec2 &uv)
+      T sample(const glm::vec2 &uv)
       {
         const glm::vec2 pos(uv*this->freqency);
         const glm::ivec2 iPos(static_cast<int>(pos.x), static_cast<int>(pos.y));
         if (iPos.x % 2 == iPos.y % 2) // same indices
         {
-          return this->color1;
+          return this->c1;
         }
         // different indices
-        return this->color2;
+        return this->c2;
       }
 
     private:
 
       float freqency;
 
-      glm::vec3 color1;
+      T c1;
 
-      glm::vec3 color2;
+      T c2;
       
     };
 

@@ -2,6 +2,8 @@
 #define TEXTURE_FACTORY_H_
 
 #include "textures/Abstract2DTexture.h"
+#include "textures/Constant2DTexture.hpp"
+#include "textures/CheckerBoardTexture.hpp"
 
 namespace ray_storm
 {
@@ -15,9 +17,15 @@ namespace ray_storm
 
     public:
 
-      static Abstract2DTexturePtr<glm::vec3> createConstant2DTexture(const glm::vec3 &constant);
+      template<typename T> static Abstract2DTexturePtr<T> createConstant2DTexture(const T &constant)
+      {
+        return Abstract2DTexturePtr<T>(new Constant2DTexture<T>(constant));
+      }
 
-      static Abstract2DTexturePtr<glm::vec3> createCheckerBoardTexture(float freqency, const glm::vec3 &color1, const glm::vec3 &color2);
+      template<typename T> static Abstract2DTexturePtr<T> createCheckerBoardTexture(float freqency, const T &c1, const T &c2)
+      {
+        return Abstract2DTexturePtr<T>(new CheckerBoardTexture<T>(freqency, c1, c2));
+      }
       
     };
   }

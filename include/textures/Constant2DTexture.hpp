@@ -7,20 +7,20 @@ namespace ray_storm
 {
   namespace textures
   {
-    class Constant2DTexture : public Abstract2DTexture<glm::vec3>
+    template<typename T> class Constant2DTexture : public Abstract2DTexture<T>
     {
     public:
 
-      Constant2DTexture(const glm::vec3 &constant) : constant(constant) {}
+      Constant2DTexture(const T &constant) : constant(constant) {}
 
-      glm::vec3 sample(const glm::vec2 &uv)
+      T sample(const glm::vec2 &uv)
       {
         return this->constant;
       }
     
     private:
 
-      glm::vec3 constant;
+      T constant;
       
     };
   }

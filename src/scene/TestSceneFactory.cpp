@@ -90,7 +90,7 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
 
   materials::MaterialPtr matCheckerBoard = materials::MaterialFactory::createLambertian(
-  textures::TextureFactory::createCheckerBoardTexture(10.0f, glm::vec3(0.5f), glm::vec3(1.0f)));
+  textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(10.0f, glm::vec3(0.5f), glm::vec3(1.0f)));
   
   // floor
   objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
