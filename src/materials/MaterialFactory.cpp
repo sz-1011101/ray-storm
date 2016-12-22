@@ -18,7 +18,7 @@ ray_storm::materials::MaterialPtr MaterialFactory::createLambertian(const glm::v
   return MaterialPtr(new Material(lambertianBRDF));
 }
 
-MaterialPtr MaterialFactory::createLambertian(const textures::Abstract2DTexturePtr &color)
+MaterialPtr MaterialFactory::createLambertian(const textures::Abstract2DTexturePtr<glm::vec3> &color)
 {
   AbstractBRDFPtr lambertianBRDF(new materials::Lambertian(color));
   return MaterialPtr(new Material(lambertianBRDF));

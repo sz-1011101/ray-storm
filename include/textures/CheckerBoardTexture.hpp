@@ -8,7 +8,7 @@ namespace ray_storm
   namespace textures
   {
 
-    class CheckerBoardTexture : public Abstract2DTexture
+    class CheckerBoardTexture : public Abstract2DTexture<glm::vec3>
     {
     public:
 

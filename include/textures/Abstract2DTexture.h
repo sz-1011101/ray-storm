@@ -10,7 +10,7 @@ namespace ray_storm
   namespace textures
   {
     
-    class Abstract2DTexture
+    template<typename T> class Abstract2DTexture
     {
     public:
 
@@ -23,11 +23,11 @@ namespace ray_storm
        *
        * @return     sampled value at u, v
        */
-      virtual glm::vec3 sample(const glm::vec2 &uv) = 0;
+      virtual T sample(const glm::vec2 &uv) = 0;
       
     };
 
-    typedef std::shared_ptr<Abstract2DTexture> Abstract2DTexturePtr;
+    template<typename T> using Abstract2DTexturePtr = std::shared_ptr<Abstract2DTexture<T>>;
     
   }
 }

@@ -7,7 +7,7 @@ namespace ray_storm
 {
   namespace textures
   {
-    class Constant2DTexture : public Abstract2DTexture
+    class Constant2DTexture : public Abstract2DTexture<glm::vec3>
     {
     public:
 

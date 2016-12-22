@@ -20,7 +20,7 @@ namespace ray_storm
         this->albedo = textures::TextureFactory::createConstant2DTexture(albedo);
       }
 
-      Lambertian(const textures::Abstract2DTexturePtr &albedo)
+      Lambertian(const textures::Abstract2DTexturePtr<glm::vec3> &albedo)
       {
         this->albedo = albedo;
       }
@@ -59,7 +59,7 @@ namespace ray_storm
 
     private:
 
-      textures::Abstract2DTexturePtr albedo;
+      textures::Abstract2DTexturePtr<glm::vec3> albedo;
       
     };
   }

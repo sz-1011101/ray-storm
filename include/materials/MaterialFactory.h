@@ -18,7 +18,7 @@ namespace ray_storm
 
       static MaterialPtr createLambertian(const glm::vec3 &color);
 
-      static MaterialPtr createLambertian(const textures::Abstract2DTexturePtr &color);
+      static MaterialPtr createLambertian(const textures::Abstract2DTexturePtr<glm::vec3> &color);
 
       static MaterialPtr createMetal(
         const glm::vec3 &diffuse,

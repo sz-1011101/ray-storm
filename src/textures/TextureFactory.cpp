@@ -4,12 +4,12 @@
 
 using namespace ray_storm::textures;
 
-Abstract2DTexturePtr TextureFactory::createConstant2DTexture(const glm::vec3 &constant)
+Abstract2DTexturePtr<glm::vec3> TextureFactory::createConstant2DTexture(const glm::vec3 &constant)
 {
-  return Abstract2DTexturePtr(new Constant2DTexture(constant));
+  return Abstract2DTexturePtr<glm::vec3>(new Constant2DTexture(constant));
 }
 
-Abstract2DTexturePtr TextureFactory::createCheckerBoardTexture(float freqency, const glm::vec3 &color1, const glm::vec3 &color2)
+Abstract2DTexturePtr<glm::vec3> TextureFactory::createCheckerBoardTexture(float freqency, const glm::vec3 &color1, const glm::vec3 &color2)
 {
-  return Abstract2DTexturePtr(new CheckerBoardTexture(freqency, color1, color2));
+  return Abstract2DTexturePtr<glm::vec3>(new CheckerBoardTexture(freqency, color1, color2));
 }
