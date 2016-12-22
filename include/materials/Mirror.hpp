@@ -2,6 +2,8 @@
 #define MIRROR_H_
 
 #include "materials/AbstractBRDF.h"
+#include "textures/Abstract2DTexture.h"
+#include "textures/TextureFactory.h"
 
 namespace ray_storm
 {
@@ -13,6 +15,11 @@ namespace ray_storm
 
       Mirror(const glm::vec3 &reflectance)
       {
+        this->reflectance = textures::TextureFactory::createConstant2DTexture(reflectance);
+      }
+
+      Mirror(const textures::Abstract2DTexturePtr<glm::vec3> &reflectance)
+      {
         this->reflectance = reflectance;
       }
       
@@ -23,7 +30,7 @@ namespace ray_storm
         const glm::vec3 &v
       )
       {
-        return this->reflectance;
+        return this->reflectance->sample(uv);
       }
 
       void drawDirection(
@@ -56,7 +63,7 @@ namespace ray_storm
 
     private:
 
-      glm::vec3 reflectance;
+      textures::Abstract2DTexturePtr<glm::vec3> reflectance;
       
     };
   }

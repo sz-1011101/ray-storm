@@ -37,6 +37,10 @@ namespace ray_storm
       static MaterialPtr createMirror(
         const glm::vec3 &color
       );
+
+      static MaterialPtr createMirror(
+        const textures::Abstract2DTexturePtr<glm::vec3> &color
+      );
     
       static MaterialPtr createGlass(
         const glm::vec3 &color,

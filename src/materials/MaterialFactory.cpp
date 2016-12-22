@@ -56,6 +56,14 @@ ray_storm::materials::MaterialPtr MaterialFactory::createMirror
   return MaterialPtr(new Material(mirrorBRDF));
 }
 
+MaterialPtr MaterialFactory::createMirror(
+  const textures::Abstract2DTexturePtr<glm::vec3> &color
+)
+{
+  AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
+  return MaterialPtr(new Material(mirrorBRDF));
+}
+
 ray_storm::materials::MaterialPtr MaterialFactory::createGlass(
   const glm::vec3 &color,
   float indexOfRefraction
