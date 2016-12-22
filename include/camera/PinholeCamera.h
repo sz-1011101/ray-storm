@@ -21,7 +21,7 @@ namespace ray_storm
 
       virtual void spawnRays(RayPackage &rayPackage, random::RandomizationHelper &randHelper);
 
-      virtual bool generateRay(const glm::vec3 &point, SampleRay &sampleRay);
+      virtual bool generateRay(const glm::vec3 &point, SampleRay &sampleRay, random::RandomizationHelper &randHelper);
 
     private:
 

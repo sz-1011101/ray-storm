@@ -19,6 +19,7 @@
 using namespace ray_storm;
 
 const std::string SPP_ARG = "spp";
+const std::string ITERATIONS_ARG = "iterations";
 const std::string WIDTH_ARG = "width";
 const std::string HEIGHT_ARG = "height";
 const std::string METHOD_ARG = "method";
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
   desc.add_options()
   ("help", "show help message")
   (SPP_ARG.c_str(), boost::program_options::value<int>(), "Samples per pixel")
+  (ITERATIONS_ARG.c_str(), boost::program_options::value<int>(), "Progressive iterations to do.")
   (WIDTH_ARG.c_str(), boost::program_options::value<int>(), "Image width in pixels.")
   (HEIGHT_ARG.c_str(), boost::program_options::value<int>(), "Image height in pixels.")
   (METHOD_ARG.c_str(), boost::program_options::value<std::string>(), "Integration method."); // TODO show methods
@@ -76,6 +78,7 @@ int main(int argc, char* argv[])
   }
 
   int spp = 10;
+  int progressiveIterations = 1;
   int width = 500;
   int height = 500;
   integrators::AbstractIntegratorGeneratorPtr pts;
@@ -84,6 +87,12 @@ int main(int argc, char* argv[])
   {
     spp = vm[SPP_ARG.c_str()].as<int>();
     std::cout << "samples per pixel set to " << spp << '\n';
+  }
+
+  if (vm.count(ITERATIONS_ARG.c_str()))
+  {
+    progressiveIterations = vm[ITERATIONS_ARG.c_str()].as<int>();
+    std::cout << "progressive iterations set to " << progressiveIterations << '\n';
   }
 
   if (vm.count(WIDTH_ARG.c_str()) && vm.count(HEIGHT_ARG.c_str()))
@@ -114,6 +123,11 @@ int main(int argc, char* argv[])
     pts = integrators::IntegratorGeneratorFactory::createPathTracerGenerator();
   }
 
+  if (spp <= 0 || width <= 0 || height <= 0 || progressiveIterations <= 0) {
+    std::cout << "invalid argument(s)\n";
+    return -1;
+  }
+
   utility::RenderedDataPtr rd(new utility::RenderedData());
   utility::Window window;
   window.setRenderedData(rd);
@@ -137,7 +151,7 @@ int main(int argc, char* argv[])
 
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
-  renderer::DefaultRenderer dr(scene, camera, pts, spp);
+  renderer::DefaultRenderer dr(scene, camera, pts, spp, progressiveIterations);
 
   dr.render();
 

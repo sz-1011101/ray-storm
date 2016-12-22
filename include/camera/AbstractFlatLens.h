@@ -22,6 +22,10 @@ namespace ray_storm
         std::vector<glm::vec2> &lensPoints,
         random::RandomizationHelper &randHelper
       ) = 0;
+
+      virtual glm::vec2 spawnPoint(random::RandomizationHelper &randHelper) = 0;
+
+      virtual bool onLens(const glm::vec2 &p) = 0;
       
     };
 

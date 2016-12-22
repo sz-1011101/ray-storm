@@ -34,18 +34,21 @@ namespace ray_storm
         lensPoints.reserve(amount);
         while (amount > lensPoints.size())
         {
-          glm::vec2 randPnt(randHelper.drawUniformRandom(), randHelper.drawUniformRandom());
-          randPnt = (2.0f*randPnt - 1.0f)*this->radius;
-          float len = glm::length(randPnt);
-          if (len < this->radius && cv::pointPolygonTest(this->shape, cv::Point2f(randPnt.x, randPnt.y), false) >= 0.0f)
+          glm::vec2 randPnt = SimpleLens::spawnPoint(randHelper);
+          if (this->onLens(randPnt))
           {
             lensPoints.push_back(randPnt);
           }
         }
       }
 
+      virtual bool onLens(const glm::vec2 &p)
+      {
+        return glm::length(p) < this->radius && cv::pointPolygonTest(this->shape, cv::Point2f(p.x, p.y), false) >= 0.0f;
+      }
+
     protected:
-      // aperture contour shape
+      // aperture contour shape, defined by aperture blades
       std::vector<cv::Point2f> shape;
 
     private:

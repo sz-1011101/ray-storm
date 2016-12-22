@@ -29,15 +29,22 @@ namespace ray_storm
       {
         lensPoints.clear();
         lensPoints.reserve(amount);
-        while (amount > lensPoints.size())
+        for (std::size_t i = 0; i < amount; i++)
         {
-          glm::vec2 randPnt(randHelper.drawUniformRandom(), randHelper.drawUniformRandom());
-          randPnt = 2.0f*randPnt - 1.0f;
-          if (glm::length(randPnt) < 1.0f)
-          {
-            lensPoints.push_back(randPnt*this->radius);
-          }
+          lensPoints.push_back(this->spawnPoint(randHelper));
         }
+      }
+
+      virtual glm::vec2 spawnPoint(random::RandomizationHelper &randHelper)
+      {
+        const float rSqrt = std::sqrt(randHelper.drawUniformRandom());
+        const float theta = randHelper.drawUniformRandom()*2.0f*M_PI;
+        return glm::vec2(rSqrt*std::cos(theta), rSqrt*std::sin(theta));
+      }
+
+      virtual bool onLens(const glm::vec2 &p)
+      {
+        return glm::length(p) < this->radius;
       }
 
       float diameter;

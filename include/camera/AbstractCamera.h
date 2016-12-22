@@ -26,7 +26,7 @@ namespace ray_storm
 
       virtual void incrementSampleCnt(const glm::vec2 &xy) = 0;
 
-      virtual bool generateRay(const glm::vec3 &point, SampleRay &sampleRay) = 0;
+      virtual bool generateRay(const glm::vec3 &point, SampleRay &sampleRay, random::RandomizationHelper &randHelper) = 0;
 
     };
 

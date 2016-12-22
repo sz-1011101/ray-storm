@@ -18,7 +18,8 @@ namespace ray_storm
         const scene::ScenePtr &scene,
         const camera::AbstractSingleImageCameraPtr &camera,
         const integrators::AbstractIntegratorGeneratorPtr &integratorGen,
-        uint32_t samples
+        uint32_t samples,
+        uint32_t progressiveIterations
       );
 
       virtual void render();
@@ -34,6 +35,8 @@ namespace ray_storm
       integrators::AbstractIntegratorGeneratorPtr integratorGen;
 
       uint32_t samples;
+
+      uint32_t progressiveIterations;
 
       void fill(int n, std::vector<integrators::AbstractIntegratorPtr> &integrators);
       

@@ -228,7 +228,7 @@ void PathTraceHelper::bidirectional(
     PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
 
     camera::SampleRay srLum;
-    if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum) && 
+    if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum, randHelper) && 
       scene->visible(srLum.ray.origin, lumRay.randRay.ray.origin))
     {
       const float lumDis = glm::distance(srLum.ray.origin, lumRay.randRay.ray.origin);
@@ -427,7 +427,7 @@ void PathTraceHelper::pathLightPath(
     }
 
     camera::SampleRay sr;
-    if (camera->generateRay(lightVert.position, sr) && scene->visible(sr.ray.origin, lightVert.offPosition, lightVert.normal))
+    if (camera->generateRay(lightVert.position, sr, randHelper) && scene->visible(sr.ray.origin, lightVert.offPosition, lightVert.normal))
     {
       glm::vec3 Lc = Le;
       glm::vec3 l2c = sr.ray.origin - lightVert.position;
