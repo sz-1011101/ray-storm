@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 
   boost::program_options::options_description desc("Options");
   desc.add_options()
-  ("help", "show help message")
+  ("help", "Show this help message.")
   (SPP_ARG.c_str(), boost::program_options::value<int>(), "Samples per pixel")
   (ITERATIONS_ARG.c_str(), boost::program_options::value<int>(), "Progressive iterations to do.")
   (WIDTH_ARG.c_str(), boost::program_options::value<int>(), "Image width in pixels.")
