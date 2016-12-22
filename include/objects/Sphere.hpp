@@ -23,6 +23,15 @@ namespace ray_storm
         this->bbox = this->sphere.computeBBox();
       }
 
+      Sphere(
+        const glm::vec3 &position, 
+        float radius, const materials::MaterialPtr &material,
+        const textures::Abstract2DTexturePtr<glm::vec3> &emittance
+      ) : Emitter(material, emittance), sphere(position, radius)
+      {
+        this->bbox = this->sphere.computeBBox();
+      }
+
       bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection) {
         geometry::Intersection<geometry::SpherePrimitive> _intersection;
         if (this->sphere.intersect(ray, _intersection))

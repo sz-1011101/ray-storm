@@ -3,6 +3,8 @@
 
 #include "random/RandomizationHelper.h"
 #include "random/RandomRay.hpp"
+#include "textures/Abstract2DTexture.h"
+#include "textures/TextureFactory.h"
 
 namespace ray_storm
 {
@@ -28,6 +30,19 @@ namespace ray_storm
 
       Emitting(const glm::vec3 &emittance)
       {
+        if (glm::any(glm::greaterThan(emittance, glm::vec3(0.0f))))
+        {
+          this->emittance = textures::TextureFactory::createConstant2DTexture<glm::vec3>(emittance);
+        }
+        else
+        {
+          this->emittance = nullptr;
+        }
+        
+      }
+
+      Emitting(const textures::Abstract2DTexturePtr<glm::vec3> &emittance)
+      {  
         this->emittance = emittance;
       }
 
@@ -43,12 +58,12 @@ namespace ray_storm
 
       virtual glm::vec3 getEmittance(const glm::vec3 &l, const glm::vec3 &n, const glm::vec2 &uv)
       {
-        return glm::dot(l, n) > 0.0f ? this->emittance : glm::vec3(0.0f);
+        return this->emittance != nullptr && glm::dot(l, n) > 0.0f ? this->emittance->sample(uv) : glm::vec3(0.0f);
       }
 
       virtual bool isEmitting()
       {
-        if (glm::any(glm::greaterThan(this->emittance, glm::vec3(0.0f))))
+        if (this->emittance != nullptr)
         {
           return true;
         }
@@ -58,7 +73,7 @@ namespace ray_storm
 
     private:
 
-      glm::vec3 emittance;
+      textures::Abstract2DTexturePtr<glm::vec3> emittance;
     };
   }
 }

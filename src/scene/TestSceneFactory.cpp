@@ -32,7 +32,11 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   {
     // ceiling light
     const objects::Rectangle::RectParams ceilLightRp(glm::vec3(-1.0f, 9.9f, -1.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 2.0f, 2.0f);
-    objects::EmitterPtr ceilLight = objects::ObjectFactory::createRectangle(ceilLightRp, matWhite, glm::vec3(20.0f));
+    objects::EmitterPtr ceilLight = objects::ObjectFactory::createRectangle(
+      ceilLightRp,
+      matWhite,
+      glm::vec3(20.0f)
+    );
     scene->add(ceilLight);
   }
 

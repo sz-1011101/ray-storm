@@ -56,6 +56,21 @@ namespace ray_storm
         this->bbox.cover(this->rectParams.origin + this->wSide + this->hSide);
       }
 
+      Rectangle(
+        const RectParams &rectParams,
+        const materials::MaterialPtr &material,
+        const textures::Abstract2DTexturePtr<glm::vec3> &emittance
+      ) : Emitter(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
+      {
+        this->normal = rectParams.calcNormal();
+        this->wSide = rectParams.wAxis*rectParams.width;
+        this->hSide = rectParams.hAxis*rectParams.height;
+        this->bbox.cover(this->rectParams.origin);
+        this->bbox.cover(this->rectParams.origin + this->wSide);
+        this->bbox.cover(this->rectParams.origin + this->hSide);
+        this->bbox.cover(this->rectParams.origin + this->wSide + this->hSide);
+      }
+
       inline bool intersect(const geometry::Ray &ray, geometry::Intersection<Object> &intersection)
       {
         geometry::Intersection<geometry::Plane> pInters;

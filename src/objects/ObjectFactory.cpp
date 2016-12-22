@@ -53,10 +53,29 @@ EmitterPtr ObjectFactory::createSphere(
   return objects::EmitterPtr(new objects::Sphere(position, radius, material, emittance));
 }
 
+EmitterPtr ObjectFactory::createSphere(
+  const glm::vec3 &position,
+  float radius,
+  const materials::MaterialPtr &material,
+  const textures::Abstract2DTexturePtr<glm::vec3> &emittance
+)
+{
+  return objects::EmitterPtr(new objects::Sphere(position, radius, material, emittance));
+}
+
 EmitterPtr ObjectFactory::createRectangle(
   const Rectangle::RectParams &rp,
   const materials::MaterialPtr &material,
   const glm::vec3 &emittance
+)
+{
+  return objects::EmitterPtr(new objects::Rectangle(rp, material, emittance));
+}
+
+EmitterPtr ObjectFactory::createRectangle(
+  const Rectangle::RectParams &rp,
+  const materials::MaterialPtr &material,
+  const textures::Abstract2DTexturePtr<glm::vec3> &emittance
 )
 {
   return objects::EmitterPtr(new objects::Rectangle(rp, material, emittance));

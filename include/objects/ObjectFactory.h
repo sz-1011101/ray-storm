@@ -33,10 +33,23 @@ namespace ray_storm
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
+      static EmitterPtr createSphere(
+        const glm::vec3 &position,
+        float radius,
+        const materials::MaterialPtr &material,
+        const textures::Abstract2DTexturePtr<glm::vec3> &emittance
+      );
+
       static EmitterPtr createRectangle(
         const Rectangle::RectParams &rp,
         const materials::MaterialPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
+      );
+
+      static EmitterPtr createRectangle(
+        const Rectangle::RectParams &rp,
+        const materials::MaterialPtr &material,
+        const textures::Abstract2DTexturePtr<glm::vec3> &emittance
       );
 
     private:
