@@ -16,6 +16,8 @@ namespace ray_storm
     public:
 
       static Abstract2DTexturePtr createConstant2DTexture(const glm::vec3 &constant);
+
+      static Abstract2DTexturePtr createCheckerBoardTexture(float freqency, const glm::vec3 &color1, const glm::vec3 &color2);
       
     };
   }

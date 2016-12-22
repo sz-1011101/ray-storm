@@ -3,6 +3,7 @@
 #include "objects/Rectangle.hpp"
 #include "objects/Box.hpp"
 #include "objects/ObjectFactory.h"
+#include "textures/TextureFactory.h"
 #include "materials/MaterialFactory.h"
 #include "scene/ConstantSky.hpp"
 #include "scene/SunSky.hpp"
@@ -87,6 +88,9 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
   materials::MaterialPtr matRed = materials::MaterialFactory::createLambertian(glm::vec3(0.75f, 0.25f, 0.25f));
   materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
+
+  materials::MaterialPtr matCheckerBoard = materials::MaterialFactory::createLambertian(
+  textures::TextureFactory::createCheckerBoardTexture(10.0f, glm::vec3(0.5f), glm::vec3(1.0f)));
   
   // floor
   objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
@@ -94,7 +98,7 @@ ScenePtr TestSceneFactory::buildBox()
 
   // ceiling
   objects::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  objects::EmitterPtr ceiling = objects::ObjectFactory::createRectangle(ceilingRp, matWhite);
+  objects::EmitterPtr ceiling = objects::ObjectFactory::createRectangle(ceilingRp, matCheckerBoard);
 
   // left wall
   objects::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);

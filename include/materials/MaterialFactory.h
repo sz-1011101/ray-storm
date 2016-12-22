@@ -2,6 +2,7 @@
 #define MATERIAL_FACTORY_H_
 
 #include "materials/Material.hpp"
+#include "textures/Abstract2DTexture.h"
 
 namespace ray_storm
 {
@@ -16,6 +17,8 @@ namespace ray_storm
     public:
 
       static MaterialPtr createLambertian(const glm::vec3 &color);
+
+      static MaterialPtr createLambertian(const textures::Abstract2DTexturePtr &color);
 
       static MaterialPtr createMetal(
         const glm::vec3 &diffuse,
