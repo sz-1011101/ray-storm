@@ -3,6 +3,8 @@
 
 #include "utility/common.hpp"
 #include "materials/AbstractBRDF.h"
+#include "textures/Abstract2DTexture.h"
+#include "textures/TextureFactory.h"
 
 namespace ray_storm
 {
@@ -15,8 +17,12 @@ namespace ray_storm
 
       Lambertian(const glm::vec3 &albedo)
       {
-        this->albedo = albedo; 
-        this->constBrdf = this->albedo/static_cast<float>(M_PI);
+        this->albedo = textures::TextureFactory::createConstant2DTexture(albedo);
+      }
+
+      Lambertian(textures::Abstract2DTexturePtr &albedo)
+      {
+        this->albedo = albedo;
       }
 
       glm::vec3 evaluate(
@@ -24,9 +30,9 @@ namespace ray_storm
         const glm::vec3 &n,
         const glm::vec2 &uv,
         const glm::vec3 &v
-      ){
-        // lambertian is constant!
-        return this->constBrdf;
+      )
+      {
+        return this->albedo->sample(uv)/static_cast<float>(M_PI);
       }
 
       void drawDirection(
@@ -34,7 +40,8 @@ namespace ray_storm
         const glm::vec3 &n,
         const glm::vec2 &uv,
         random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir)
+        random::RandomDirection &randDir
+      )
       {
         randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
         randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
@@ -52,8 +59,7 @@ namespace ray_storm
 
     private:
 
-      glm::vec3 albedo;
-      glm::vec3 constBrdf;
+      textures::Abstract2DTexturePtr albedo;
       
     };
   }
