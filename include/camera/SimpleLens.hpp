@@ -37,7 +37,8 @@ namespace ray_storm
 
       virtual glm::vec2 spawnPoint(random::RandomizationHelper &randHelper)
       {
-        const float rSqrt = std::sqrt(randHelper.drawUniformRandom());
+        // http://mathworld.wolfram.com/DiskPointPicking.html
+        const float rSqrt = this->radius*std::sqrt(randHelper.drawUniformRandom());
         const float theta = randHelper.drawUniformRandom()*2.0f*M_PI;
         return glm::vec2(rSqrt*std::cos(theta), rSqrt*std::sin(theta));
       }

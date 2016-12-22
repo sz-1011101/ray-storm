@@ -6,8 +6,7 @@
 #include "utility/common.hpp"
 #include "scene/Scene.h"
 
-#include "camera/PinholeCamera.h"
-#include "camera/ThinLensCamera.h"
+#include "camera/CameraFactory.h"
 #include "camera/LensFactory.h"
 
 #include "scene/TestSceneFactory.h"
@@ -28,6 +27,9 @@ const std::string METHOD_DPT = "DPT";
 const std::string METHOD_D_MIS_PT = "D_MIS_PT";
 const std::string METHOD_LPT = "LPT";
 const std::string METHOD_BIDIR_PT = "BIDIR_PT";
+const std::string CAMERA_TYPE_ARG = "camera";
+const std::string CAMERA_TYPE_PINHOLE = "pinhole";
+const std::string CAMERA_TYPE_THIN_LENS = "thinlens";
 
 integrators::AbstractIntegratorGeneratorPtr parseMethod(const std::string &name)
 {
@@ -55,6 +57,36 @@ integrators::AbstractIntegratorGeneratorPtr parseMethod(const std::string &name)
   return integrators::AbstractIntegratorGeneratorPtr();
 }
 
+camera::AbstractSingleImageCameraPtr createPinhole(uint32_t width, uint32_t height, const utility::RenderedDataPtr rd)
+{
+  return camera::CameraFactory::createPinholeCamera(
+    camera::CameraFactory::createCameraSetup(
+      glm::vec3(0, 5.0f, 9.5f), glm::vec3(0, 5, -10), glm::vec3(0, 1, 0), static_cast<float>(width)/height, 75.0f
+    ), rd, width, height);
+}
+
+camera::AbstractSingleImageCameraPtr createThinLens(uint32_t width, uint32_t height, const utility::RenderedDataPtr rd)
+{
+  return camera::CameraFactory::createThinLensCamera(
+    camera::CameraFactory::createThinLensCameraSetup(
+      glm::vec3(0, 5.0f, 9.5f), glm::vec3(0, 5, -10), glm::vec3(0, 1, 0), static_cast<float>(width)/height, 75.0f, 0.035f, 1.0f, 1.0f
+    ), rd, width, height);
+}
+
+camera::AbstractSingleImageCameraPtr parseCamera(const std::string &name, uint32_t width, uint32_t height, const utility::RenderedDataPtr rd)
+{
+  if (name == CAMERA_TYPE_PINHOLE)
+  {
+    return createPinhole(width, height, rd);
+  }
+  else if (name == CAMERA_TYPE_THIN_LENS)
+  {
+    return createThinLens(width, height, rd);
+  }
+
+  return camera::AbstractSingleImageCameraPtr();
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -65,7 +97,8 @@ int main(int argc, char* argv[])
   (ITERATIONS_ARG.c_str(), boost::program_options::value<int>(), "Progressive iterations to do.")
   (WIDTH_ARG.c_str(), boost::program_options::value<int>(), "Image width in pixels.")
   (HEIGHT_ARG.c_str(), boost::program_options::value<int>(), "Image height in pixels.")
-  (METHOD_ARG.c_str(), boost::program_options::value<std::string>(), "Integration method."); // TODO show methods
+  (METHOD_ARG.c_str(), boost::program_options::value<std::string>(), "Integration method.") // TODO show methods
+  (CAMERA_TYPE_ARG.c_str(), boost::program_options::value<std::string>(), "Camera type.");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -82,6 +115,8 @@ int main(int argc, char* argv[])
   int width = 500;
   int height = 500;
   integrators::AbstractIntegratorGeneratorPtr pts;
+  utility::RenderedDataPtr rd(new utility::RenderedData());
+  camera::AbstractSingleImageCameraPtr cam;
 
   if (vm.count(SPP_ARG.c_str()))
   {
@@ -128,30 +163,28 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  utility::RenderedDataPtr rd(new utility::RenderedData());
+  if (vm.count(CAMERA_TYPE_ARG.c_str()))
+  {
+    const std::string camera = vm[CAMERA_TYPE_ARG.c_str()].as<std::string>();
+    std::cout << "camera set to " << camera << '\n';
+    cam = parseCamera(camera, width, height, rd);
+    if (cam == nullptr)
+    {
+      std::cout << "camera not recognized\n";
+      return -1;
+    }
+  }
+  else
+  {
+    cam = createPinhole(width, height, rd);
+  }
+
   utility::Window window;
   window.setRenderedData(rd);
   rd->setWindow(&window);
-
-  camera::AbstractSingleImageCameraPtr camera(new camera::PinholeCamera(
-    camera::CameraSetupPtr(
-      new camera::CameraSetup(
-        glm::vec3(0, 5.0f, 9.5f),
-        glm::vec3(0, 5, -10),
-        glm::vec3(0, 1, 0),
-        static_cast<float>(width)/height,
-        75.0f
-        )
-      ),
-      rd,
-      width,
-      height
-    )
-  );
-
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
-  renderer::DefaultRenderer dr(scene, camera, pts, spp, progressiveIterations);
+  renderer::DefaultRenderer dr(scene, cam, pts, spp, progressiveIterations);
 
   dr.render();
 
