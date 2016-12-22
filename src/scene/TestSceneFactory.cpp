@@ -19,7 +19,13 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   materials::MaterialPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
   // at 435 nm (green)
   materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523, 1.8009);
-  materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f), 100.0f);
+  
+  const glm::vec2 matCoatingFreq(21.0f, 10.0f);
+  materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(
+    textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(matCoatingFreq, glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.8f)),
+    textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(matCoatingFreq, glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.8f)),
+    textures::TextureFactory::createCheckerBoardTexture<float>(matCoatingFreq, 100.0f, 25.0f)
+  );
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 100.0f, 1.5f);
 
   if (lightSources)
@@ -90,7 +96,7 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
 
   materials::MaterialPtr matCheckerBoard = materials::MaterialFactory::createLambertian(
-  textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(10.0f, glm::vec3(0.5f), glm::vec3(1.0f)));
+  textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(glm::vec2(10.0f), glm::vec3(0.5f), glm::vec3(1.0f)));
   
   // floor
   objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);

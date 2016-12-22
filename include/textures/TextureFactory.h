@@ -22,7 +22,7 @@ namespace ray_storm
         return Abstract2DTexturePtr<T>(new Constant2DTexture<T>(constant));
       }
 
-      template<typename T> static Abstract2DTexturePtr<T> createCheckerBoardTexture(float freqency, const T &c1, const T &c2)
+      template<typename T> static Abstract2DTexturePtr<T> createCheckerBoardTexture(const glm::vec2 &freqency, const T &c1, const T &c2)
       {
         return Abstract2DTexturePtr<T>(new CheckerBoardTexture<T>(freqency, c1, c2));
       }

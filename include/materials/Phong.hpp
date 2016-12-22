@@ -23,7 +23,8 @@ namespace ray_storm
       Phong(
         const textures::Abstract2DTexturePtr<glm::vec3> &kD,
         const textures::Abstract2DTexturePtr<glm::vec3> &kS,
-        const textures::Abstract2DTexturePtr<float> &e)
+        const textures::Abstract2DTexturePtr<float> &e
+      )
       {
         // the famous three phong parameters
         this->kD = kD;

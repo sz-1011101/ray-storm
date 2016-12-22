@@ -31,7 +31,7 @@ namespace ray_storm
       {
         const float r = glm::length(v);
         // http://mathworld.wolfram.com/SphericalCoordinates.html, but different axes
-        return glm::vec3(r, std::atan(v.x/v.z), std::acos(v.y/r));
+        return glm::vec3(r, M_PI + std::atan2(v.x, v.z), std::acos(v.y/r)); // radius, theta, phi
       }
 
       static glm::vec3 sphericalToCartesian(const glm::vec3 &v)
