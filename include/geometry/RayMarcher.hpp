@@ -85,6 +85,7 @@ namespace ray_storm
             // TODO set uv
             intersection.normal = marchable->estimateNormal(current);
             intersection.position = current;
+            intersection.texCoords = marchable->computeTexCoords(current);
             return true;
           }
           // do a step

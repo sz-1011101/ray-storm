@@ -43,8 +43,7 @@ namespace ray_storm
       PointSample drawRandomSurfacePoint(random::RandomizationHelper &randHelper)
       {
         const glm::vec3 dir = randHelper.drawUniformRandomSphereDirection();
-        const glm::vec3 spherical = utility::Math::cartesianToSpherical(dir);
-        const glm::vec2 uv(spherical.y/(2.0f*M_PI), spherical.z/M_PI);
+        const glm::vec2 uv = utility::Math::cartesianToSphericalToUV(dir);
         return PointSample(
           this->sphere.getPosition() + dir*(this->sphere.getRadius() + Emitter::SURFACE_POINT_OFFSET),
           uv

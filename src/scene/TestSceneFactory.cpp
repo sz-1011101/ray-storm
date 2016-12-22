@@ -51,7 +51,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(2.5, 3, 2), matGlass);
 
-  objects::ReflectorPtr sphereUnion2 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 4, 2), matMetal1);
+  objects::ReflectorPtr sphereUnion2 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matCoating);
 
   objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 

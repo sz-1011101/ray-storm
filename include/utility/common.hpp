@@ -39,6 +39,12 @@ namespace ray_storm
         const float r = v.x;
         return glm::vec3(r*std::sin(v.y)*std::sin(v.z), r*std::cos(v.z), r*std::cos(v.y)*std::sin(v.z));
       }
+
+      static glm::vec2 cartesianToSphericalToUV(const glm::vec3 &v)
+      {
+        glm::vec3 sv = cartesianToSpherical(v);
+        return glm::vec2(sv.y/(2.0f*M_PI), sv.z/M_PI);
+      }
       
     };
 

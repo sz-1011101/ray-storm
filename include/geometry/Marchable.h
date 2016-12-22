@@ -31,6 +31,8 @@ namespace ray_storm
         return glm::normalize(glm::vec3(x, y, z));
       }
 
+      virtual glm::vec2 computeTexCoords(const glm::vec3 &p) = 0;
+
       virtual AxisAlignedBox computeMarchingCube() const = 0;
 
     };

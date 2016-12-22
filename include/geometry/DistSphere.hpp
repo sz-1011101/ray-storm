@@ -22,6 +22,11 @@ namespace ray_storm
         return glm::length(p - sphere.getPosition()) - this->sphere.getRadius();
       }
 
+      glm::vec2 computeTexCoords(const glm::vec3 &p)
+      {
+        return utility::Math::cartesianToSphericalToUV(p - sphere.getPosition());
+      }
+
       AxisAlignedBox computeMarchingCube() const
       {
         return sphere.computeBBox();

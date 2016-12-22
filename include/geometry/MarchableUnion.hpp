@@ -40,6 +40,11 @@ namespace ray_storm
         return -std::log(res)/smoothingK;
       }
 
+      glm::vec2 computeTexCoords(const glm::vec3 &p)
+      {
+        return utility::Math::cartesianToSphericalToUV(p - this->center);
+      }
+
       AxisAlignedBox computeMarchingCube() const
       {
         AxisAlignedBox bbox;

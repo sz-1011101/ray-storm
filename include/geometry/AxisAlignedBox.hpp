@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "geometry/Intersectable.h"
+#include "utility/common.hpp"
 
 namespace ray_storm
 {
@@ -231,8 +232,9 @@ namespace ray_storm
         
         const glm::vec3 iPoint = ray.origin + intersection.t*ray.direction;
 
-        // TODO texture coordinate
-        intersection.intersection = SimpleIntersection (iPoint, iNormal, glm::vec2(0.0f));
+        // texture coordinate is projected sphere for now
+        intersection.intersection = SimpleIntersection (
+          iPoint, iNormal, utility::Math::cartesianToSphericalToUV(iPoint - this->computeCenter()));
         intersection.intersected = this;
 
         return true;
