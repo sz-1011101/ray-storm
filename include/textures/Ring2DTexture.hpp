@@ -1,6 +1,8 @@
 #ifndef RING_TEXTURE_H_
 #define RING_TEXTURE_H_
 
+#include "textures/Abstract2DTexture.h"
+
 namespace ray_storm
 {
   namespace textures

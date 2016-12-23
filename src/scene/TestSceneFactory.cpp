@@ -102,6 +102,10 @@ ScenePtr TestSceneFactory::buildBox()
   materials::MaterialPtr matCheckerBoard = materials::MaterialFactory::createLambertian(
     textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(glm::vec2(10.0f), glm::vec3(0.5f), glm::vec3(1.0f))
   );
+  materials::MaterialPtr matPerlin = materials::MaterialFactory::createLambertian(
+    textures::TextureFactory::createPerlinNoise2DTexture()
+  );
+
   materials::MaterialPtr matRing = materials::MaterialFactory::createLambertian(
     textures::TextureFactory::createRing2DTexture(glm::vec3(0.18f, 0.05f, 0.01f), glm::vec3(0.6f, 0.26f, 0.11f))
   );
@@ -111,7 +115,7 @@ ScenePtr TestSceneFactory::buildBox()
 
   // ceiling
   objects::Rectangle::RectParams ceilingRp(glm::vec3(-5.0f, 10.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
-  objects::EmitterPtr ceiling = objects::ObjectFactory::createRectangle(ceilingRp, matCheckerBoard);
+  objects::EmitterPtr ceiling = objects::ObjectFactory::createRectangle(ceilingRp, matPerlin);
 
   // left wall
   objects::Rectangle::RectParams leftWallRp(glm::vec3(-5.0f, 10.0f, 10.0f), glm::vec3(0, 0, -1), glm::vec3(0, -1, 0), 15.0f, 10.0f);

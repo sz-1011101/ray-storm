@@ -28,6 +28,8 @@ namespace ray_storm
       }
 
       static Abstract2DTexturePtr<glm::vec3> createRing2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor);
+
+      static Abstract2DTexturePtr<glm::vec3> createPerlinNoise2DTexture();
       
     };
   }
