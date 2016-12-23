@@ -20,11 +20,9 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   // at 435 nm (green)
   materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523, 1.8009);
   
-  const glm::vec2 matCoatingFreq(21.0f, 10.0f);
-  materials::MaterialPtr matCoating = materials::MaterialFactory::createShiny(
-    textures::TextureFactory::createPerlinNoise2DTexture<glm::vec3>(matCoatingFreq, glm::vec3(0.8f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.8f)),
-    textures::TextureFactory::createPerlinNoise2DTexture<glm::vec3>(matCoatingFreq, glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.8f)),
-    textures::TextureFactory::createPerlinNoise2DTexture<float>(matCoatingFreq, 1.0f, 10.0f)
+  //const glm::vec2 matCoatingFreq(21.0f, 10.0f);
+  materials::MaterialPtr matCoating = materials::MaterialFactory::createLambertian(
+    textures::TextureFactory::createTurbulence2DTexture()
   );
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 100.0f, 1.5f);
 
