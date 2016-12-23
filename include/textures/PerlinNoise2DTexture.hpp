@@ -8,14 +8,25 @@ namespace ray_storm
 {
   namespace textures
   {
-    class PerlinNoise2DTexture : public Abstract2DTexture<glm::vec3>
+    template<typename T> class PerlinNoise2DTexture : public Abstract2DTexture<T>
     {
     public:
 
-      glm::vec3 sample(const glm::vec2 &uv)
+      PerlinNoise2DTexture(const glm::vec2 &frequency, const T &min, const T &max)
+        : frequency(frequency), min(min), max(max) {}
+
+      T sample(const glm::vec2 &uv)
       {
-        return glm::vec3(TextureHelper::perlin(uv*10.0f));
+        return min + (max - min)*TextureHelper::perlin(uv*frequency);
       }
+
+    private:
+
+      glm::vec2 frequency;
+
+      T min;
+
+      T max;
       
     };
   }

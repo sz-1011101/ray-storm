@@ -103,7 +103,7 @@ ScenePtr TestSceneFactory::buildBox()
     textures::TextureFactory::createCheckerBoardTexture<glm::vec3>(glm::vec2(10.0f), glm::vec3(0.5f), glm::vec3(1.0f))
   );
   materials::MaterialPtr matPerlin = materials::MaterialFactory::createLambertian(
-    textures::TextureFactory::createPerlinNoise2DTexture()
+    textures::TextureFactory::createPerlinNoise2DTexture<glm::vec3>(glm::vec2(5.0f), glm::vec3(0.0f), glm::vec3(1.0f))
   );
 
   materials::MaterialPtr matRing = materials::MaterialFactory::createLambertian(
