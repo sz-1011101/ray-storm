@@ -5,6 +5,11 @@ using namespace ray_storm::textures;
 // rand and noise adapted from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 // totally not predictable random numbers...
 
+float TextureHelper::noise(float p)
+{
+  return glm::fract(glm::sin(p) * 43758.5453);
+}
+
 glm::vec2 TextureHelper::noise(const glm::ivec2 &indices)
 {
   return glm::fract(glm::vec2(

@@ -15,6 +15,8 @@ namespace ray_storm
 
     public:
 
+      static float noise(float p);
+
       static glm::vec2 noise(const glm::ivec2 &indices);
 
       /**

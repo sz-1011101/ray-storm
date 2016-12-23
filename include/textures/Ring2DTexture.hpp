@@ -23,7 +23,7 @@ namespace ray_storm
         const glm::vec2 _uv = uv*this->freqency;
         // similar to http://luthuli.cs.uiuc.edu/~daf/courses/ComputerGraphics/Week8/Shading.pdf
         return glm::mix(this->lowColor, this->highColor, 
-          fmod(this->curvyness + this->curvyness*std::cos(_uv.x)*std::sin(_uv.y) + _uv.x, 1.0f)
+          std::fmod(this->curvyness + this->curvyness*std::cos(_uv.x)*std::sin(_uv.y) + _uv.x, 1.0f)
         );
       }
 
