@@ -9,18 +9,19 @@ namespace ray_storm
     {
     public:
 
-      Ring2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor) : lowColor(lowColor), highColor(highColor)
+      Ring2DTexture(
+        const glm::vec3 &lowColor, const glm::vec3 &highColor, float freqency = 16.0f, float curvyness = 0.5f
+      ) : lowColor(lowColor), highColor(highColor), freqency(freqency), curvyness(curvyness)
       {
 
       }
 
       glm::vec3 sample(const glm::vec2 &uv)
       {
-        const glm::vec2 _uv = (uv*2.0f - 1.0f)*4.0f;
+        const glm::vec2 _uv = uv*this->freqency;
         // similar to http://luthuli.cs.uiuc.edu/~daf/courses/ComputerGraphics/Week8/Shading.pdf
         return glm::mix(this->lowColor, this->highColor, 
-          std::fmod(0.75f*(1.0f + std::sin(_uv.x*_uv.x))*_uv.x*_uv.x + 
-            0.25f*(1.0f + std::cos(_uv.y*_uv.y))*_uv.y*_uv.y, 1.0f)
+          fmod(this->curvyness + this->curvyness*std::cos(_uv.x)*std::sin(_uv.y) + _uv.x, 1.0f)
         );
       }
 
@@ -29,6 +30,10 @@ namespace ray_storm
       glm::vec3 lowColor;
 
       glm::vec3 highColor;
+
+      float freqency;
+
+      float curvyness;
       
     };
   }
