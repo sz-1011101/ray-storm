@@ -21,8 +21,15 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523, 1.8009);
   
   //const glm::vec2 matCoatingFreq(21.0f, 10.0f);
-  materials::MaterialPtr matCoating = materials::MaterialFactory::createLambertian(
-    textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(6, 1.0f, 2.0f, 5.0f, glm::vec3(0.0f), glm::vec3(1.0f))
+  materials::MaterialPtr matMarble = materials::MaterialFactory::createShiny(
+    textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(6, 1.0f, 2.0f, 2.5f, glm::vec3(1.0f), glm::vec3(0.5f, 0.3f, 0.1f)),
+    textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.25f, 0.1f, 0.1f)),
+    textures::TextureFactory::createTurbulence2DTexture<float>(6, 1.0f, 2.0f, 5.0f, 15.0f, 55.0f)
+  );
+  materials::MaterialPtr matMarble2 = materials::MaterialFactory::createShiny(
+    textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(3, 1.0f, 2.0f, 10.0f, glm::vec3(0.8f, 0.9f, 0.9f), glm::vec3(0.05f, 0.1f, 0.05f)),
+    textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.0f, 0.2f, 0.1f)),
+    textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 15.0f, 105.0f)
   );
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 100.0f, 1.5f);
 
@@ -46,14 +53,14 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matDiffGlass);
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble2);
   objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
-  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 6.5f, -2), 1.5f, matCoating);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 6.5f, -2), 1.5f, matMarble);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
-  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(2.5, 3, 2), matGlass);
+  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(2.5, 3, 2), matDiffGlass);
 
-  objects::ReflectorPtr sphereUnion2 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matCoating);
+  objects::ReflectorPtr sphereUnion2 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matGlass);
 
   objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 

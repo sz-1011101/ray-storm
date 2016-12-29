@@ -27,7 +27,7 @@ namespace ray_storm
           t += TextureHelper::perlin(this->f*uv*pow1)/pow2;
         }
 
-        return this->c1 + (this->c2 - this->c1)*((1.0f + t)/2.0f);
+        return this->c1 + (this->c2 - this->c1)*glm::clamp((1.0f + t)/2.0f, 0.0f, 1.0f);
       }
 
     private:
