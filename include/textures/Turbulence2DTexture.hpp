@@ -8,25 +8,34 @@ namespace ray_storm
 {
   namespace textures
   {
-    class Turbulence2DTexture : public Abstract2DTexture<glm::vec3>
+    template<typename T> class Turbulence2DTexture : public Abstract2DTexture<T>
     {
     public:
 
-      glm::vec3 sample(const glm::vec2 &uv)
+      Turbulence2DTexture(int n, float L, float H, float f, const T &min, const T &max) : 
+        n(n), L(L), H(H), f(f), min(min), max(max) {}
+
+      T sample(const glm::vec2 &uv)
       {
-        const int n = 5;
-        const float L = 2.0f;
-        const float H = 1.0f;
+        float t = 0.0f;
 
-        float t(0.0f);
-
-        for (int i = 0; i < n; i++)
+        // add up harmonics
+        for (int i = 0; i < this->n; i++)
         {
-          t += std::pow(TextureHelper::perlin(5.0f*uv*std::pow(L, static_cast<float>(i))), 5.0f)/std::pow(L, i*H);
+          t += TextureHelper::perlin(this->f*uv*std::pow(this->L, static_cast<float>(i)))/std::pow(this->L, i*this->H);
         }
 
-        return glm::vec3(glm::clamp((1.0f + std::cos(t))/2.0f, 0.0f, 1.0f));
+        return this->min + (this->max - this->min)*((1.0f + t)/2.0f);
       }
+
+    private:
+
+      int n;
+      float L, H, f;
+
+      T min;
+
+      T max;
 
       
     };

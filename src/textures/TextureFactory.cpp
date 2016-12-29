@@ -8,8 +8,3 @@ Abstract2DTexturePtr<glm::vec3> TextureFactory::createRing2DTexture(const glm::v
 {
   return Abstract2DTexturePtr<glm::vec3>(new Ring2DTexture(lowColor, highColor));
 }
-
-Abstract2DTexturePtr<glm::vec3> TextureFactory::createTurbulence2DTexture()
-{
-  return Abstract2DTexturePtr<glm::vec3>(new Turbulence2DTexture);
-}

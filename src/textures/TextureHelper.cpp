@@ -36,12 +36,12 @@ float TextureHelper::perlin(const glm::vec2 &uv)
   const glm::vec2 diffBL = uv - glm::vec2(bottomLeftIndices);
   const glm::vec2 diffBR = uv - glm::vec2(bottomRightIndices);
 
-  const float tl = glm::clamp(glm::dot(diffTL, gradiantTL), -1.0f, 1.0f);
-  const float tr = glm::clamp(glm::dot(diffTR, gradiantTR), -1.0f, 1.0f);
-  const float bl = glm::clamp(glm::dot(diffBL, gradiantBL), -1.0f, 1.0f);
-  const float br = glm::clamp(glm::dot(diffBR, gradiantBR), -1.0f, 1.0f);
+  const float tl = glm::dot(diffTL, gradiantTL);
+  const float tr = glm::dot(diffTR, gradiantTR);
+  const float bl = glm::dot(diffBL, gradiantBL);
+  const float br = glm::dot(diffBR, gradiantBR);
 
   float top = tl + (tr - tl)*glm::smoothstep(0.0f, 1.0f, diffTL.x);
   float bot = bl + (br - bl)*glm::smoothstep(0.0f, 1.0f, diffBL.x);
-  return (1.0f + glm::clamp(top + (bot - top)*glm::smoothstep(0.0f, 1.0f, diffTL.y), -1.0f, 1.0f))/2.0f;
+  return top + (bot - top)*glm::smoothstep(0.0f, 1.0f, diffTL.y);
 }

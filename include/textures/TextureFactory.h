@@ -5,6 +5,7 @@
 #include "textures/Constant2DTexture.hpp"
 #include "textures/CheckerBoardTexture.hpp"
 #include "textures/PerlinNoise2DTexture.hpp"
+#include "textures/Turbulence2DTexture.hpp"
 
 namespace ray_storm
 {
@@ -33,9 +34,14 @@ namespace ray_storm
         return Abstract2DTexturePtr<T>(new PerlinNoise2DTexture<T>(frequency, min, max));
       }
 
-      static Abstract2DTexturePtr<glm::vec3> createRing2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor);
+      template<typename T> static Abstract2DTexturePtr<T> createTurbulence2DTexture(
+        int n, float L, float H, float f, const T &min, const T &max
+      )
+      {
+        return Abstract2DTexturePtr<T>(new Turbulence2DTexture<T>(n, L, H, f, min, max));
+      }
 
-      static Abstract2DTexturePtr<glm::vec3> createTurbulence2DTexture();
+      static Abstract2DTexturePtr<glm::vec3> createRing2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor);
       
     };
   }

@@ -17,7 +17,7 @@ namespace ray_storm
 
       T sample(const glm::vec2 &uv)
       {
-        return min + (max - min)*TextureHelper::perlin(uv*frequency);
+        return min + (max - min)*((1.0f + TextureHelper::perlin(uv*frequency))/2.0f);
       }
 
     private:

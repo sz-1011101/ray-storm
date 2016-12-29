@@ -22,7 +22,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   
   //const glm::vec2 matCoatingFreq(21.0f, 10.0f);
   materials::MaterialPtr matCoating = materials::MaterialFactory::createLambertian(
-    textures::TextureFactory::createTurbulence2DTexture()
+    textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(6, 2.0f, 1.0f, 10.0f, glm::vec3(0.0f), glm::vec3(1.0f))
   );
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.1f), glm::vec3(0.5f, 0.3f, 0.1f), 100.0f, 1.5f);
 
@@ -48,7 +48,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matDiffGlass);
   objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
-  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matCoating);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 6.5f, -2), 1.5f, matCoating);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
 
   objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(2.5, 3, 2), matGlass);

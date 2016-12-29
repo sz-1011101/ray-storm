@@ -24,7 +24,7 @@ namespace ray_storm
        *
        * @param[in]  uv    unormalized uv coordinates
        *
-       * @return     perlin value
+       * @return     perlin value in
        */
       static float perlin(const glm::vec2 &uv);
 
