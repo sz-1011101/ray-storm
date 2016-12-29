@@ -17,7 +17,8 @@ namespace ray_storm
 
       T sample(const glm::vec2 &uv)
       {
-        return this->c1 + (this->c2 - this->c1)*((1.0f + TextureHelper::perlin(uv*this->frequency))/2.0f);
+        // http://paulbourke.net/texture_colour/perlin/
+        return this->c1 + (this->c2 - this->c1)*glm::clamp((1.0f + TextureHelper::perlin(uv*this->frequency), 0.0f, 1.0f)/2.0f);
       }
 
     private:
