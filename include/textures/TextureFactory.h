@@ -29,19 +29,19 @@ namespace ray_storm
         return Abstract2DTexturePtr<T>(new CheckerBoardTexture<T>(freqency, c1, c2));
       }
 
-      template<typename T> static Abstract2DTexturePtr<T> createPerlinNoise2DTexture(const glm::vec2 &frequency, const T &min, const T &max)
+      template<typename T> static Abstract2DTexturePtr<T> createPerlinNoise2DTexture(const glm::vec2 &frequency, const T &c1, const T &c2)
       {
-        return Abstract2DTexturePtr<T>(new PerlinNoise2DTexture<T>(frequency, min, max));
+        return Abstract2DTexturePtr<T>(new PerlinNoise2DTexture<T>(frequency, c1, c2));
       }
 
       template<typename T> static Abstract2DTexturePtr<T> createTurbulence2DTexture(
-        int n, float L, float H, float f, const T &min, const T &max
+        int n, float L, float H, float f, const T &c1, const T &c2
       )
       {
-        return Abstract2DTexturePtr<T>(new Turbulence2DTexture<T>(n, L, H, f, min, max));
+        return Abstract2DTexturePtr<T>(new Turbulence2DTexture<T>(n, L, H, f, c1, c2));
       }
 
-      static Abstract2DTexturePtr<glm::vec3> createRing2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor);
+      static Abstract2DTexturePtr<glm::vec3> createRing2DTexture(const glm::vec3 &c1, const glm::vec3 &c2);
       
     };
   }

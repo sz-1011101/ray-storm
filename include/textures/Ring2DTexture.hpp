@@ -12,8 +12,8 @@ namespace ray_storm
     public:
 
       Ring2DTexture(
-        const glm::vec3 &lowColor, const glm::vec3 &highColor, float freqency = 16.0f, float curvyness = 0.5f
-      ) : lowColor(lowColor), highColor(highColor), freqency(freqency), curvyness(curvyness)
+        const glm::vec3 &c1, const glm::vec3 &c2, float freqency = 16.0f, float curvyness = 0.5f
+      ) : c1(c1), c2(c2), freqency(freqency), curvyness(curvyness)
       {
 
       }
@@ -22,16 +22,16 @@ namespace ray_storm
       {
         const glm::vec2 _uv = uv*this->freqency;
         // similar to http://luthuli.cs.uiuc.edu/~daf/courses/ComputerGraphics/Week8/Shading.pdf
-        return glm::mix(this->lowColor, this->highColor, 
+        return glm::mix(this->c1, this->c2, 
           std::fmod(this->curvyness + this->curvyness*std::cos(_uv.x)*std::sin(_uv.y) + _uv.x, 1.0f)
         );
       }
 
     private:
 
-      glm::vec3 lowColor;
+      glm::vec3 c1;
 
-      glm::vec3 highColor;
+      glm::vec3 c2;
 
       float freqency;
 

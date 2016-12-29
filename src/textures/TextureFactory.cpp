@@ -4,7 +4,7 @@
 
 using namespace ray_storm::textures;
 
-Abstract2DTexturePtr<glm::vec3> TextureFactory::createRing2DTexture(const glm::vec3 &lowColor, const glm::vec3 &highColor)
+Abstract2DTexturePtr<glm::vec3> TextureFactory::createRing2DTexture(const glm::vec3 &c1, const glm::vec3 &c2)
 {
-  return Abstract2DTexturePtr<glm::vec3>(new Ring2DTexture(lowColor, highColor));
+  return Abstract2DTexturePtr<glm::vec3>(new Ring2DTexture(c1, c2));
 }

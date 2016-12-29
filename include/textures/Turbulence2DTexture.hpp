@@ -12,8 +12,8 @@ namespace ray_storm
     {
     public:
 
-      Turbulence2DTexture(int n, float L, float H, float f, const T &min, const T &max) : 
-        n(n), L(L), H(H), f(f), min(min), max(max) {}
+      Turbulence2DTexture(int n, float L, float H, float f, const T &c1, const T &c2) : 
+        n(n), L(L), H(H), f(f), c1(c1), c2(c2) {}
 
       T sample(const glm::vec2 &uv)
       {
@@ -25,7 +25,7 @@ namespace ray_storm
           t += TextureHelper::perlin(this->f*uv*std::pow(this->L, static_cast<float>(i)))/std::pow(this->L, i*this->H);
         }
 
-        return this->min + (this->max - this->min)*((1.0f + t)/2.0f);
+        return this->c1 + (this->c2 - this->c1)*((1.0f + t)/2.0f);
       }
 
     private:
@@ -33,9 +33,9 @@ namespace ray_storm
       int n;
       float L, H, f;
 
-      T min;
+      T c1;
 
-      T max;
+      T c2;
 
       
     };

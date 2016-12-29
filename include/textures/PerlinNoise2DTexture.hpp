@@ -12,21 +12,21 @@ namespace ray_storm
     {
     public:
 
-      PerlinNoise2DTexture(const glm::vec2 &frequency, const T &min, const T &max)
-        : frequency(frequency), min(min), max(max) {}
+      PerlinNoise2DTexture(const glm::vec2 &frequency, const T &c1, const T &c2)
+        : frequency(frequency), c1(c1), c2(c2) {}
 
       T sample(const glm::vec2 &uv)
       {
-        return min + (max - min)*((1.0f + TextureHelper::perlin(uv*frequency))/2.0f);
+        return this->c1 + (this->c2 - this->c1)*((1.0f + TextureHelper::perlin(uv*this->frequency))/2.0f);
       }
 
     private:
 
       glm::vec2 frequency;
 
-      T min;
+      T c1;
 
-      T max;
+      T c2;
       
     };
   }
