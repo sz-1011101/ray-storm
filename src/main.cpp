@@ -189,6 +189,7 @@ int main(int argc, char* argv[])
   dr.render();
 
   window->wait();
+  rd->writeToDisk("img.png");
   
   return 0;
 }

@@ -13,3 +13,13 @@ const cv::Mat &RenderedData::getData()
 {
   return this->data;
 }
+
+void RenderedData::writeToDisk(const std::string &filename)
+{
+  if (!this->data.empty())
+  {
+    cv::Mat img;
+    this->data.convertTo(img, CV_8UC3, 255.0f);
+    cv::imwrite(filename, img); 
+  }
+}

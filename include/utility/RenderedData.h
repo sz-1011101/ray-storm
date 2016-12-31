@@ -2,6 +2,7 @@
 #define RENDERED_DATA_H_
 
 #include <memory>
+#include <string>
 
 #include <opencv2/core/core.hpp>
 
@@ -25,7 +26,9 @@ namespace ray_storm
       void setData(const cv::Mat &data);
 
       const cv::Mat &getData();
-      
+
+      void writeToDisk(const std::string &filename);
+
     private:
 
       cv::Mat data;
