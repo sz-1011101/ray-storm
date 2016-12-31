@@ -35,6 +35,5 @@ void AbstractSingleImageCamera::signal()
     cv::Mat img;
     this->samples.srgbMat(img);
     this->renderedData->setData(img);
-    this->renderedData->signalChanged();
   }
 }

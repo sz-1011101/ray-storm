@@ -179,16 +179,16 @@ int main(int argc, char* argv[])
     cam = createPinhole(width, height, rd);
   }
 
-  utility::Window window;
-  window.setRenderedData(rd);
-  rd->setWindow(&window);
+  utility::WindowPtr window(new utility::Window());
+  window->set(rd);
+  rd->registerObserver(window);
   scene::ScenePtr scene = scene::TestSceneFactory::createCornellBox(false, true);
   
   renderer::DefaultRenderer dr(scene, cam, pts, spp, progressiveIterations);
 
   dr.render();
 
-  window.wait();
+  window->wait();
   
   return 0;
 }

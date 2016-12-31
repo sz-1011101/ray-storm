@@ -8,6 +8,8 @@
 #include "utility/common.hpp"
 #include "utility/linear_alg.hpp"
 
+#include "utility/Observable.h"
+
 namespace ray_storm
 {
   namespace utility
@@ -15,26 +17,18 @@ namespace ray_storm
 
     class Window;
 
-    class RenderedData
+    class RenderedData : public Observable
     {
 
     public:
 
-      RenderedData();
-
       void setData(const cv::Mat &data);
 
-      void setWindow(Window *window);
-
       const cv::Mat &getData();
-
-      void signalChanged();
-
+      
     private:
 
       cv::Mat data;
-      
-      Window *window;
 
     };
 

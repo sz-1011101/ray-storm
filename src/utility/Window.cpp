@@ -16,12 +16,12 @@ Window::~Window()
   cv::destroyWindow(WINDOW_NAME);
 }
 
-void Window::setRenderedData(RenderedDataPtr renderedData)
+void Window::set(const RenderedDataPtr &renderedData)
 {
   this->renderedData = renderedData;
 }
 
-void Window::refresh()
+void Window::stateChanged()
 {
   cv::imshow(WINDOW_NAME, this->renderedData->getData());
   cv::updateWindow(WINDOW_NAME);

@@ -8,12 +8,13 @@
 
 #include "utility/common.hpp"
 #include "utility/RenderedData.h"
+#include "utility/Observer.h"
 
 namespace ray_storm
 {
   namespace utility
   {
-    class Window
+    class Window : public Observer
     {
     public:
       
@@ -21,17 +22,19 @@ namespace ray_storm
       
       ~Window();
 
-      void setRenderedData(RenderedDataPtr renderedData);
-
-      void refresh();
+      void set(const RenderedDataPtr &renderedData);
 
       void wait();
+
+      void stateChanged();
 
     private:
 
       RenderedDataPtr renderedData;
       
     };
+
+    typedef std::shared_ptr<Window> WindowPtr;
   }
 }
 
