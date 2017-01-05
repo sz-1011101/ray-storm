@@ -8,12 +8,18 @@ void ModifiableSurface::setSurfaceNormalModifier(const AbstractSurfaceNormalModi
   this->map = map;
 }
 
-void ModifiableSurface::modifyNormal(geometry::SimpleIntersection &intersection)
+void ModifiableSurface::modifyNormal(
+  const glm::vec3 &direction,
+  geometry::SimpleIntersection &intersection
+)
 {
   if (this->map == nullptr)
   {
     return;
   }
-
-  intersection.normal = this->map->modifyNormal(intersection.normal, intersection.texCoords);
+  const glm::vec3 modiN = this->map->modifyNormal(intersection.normal, intersection.texCoords);
+  if (std::signbit(glm::dot(direction, intersection.normal)) == std::signbit(glm::dot(direction, modiN)))
+  {
+    intersection.normal = modiN;
+  }
 }

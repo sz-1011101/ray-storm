@@ -39,7 +39,7 @@ namespace ray_storm
           intersection.intersection = _intersection.intersection;
           intersection.intersected = this;
           intersection.t = _intersection.t;
-          this->modifyNormal(intersection.intersection);
+          this->modifyNormal(ray.direction, intersection.intersection);
           return true;
         }
         return false;

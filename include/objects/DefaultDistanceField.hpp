@@ -36,7 +36,7 @@ namespace ray_storm
         intersection.intersection = sInters;
         intersection.intersected = this;
         intersection.t = glm::distance(sInters.position, ray.origin);
-        this->modifyNormal(intersection.intersection);
+        this->modifyNormal(ray.direction, intersection.intersection);
 
         return true;
       }

@@ -18,7 +18,10 @@ namespace ray_storm
 
     protected:
 
-      void modifyNormal(geometry::SimpleIntersection &intersection);
+      void modifyNormal(
+        const glm::vec3 &direction,
+        geometry::SimpleIntersection &intersection
+      );
 
     private:
 
