@@ -33,7 +33,7 @@ The follwing features are implemented:
 
 This project uses the following libraries:
 
-* **GLM** for linear algebra math
+* **glm** for linear algebra math
 * **OpenMP** for parallelization
 * **OpenCV** for image operations, generation and display
 * **boost** for cmd line parsing
