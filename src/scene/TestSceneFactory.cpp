@@ -39,6 +39,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.0f, 0.2f, 0.1f)),
     textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 15.0f, 105.0f)
   );
+  textures::Abstract2DTexturePtr<float> bumpMapMarble2 = textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 0.0f, 1.0f);
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.2f), glm::vec3(0.5f, 0.3f, 0.8f), 55.0f, 1.5f);
 
   if (lightSources)
@@ -62,6 +63,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   }
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble2);
+  sphere1->setBumpMap(bumpMapMarble2);
   objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matMarble);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
