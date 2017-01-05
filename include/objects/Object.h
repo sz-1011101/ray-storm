@@ -6,7 +6,7 @@
 #include "objects/Renderable.h"
 #include "geometry/Intersectable.h"
 #include "geometry/Bounded.hpp"
-#include "objects/BumpMappable.h"
+#include "geometry/ModifiableSurface.h"
 
 namespace ray_storm
 {
@@ -19,7 +19,11 @@ namespace ray_storm
   namespace objects
   {
 
-    class Object : public Renderable, public geometry::Intersectable<Object>, public geometry::Bounded, public objects::BumpMappable
+    class Object :
+      public Renderable,
+      public geometry::Intersectable<Object>,
+      public geometry::Bounded,
+      public geometry::ModifiableSurface
     {
     public: 
 

@@ -37,7 +37,7 @@ namespace ray_storm
         if (this->sphere.intersect(ray, _intersection))
         {
           intersection.intersection = _intersection.intersection;
-          intersection.intersection.normal = this->computeNormal(
+          intersection.intersection.normal = this->modifyNormal(
             intersection.intersection.normal, intersection.intersection.texCoords
            );
           intersection.intersected = this;
