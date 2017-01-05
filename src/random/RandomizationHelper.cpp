@@ -44,7 +44,7 @@ glm::vec3 RandomizationHelper::drawCosineWeightedRandomHemisphereDirection(const
   dir.z = sqrtTerm*std::sin(2.0f*M_PI*u);
   dir.y = std::pow(v, 1.0f/(e + 1.0f));
 
-  return RandomizationHelper::transform(n, glm::normalize(dir));
+  return utility::Math::localToWorld(n, glm::normalize(dir));
 }
 
 glm::vec3 RandomizationHelper::drawCosineDistributedDirection(const glm::vec3 &n)
@@ -53,31 +53,7 @@ glm::vec3 RandomizationHelper::drawCosineDistributedDirection(const glm::vec3 &n
   const float v = this->engine.draw();
   const float theta = 2.0f*M_PI*v;
   const float phi = std::acos(std::sqrt(1.0f - u));
-  return RandomizationHelper::transform(n, utility::Math::sphericalToCartesian(glm::vec3(1.0f, theta, phi)));
-}
-
-glm::vec3 RandomizationHelper::transform(const glm::vec3 &n, const glm::vec3 &vector)
-{
-  glm::vec3 u = glm::cross(n, glm::vec3(1, 0, 0));
-  // HACK but it seems to work decently
-  if (std::abs(u.x) < 0.0001f && std::abs(u.y) < 0.0001f && std::abs(u.z) < 0.0001f)
-  {
-    u = glm::cross(n, glm::vec3(0, 1, 0));
-  }
-
-  glm::vec3 v = glm::cross(n, u);
-
-  u = glm::normalize(u);
-  v = glm::normalize(v);
-
-  const glm::mat3 transformMat(v.x, v.y, v.z,
-    n.x, n.y, n.z,
-    u.x, u.y, u.z
-    );
-
-  const glm::vec3 trans = glm::normalize(transformMat*vector);
-
-  return trans;
+  return utility::Math::localToWorld(n, utility::Math::sphericalToCartesian(glm::vec3(1.0f, theta, phi)));
 }
 
 float RandomizationHelper::cosineRandomHemispherePDF(float cosTheta, float e)

@@ -45,6 +45,28 @@ namespace ray_storm
         glm::vec3 sv = cartesianToSpherical(v);
         return glm::vec2(sv.y/(2.0f*M_PI), sv.z/M_PI);
       }
+
+      static glm::vec3 localToWorld(const glm::vec3 &n, const glm::vec3 &vector)
+      {
+        glm::vec3 u = glm::cross(n, glm::vec3(1, 0, 0));
+        // HACK but it seems to work decently, this is not continuous though!
+        if (std::abs(u.x) < 0.0001f && std::abs(u.y) < 0.0001f && std::abs(u.z) < 0.0001f)
+        {
+          u = glm::cross(n, glm::vec3(0, 1, 0));
+        }
+
+        glm::vec3 v = glm::cross(n, u);
+
+        u = glm::normalize(u);
+        v = glm::normalize(v);
+
+        const glm::mat3 transformMat( // these are not rows!
+          v.x, v.y, v.z,
+          n.x, n.y, n.z,
+          u.x, u.y, u.z
+        );
+        return transformMat*vector;
+      }
       
     };
 

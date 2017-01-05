@@ -70,8 +70,6 @@ namespace ray_storm
 
       // the engine of this helper
       MTEngine engine;
-      
-      glm::vec3 transform(const glm::vec3 &n, const glm::vec3 &vector);
 
     };
   }
