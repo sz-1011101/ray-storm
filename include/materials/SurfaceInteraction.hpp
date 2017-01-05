@@ -32,6 +32,18 @@ namespace ray_storm
 
       }
 
+      void setIn(const glm::vec3 &in)
+      {
+        if (direction == SAMPLE_DIRECTION::V_TO_L)
+        {
+          this->v = -in;
+        }
+        else if (direction == SAMPLE_DIRECTION::L_TO_V)
+        {
+          this->l = -in;
+        }
+      }
+
       void setOut(const glm::vec3 &out)
       {
         if (direction == SAMPLE_DIRECTION::V_TO_L)

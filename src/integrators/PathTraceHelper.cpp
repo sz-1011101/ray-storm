@@ -11,12 +11,11 @@ void PathTraceHelper::randomWalk
 (
   scene::Scene *scene,
   const geometry::Ray &initialRay,
+  materials::SAMPLE_DIRECTION smplDir,
   random::RandomizationHelper &randHelper,
-  RandomWalk &walk,
-  bool eye
+  RandomWalk &walk
 )
 {
-
   walk.vertices.reserve(EXPECTED_BOUNCES);
   const uint32_t maxBounces = EXPECTED_BOUNCES*2;
   geometry::Ray ray = initialRay;
@@ -27,7 +26,7 @@ void PathTraceHelper::randomWalk
 
   for (uint32_t b = 0; b < maxBounces; b++) // bounds this loop, biased in theory though
   {
-    PathTraceVertex vert;
+    PathTraceVertex vert(smplDir);
     if (!PathTraceVertexFunctions::intersect(ray, scene, vert))
     {
       break;
@@ -35,16 +34,16 @@ void PathTraceHelper::randomWalk
 
     float rr = (b < 2) ? 1.0f : RUSSIAN_ROULETTE_ALPHA;
     if (PathTraceVertexFunctions::isReflecting(vert) &&
-      PathTraceVertexFunctions::bounce(randHelper, vert, eye) &&
+      PathTraceVertexFunctions::bounce(randHelper, vert) &&
       (vert.delta || randHelper.drawUniformRandom() < rr) &&
       glm::any(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.00001f)))
     )
     { // we do always bounce on in case of dirac delta function...
-      const float cosTheta = std::abs(glm::dot(vert.normal, vert.out));
+      const float cosTheta = std::abs(glm::dot(vert.si.n, vert.si.getOut()));
       Lrefl *= vert.delta ? vert.bsdf : (1.0f/rr)*vert.bsdf*cosTheta/vert.bsdfPDF;
       
       vert.cummulative = Lrefl;
-      ray = geometry::Ray(vert.offPosition, vert.out);
+      ray = geometry::Ray(vert.si.x, vert.si.getOut());
       // overwrite old vertex
       if (walk.vertices.size() > b)
       {
@@ -82,7 +81,7 @@ void PathTraceHelper::naive(
   random::RandomizationHelper &randHelper
 )
 {
-  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, materials::SAMPLE_DIRECTION::V_TO_L, randHelper, walk);
   const int walkLen = walk.length;
   glm::vec3 L(0.0f);
 
@@ -103,7 +102,7 @@ void PathTraceHelper::naive(
 
     if (!walk.absorbed)
     {
-      L += walk.vertices[walkLen - 1].cummulative*scene->sampleSky(walk.vertices[walkLen - 1].out);
+      L += walk.vertices[walkLen - 1].cummulative*scene->sampleSky(walk.vertices[walkLen - 1].si.getOut());
     }
   }
 
@@ -120,7 +119,7 @@ void PathTraceHelper::directIllumination(
   random::RandomizationHelper &randHelper
 )
 {
-  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, materials::SAMPLE_DIRECTION::V_TO_L, randHelper, walk);
   const int walkLen = walk.length;
   glm::vec3 L(0.0f);
   
@@ -150,7 +149,7 @@ void PathTraceHelper::directIlluminationBounce(
 {
   // details for the bsdf/luminaire sample weighting 
   // in http://www.cs.cornell.edu/courses/cs6630/2012sp/slides/07pathtr-slides.pdf
-  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, walk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, materials::SAMPLE_DIRECTION::V_TO_L, randHelper, walk);
   const int walkLen = walk.length;
 
   glm::vec3 L(0.0f);
@@ -185,7 +184,7 @@ void PathTraceHelper::lightPathTracing(
   if (scene->sampleLuminaireRay(randHelper, lumRay))
   {
     Le = lumRay.emittance/lumRay.randRay.PDF;
-    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, randHelper, walk, false);
+    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, materials::SAMPLE_DIRECTION::L_TO_V, randHelper, walk);
   }
   PathTraceHelper::pathLightPath(Le, walk, camera, scene, randHelper, false);
 
@@ -202,7 +201,7 @@ void PathTraceHelper::bidirectional(
 )
 {
   // See "Accelerating the bidirectional path tracing algorithm using a dedicated intersection processor"
-  PathTraceHelper::randomWalk(scene, sampleRay.ray, randHelper, eyeWalk, true);
+  PathTraceHelper::randomWalk(scene, sampleRay.ray, materials::SAMPLE_DIRECTION::V_TO_L, randHelper, eyeWalk);
   const int eyeWalkLen = eyeWalk.length;
 
   if (eyeWalkLen == 0)
@@ -216,7 +215,7 @@ void PathTraceHelper::bidirectional(
   } // HACK to get delta-bounce/sky reflection
   else if (eyeWalkLen == 1 && eyeWalk.vertices[0].delta && !eyeWalk.absorbed)
   {
-    camera->gatherSample(sampleRay.xy, eyeWalk.vertices[0].bsdf*scene->sampleSky(eyeWalk.vertices[0].out));
+    camera->gatherSample(sampleRay.xy, eyeWalk.vertices[0].bsdf*scene->sampleSky(eyeWalk.vertices[0].si.l));
   }
 
   scene::Scene::LuminaireRay lumRay;
@@ -225,7 +224,7 @@ void PathTraceHelper::bidirectional(
   if (scene->sampleLuminaireRay(randHelper, lumRay))
   {
     Le = lumRay.emittance/lumRay.randRay.PDF;
-    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, randHelper, lightWalk, false);
+    PathTraceHelper::randomWalk(scene, lumRay.randRay.ray, materials::SAMPLE_DIRECTION::L_TO_V, randHelper, lightWalk);
 
     camera::SampleRay srLum;
     if (!lumRay.directional && !lumRay.randRay.delta && camera->generateRay(lumRay.randRay.ray.origin, srLum, randHelper) && 
@@ -273,8 +272,8 @@ glm::vec3 PathTraceHelper::pathDirectLighting(
       
     if (!lumSample.shadowed)
     {
-      const float cosTheta = glm::dot(eyeVert.normal, lumSample.direction);
-      glm::vec3 Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, -eyeVert.in)*
+      const float cosTheta = glm::dot(eyeVert.si.n, lumSample.direction);
+      glm::vec3 Ld = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, eyeVert, eyeVert.si.v)*
         cosTheta*lumSample.emittance/lumSample.PDF;
 
       if (i > 0)
@@ -320,23 +319,24 @@ glm::vec3 PathTraceHelper::pathDirectLightingBounce(
       
       if (!lumSample.shadowed)
       {
-        const float cosTheta = glm::dot(vert.normal, lumSample.direction);
-        const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.in, vert, lumSample.direction);
-        LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, -vert.in)*cosTheta*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
+        const float cosTheta = glm::dot(vert.si.n, lumSample.direction);
+        const float bsdfLumPDF = PathTraceVertexFunctions::bsdfPDF(vert.si.getIn(), vert, lumSample.direction);
+        LdLum = PathTraceVertexFunctions::evaluateBSDF(lumSample.direction, vert, vert.si.v)
+          *cosTheta*lumSample.emittance/(lumSample.PDF + bsdfLumPDF);
       }
     }
 
     if (i < eyeWalkLen - 1)
     {
-      const float cosTheta = glm::dot(vert.normal, vert.out);
+      const float cosTheta = glm::dot(vert.si.n, vert.si.l);
       const PathTraceVertex &nextVert = eyeWalk.vertices[i + 1];
-      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.position, nextVert, scene);
+      const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.si.x, nextVert, scene);
       LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf*cosTheta/(vert.bsdfPDF + lumBouncePDF);
     }
     else if (!eyeWalk.absorbed) // last vertex
     {
-      const float cosTheta = glm::dot(vert.normal, vert.out);
-      LdBounce = scene->sampleSky(vert.out)*vert.bsdf*cosTheta/(vert.bsdfPDF + scene->getSkyPDF());
+      const float cosTheta = glm::dot(vert.si.n, vert.si.l);
+      LdBounce = scene->sampleSky(vert.si.l)*vert.bsdf*cosTheta/(vert.bsdfPDF + scene->getSkyPDF());
     }
     glm::vec3 Ld = LdLum + LdBounce;
 
@@ -394,7 +394,7 @@ glm::vec3 PathTraceHelper::pathPathCombination(
         continue;
       }
 
-      if (scene->visible(eyeVert.offPosition, lightVert.offPosition, lightVert.normal))
+      if (scene->visible(eyeVert.si.x, lightVert.si.x, lightVert.si.n))
       {
         L += Le*PathTraceHelper::pathRadiance(eyeWalk, lightWalk, i, j)*PathTraceHelper::pathWeighting(ic + 1, jc + 1);
       }
@@ -427,10 +427,10 @@ void PathTraceHelper::pathLightPath(
     }
 
     camera::SampleRay sr;
-    if (camera->generateRay(lightVert.position, sr, randHelper) && scene->visible(sr.ray.origin, lightVert.offPosition, lightVert.normal))
+    if (camera->generateRay(lightVert.si.x, sr, randHelper) && scene->visible(sr.ray.origin, lightVert.si.x, lightVert.si.n))
     {
       glm::vec3 Lc = Le;
-      glm::vec3 l2c = sr.ray.origin - lightVert.position;
+      glm::vec3 l2c = sr.ray.origin - lightVert.si.x;
       const float l2clen = glm::length(l2c);
       const float l2clenSquared = l2clen*l2clen;
       l2c /= l2clen; // normalize
@@ -442,8 +442,8 @@ void PathTraceHelper::pathLightPath(
           Lc *= lightWalk.vertices[j - 1].cummulative;
         }
 
-        Lc *= std::abs(glm::dot(lightVert.normal, l2c));
-        Lc *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, l2c)/l2clenSquared;
+        Lc *= std::abs(glm::dot(lightVert.si.n, l2c));
+        Lc *= PathTraceVertexFunctions::evaluateBSDF(lightVert.si.l, lightVert, l2c)/l2clenSquared;
         if (weight)
         {
           Lc *= PathTraceHelper::pathWeighting(0, jc + 1);
@@ -476,7 +476,7 @@ glm::vec3 PathTraceHelper::pathRadiance(
   {
     L *= lightWalk.vertices[lightLen - 1].cummulative;
   }
-  glm::vec3 e2l = lightVert.position - eyeVert.position;
+  glm::vec3 e2l = lightVert.si.x - eyeVert.si.x;
   float e2llen = glm::length(e2l);
   float e2llensquared = e2llen*e2llen;
   e2l = glm::normalize(e2l);
@@ -486,11 +486,11 @@ glm::vec3 PathTraceHelper::pathRadiance(
     return glm::vec3(0.0f);
   }
 
-  float G = std::abs(glm::dot(e2l, eyeVert.normal))*std::abs(glm::dot(-e2l, lightVert.normal))/e2llensquared;
+  float G = std::abs(glm::dot(e2l, eyeVert.si.n))*std::abs(glm::dot(-e2l, lightVert.si.n))/e2llensquared;
 
-  L *= PathTraceVertexFunctions::evaluateBSDF(e2l, eyeVert, -eyeVert.in);
+  L *= PathTraceVertexFunctions::evaluateBSDF(e2l, eyeVert, eyeVert.si.v);
   L *= G;
-  L *= PathTraceVertexFunctions::evaluateBSDF(-lightVert.in, lightVert, -e2l);
+  L *= PathTraceVertexFunctions::evaluateBSDF(lightVert.si.l, lightVert, -e2l);
 
   return L;
 }

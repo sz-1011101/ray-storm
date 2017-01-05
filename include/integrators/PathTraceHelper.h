@@ -21,9 +21,9 @@ namespace ray_storm
       static void randomWalk(
         scene::Scene *scene,
         const geometry::Ray &initialRay,
+        materials::SAMPLE_DIRECTION smplDir,
         random::RandomizationHelper &randHelper,
-        RandomWalk &walk,
-        bool eye
+        RandomWalk &walk
       );
 
       // TODO move these out to seperate samplers?

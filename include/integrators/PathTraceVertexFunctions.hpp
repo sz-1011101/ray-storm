@@ -26,11 +26,10 @@ namespace ray_storm
           return false;
         }
       
-        vertex.in = ray.direction;
-        vertex.position = isect.intersection.position;
-        vertex.offPosition = vertex.position;
-        vertex.normal = isect.intersection.normal;
-        vertex.uv = isect.intersection.texCoords;
+        vertex.si.setIn(ray.direction);
+        vertex.si.x = isect.intersection.position;
+        vertex.si.n = isect.intersection.normal;
+        vertex.si.uv = isect.intersection.texCoords;
         vertex.object = isect.intersected;
         vertex.material = vertex.object->getMaterial();
         return true;
@@ -38,40 +37,30 @@ namespace ray_storm
 
       static bool bounce(
         random::RandomizationHelper &randHelper,
-        PathTraceVertex &vertex,
-        bool eye
+        PathTraceVertex &vertex
       )
       {
-        random::RandomRay ray;
-        if (!vertex.material->sampleBSDF(vertex.in, vertex.position, vertex.normal, vertex.uv, randHelper, ray))
+        random::RandomDirection dir;
+        if (!vertex.material->sampleBSDF(vertex.si, randHelper, dir))
         {
           return false;
         }
-        vertex.out = ray.ray.direction;
-        vertex.offPosition = ray.ray.origin;
-        if (eye)
-        {
-          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(vertex.out, vertex, -vertex.in);
-        }
-        else
-        {
-          vertex.bsdf = PathTraceVertexFunctions::evaluateBSDF(-vertex.in, vertex, vertex.out);
-        }
-        
-        vertex.bsdfPDF = ray.PDF;
-        vertex.delta = ray.delta;
+
+        vertex.bsdf = vertex.material->evaluateBSDF(vertex.si);
+        vertex.bsdfPDF = dir.PDF;
+        vertex.delta = dir.delta;
 
         return true;
       }
 
       static glm::vec3 evaluateBSDF(const glm::vec3 &l, const PathTraceVertex &vertex, const glm::vec3 &v)
       {
-        return vertex.material->evaluateBSDF(l, vertex.normal, vertex.uv, v);
+        return vertex.material->evaluateBSDF(l, vertex.si.n, vertex.si.uv, v);
       }
 
       static glm::vec3 emittance(const PathTraceVertex &vertex)
       {
-        dispatchers::EmittanceDispatcher ed(-vertex.in, vertex.normal, vertex.uv);
+        dispatchers::EmittanceDispatcher ed(vertex.si.v, vertex.si.n, vertex.si.uv);
         vertex.object->accept(&ed);
         return ed.getEmittance();
       }
@@ -79,25 +68,25 @@ namespace ray_storm
       static scene::Scene::LuminaireSample sampleLuminaire(const PathTraceVertex &vertex, scene::Scene *scene, random::RandomizationHelper &randHelper)
       {
         scene::Scene::LuminaireSample lSample;
-        scene->sampleLuminaire(vertex.offPosition, vertex.normal, randHelper, lSample);
+        scene->sampleLuminaire(vertex.si.x, vertex.si.n, randHelper, lSample);
         return lSample;
       }
 
       static float bsdfPDF(const glm::vec3 &in, const PathTraceVertex &vertex, const glm::vec3 &out)
       {
         float pdf = 0.0f;
-        vertex.material->getPDF(in, vertex.normal, vertex.uv, out, pdf);
+        vertex.material->getPDF(in, vertex.si.n, vertex.si.uv, out, pdf);
         return pdf;
       }
 
       static float luminarePDF(const glm::vec3 &position, const PathTraceVertex &vertex, scene::Scene *scene)
       {
-        return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.in), vertex.position, vertex.normal, vertex.uv);
+        return scene->getLuminairePDF(vertex.object, geometry::Ray(position, vertex.si.getIn()), vertex.si.x, vertex.si.n, vertex.si.uv);
       }
 
     private:
 
-      PathTraceVertexFunctions();
+      PathTraceVertexFunctions() {};
       
     };
   }

@@ -14,22 +14,9 @@ namespace ray_storm
     {
     public:
 
-      PathTraceVertex() : object(nullptr), material(nullptr), delta(false) {}
+      PathTraceVertex(materials::SAMPLE_DIRECTION smplDir) : si(smplDir), object(nullptr), material(nullptr), delta(false) {}
 
-      // vertex situation
-
-      glm::vec3 in;
-
-      glm::vec3 position;
-
-      glm::vec3 normal;
-
-      glm::vec2 uv;
-
-      // elevated pos for ray spawning
-      glm::vec3 offPosition;
-
-      glm::vec3 out;
+      materials::SurfaceInteraction si;
 
       glm::vec3 bsdf;
 
