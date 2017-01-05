@@ -2,6 +2,7 @@
 #define MODIFIABLE_SURFACE_H_
 
 #include "geometry/AbstractSurfaceNormalModifier.h"
+#include "geometry/SimpleIntersection.hpp"
 
 namespace ray_storm
 {
@@ -15,7 +16,9 @@ namespace ray_storm
 
       void setSurfaceNormalModifier(const AbstractSurfaceNormalModifierPtr &map);
 
-      glm::vec3 modifyNormal(const glm::vec3 &n, const glm::vec2 &uv);
+    protected:
+
+      void modifyNormal(geometry::SimpleIntersection &intersection);
 
     private:
 

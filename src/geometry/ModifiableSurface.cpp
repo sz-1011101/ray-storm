@@ -8,12 +8,12 @@ void ModifiableSurface::setSurfaceNormalModifier(const AbstractSurfaceNormalModi
   this->map = map;
 }
 
-glm::vec3 ModifiableSurface::modifyNormal(const glm::vec3 &n, const glm::vec2 &uv)
+void ModifiableSurface::modifyNormal(geometry::SimpleIntersection &intersection)
 {
   if (this->map == nullptr)
   {
-    return n;
+    return;
   }
 
-  return this->map->modifyNormal(n, uv);
+  intersection.normal = this->map->modifyNormal(intersection.normal, intersection.texCoords);
 }

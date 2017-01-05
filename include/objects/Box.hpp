@@ -32,7 +32,7 @@ namespace ray_storm
         intersection.intersection = aaIntersect.intersection;
         intersection.intersected = this;
         intersection.t = aaIntersect.t;
-
+        this->modifyNormal(intersection.intersection);
         return true;
       }
 

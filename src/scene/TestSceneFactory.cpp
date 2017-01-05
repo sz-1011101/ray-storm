@@ -41,7 +41,10 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 15.0f, 105.0f)
   );
   geometry::AbstractSurfaceNormalModifierPtr bumpMap1 = geometry::SurfaceNormalModifierFactory::createTextureBumpMap(
-    textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 0.0f, 1.0f)
+    textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 2.0f, 0.0f, 1.0f)
+  );
+  geometry::AbstractSurfaceNormalModifierPtr bumpMap2 = geometry::SurfaceNormalModifierFactory::createTextureBumpMap(
+    textures::TextureFactory::createTurbulence2DTexture<float>(2, 1.0f, 2.0f, 10.0f, 0.0f, 1.0f)
   );
   materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.2f), glm::vec3(0.5f, 0.3f, 0.8f), 55.0f, 1.5f);
 
@@ -66,7 +69,6 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   }
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble2);
-  sphere1->setSurfaceNormalModifier(bumpMap1);
   objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matMarble);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
@@ -76,6 +78,9 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal2);
 
+  sphere4->setSurfaceNormalModifier(bumpMap1);
+  sphere2->setSurfaceNormalModifier(bumpMap1);
+  sphere3->setSurfaceNormalModifier(bumpMap2);
   // add our components
   scene->add(sphere1);
   scene->add(sphere2);
