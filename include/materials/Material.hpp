@@ -9,6 +9,7 @@
 #include "random/RandomRay.hpp"
 #include "materials/AbstractReflectivity.hpp"
 #include "materials/ConstantReflectivity.hpp"
+#include "materials/SurfaceInteraction.hpp"
 
 namespace ray_storm
 {
@@ -108,7 +109,7 @@ namespace ray_storm
         }
 
         return glm::vec3(0.0f);
-      }
+      } 
 
       inline bool sampleBSDF(
         const glm::vec3 &in,
@@ -200,6 +201,101 @@ namespace ray_storm
         else if (type == REFRACTION)
         {
           PDF = (1.0f - rfl)*this->btdf->getPDF(in, n, uv, out);
+          return true;
+        }
+        return false;
+      }
+
+      inline glm::vec3 evaluateBSDF(
+        const SurfaceInteraction &si
+      )
+      {
+        if (!this->checkAvailable(si.type))
+        {
+          return glm::vec3(0.0f);
+        }
+
+        if (si.type == REFLECTION)
+        {
+          // To evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
+          // This might happen if a total inner reflection happens
+          glm::vec3 nRefl = glm::dot(si.n, si.l) < 0.0f ? -si.n : si.n;
+          return si.reflectivity*this->brdf->evaluate(si.l, nRefl, si.uv, si.v);
+        }
+        else if (si.type == REFRACTION)
+        {
+          // conservation of energy applies here, we also use the intersection normal to flip the IORs later
+          return (1.0f - si.reflectivity)*this->btdf->evaluate(si.l, si.n, si.uv, si.v);
+        }
+
+        return glm::vec3(0.0f);
+      }
+
+      inline bool sampleBSDF(
+        SurfaceInteraction &si,
+        random::RandomizationHelper &randHelper,
+        random::RandomDirection &randDir
+      )
+      {
+        if (this->reflectivity == nullptr)
+        {
+          return false;
+        }
+
+        const glm::vec3 in = si.getIn();
+        si.reflectivity = this->reflectivity->computeF(1.0f, this->eta, in, si.n);
+        
+        // reflect with probabilty proportional to reflectivity
+        if (randHelper.drawUniformRandom() < si.reflectivity)
+        {
+          if (this->brdf == nullptr) // nothing reflects of this since there is no brdf
+          {
+            return false;
+          }
+
+          this->brdf->drawDirection(in, si.n, si.uv, randHelper, randDir);
+          randDir.PDF *= si.reflectivity; // fresnel sampling pdf
+          randDir.delta = this->brdf->delta();
+          si.setOut(randDir.direction);
+          // brdf will only ever reflect
+          si.type = LIGHT_INTERACTION_TYPE::REFLECTION;
+          si.offset();
+          return true;
+        }
+        else if (this->btdf != nullptr) // transmission is happening, if btdf available
+        {
+          this->btdf->drawDirection(in, si.n, si.uv, randHelper, randDir);
+          randDir.PDF *= (1.0f - si.reflectivity); // fresnel sampling pdf
+          randDir.delta = this->btdf->delta();
+          si.setOut(randDir.direction);
+          // we might have an total internal reflection
+          si.type = MaterialHelper::determineType(si.l, si.n, si.v);
+          si.offset();
+          return true;
+        }
+
+        return false;
+      }
+
+      inline bool getPDF(
+        const SurfaceInteraction &si,
+        random::RandomizationHelper &randHelper,
+        float &PDF
+      )
+      {
+        if (this->reflectivity == nullptr || !this->checkAvailable(si.type))
+        {
+          return false;
+        }
+
+        if (si.type == REFLECTION)
+        {
+          PDF = si.reflectivity*this->brdf->getPDF(si.getIn(), si.n, si.uv, si.getOut());
+          return true;
+        }
+        else if (si.type == REFRACTION)
+        {
+          PDF = (1.0f - si.reflectivity)*this->btdf->getPDF(si.getIn(), si.n, si.uv, si.getOut());
           return true;
         }
         return false;
