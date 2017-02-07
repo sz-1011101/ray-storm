@@ -16,7 +16,7 @@ namespace ray_storm
 
       Sphere(
         const glm::vec3 &position, 
-        float radius, const materials::MaterialPtr &material,
+        float radius, const materials::AbstractSVBxDFPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       ) : Emitter(material, emittance), sphere(position, radius)
       {
@@ -25,7 +25,7 @@ namespace ray_storm
 
       Sphere(
         const glm::vec3 &position, 
-        float radius, const materials::MaterialPtr &material,
+        float radius, const materials::AbstractSVBxDFPtr &material,
         const textures::Abstract2DTexturePtr<glm::vec3> &emittance
       ) : Emitter(material, emittance), sphere(position, radius)
       {

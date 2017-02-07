@@ -19,10 +19,10 @@ namespace ray_storm
     {
     public:
 
-      Emitter(const materials::MaterialPtr &material, const glm::vec3 &emittance)
+      Emitter(const materials::AbstractSVBxDFPtr &material, const glm::vec3 &emittance)
         : Object(material), Emitting(emittance) {};
 
-      Emitter(const materials::MaterialPtr &material, const textures::Abstract2DTexturePtr<glm::vec3> &emittance)
+      Emitter(const materials::AbstractSVBxDFPtr &material, const textures::Abstract2DTexturePtr<glm::vec3> &emittance)
       : Object(material), Emitting(emittance) {};
 
       virtual ~Emitter() {};

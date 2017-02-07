@@ -15,40 +15,40 @@ namespace ray_storm
     public:
 
       static ReflectorPtr createDistSphere(
-        const glm::vec3 &position, float radius, const materials::MaterialPtr &material
+        const glm::vec3 &position, float radius, const materials::AbstractSVBxDFPtr &material
       );
 
       static ReflectorPtr createSphereUnion(
-        const glm::vec3 &position, const materials::MaterialPtr &material
+        const glm::vec3 &position, const materials::AbstractSVBxDFPtr &material
       );
 
       static ReflectorPtr createBox(
-        const glm::vec3 &origin, const glm::vec3 &extends, const materials::MaterialPtr &material
+        const glm::vec3 &origin, const glm::vec3 &extends, const materials::AbstractSVBxDFPtr &material
       );
 
       static EmitterPtr createSphere(
         const glm::vec3 &position,
         float radius,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
       static EmitterPtr createSphere(
         const glm::vec3 &position,
         float radius,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const textures::Abstract2DTexturePtr<glm::vec3> &emittance
       );
 
       static EmitterPtr createRectangle(
         const Rectangle::RectParams &rp,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       );
 
       static EmitterPtr createRectangle(
         const Rectangle::RectParams &rp,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const textures::Abstract2DTexturePtr<glm::vec3> &emittance
       );
 

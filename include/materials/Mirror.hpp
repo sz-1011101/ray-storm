@@ -24,36 +24,29 @@ namespace ray_storm
       }
       
       glm::vec3 evaluate(
-        const glm::vec3 &l, 
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &v
+        const SurfaceInteraction &si
       )
       {
-        return this->reflectance->sample(uv);
+        return this->reflectance->sample(si.uv);
       }
 
-      void drawDirection(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir)
-      {
-        const glm::vec3 mirrorDirection = glm::normalize(glm::reflect(in, n));
-
-        randDir.direction = mirrorDirection;
-        randDir.PDF = this->getPDF(in, n, uv, mirrorDirection);
-      }
-
-      float getPDF(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &out
+      void sample(
+        random::RandomizationHelper &randHelper,
+        SurfaceInteraction &si
       )
       {
-        return 1.0f;
+        si.setOut(glm::normalize(glm::reflect(si.getIn(), si.n)));
+        this->pdf(si);
+        si.type = REFLECTION;
+        si.finalizeSampling();
+      }
+
+      void pdf(
+        SurfaceInteraction &si
+      )
+      {
+        si.PDF = 1.0f;
+        si.delta = true;
       }
 
       bool delta() const

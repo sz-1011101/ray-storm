@@ -4,67 +4,48 @@
 #include "materials/Mirror.hpp"
 #include "materials/Phong.hpp"
 #include "materials/Glass.hpp"
-#include "materials/Material.hpp"
-#include "materials/ScatteringGlass.hpp"
 #include "materials/DielectricFresnel.hpp"
 #include "materials/ConstantReflectivity.hpp"
 #include "materials/ConductorFresnel.hpp"
+#include "materials/CombinedBSDF.hpp"
 
 using namespace ray_storm::materials;
 
-MaterialPtr MaterialFactory::createLambertian(const glm::vec3 &color)
+AbstractSVBxDFPtr MaterialFactory::createLambertian(const glm::vec3 &color)
 {
-  AbstractBRDFPtr lambertianBRDF(new materials::Lambertian(color));
-  return MaterialPtr(new Material(lambertianBRDF));
+  return AbstractBRDFPtr(new materials::Lambertian(color));
 }
 
-MaterialPtr MaterialFactory::createLambertian(const textures::Abstract2DTexturePtr<glm::vec3> &color)
+AbstractSVBxDFPtr MaterialFactory::createLambertian(const textures::Abstract2DTexturePtr<glm::vec3> &color)
 {
-  AbstractBRDFPtr lambertianBRDF(new materials::Lambertian(color));
-  return MaterialPtr(new Material(lambertianBRDF));
+  return AbstractBRDFPtr(new materials::Lambertian(color));
 }
 
-MaterialPtr MaterialFactory::createMetal(
+AbstractSVBxDFPtr MaterialFactory::createMetal(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness
 )
 {
-  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  return MaterialPtr(new Material(phongBRDF));
+  return AbstractBRDFPtr(new materials::Phong(diffuse, specular, shinyness));
 }
 
-MaterialPtr MaterialFactory::createMetalFresnel(
-  const glm::vec3 &diffuse,
-  const glm::vec3 &specular,
-  float shinyness,
-  float indexOfRefraction,
-  float absorption
-)
-{
-  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  AbstractReflectivityPtr conductor(new materials::ConductorFresnel(absorption));
-  return MaterialPtr(new Material(phongBRDF, indexOfRefraction, conductor));
-}
-
-MaterialPtr MaterialFactory::createMirror
+AbstractSVBxDFPtr MaterialFactory::createMirror
 (
   const glm::vec3 &color
 )
 {
-  AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
-  return MaterialPtr(new Material(mirrorBRDF));
+  return AbstractBRDFPtr(new materials::Mirror(color));
 }
 
-MaterialPtr MaterialFactory::createMirror(
+AbstractSVBxDFPtr MaterialFactory::createMirror(
   const textures::Abstract2DTexturePtr<glm::vec3> &color
 )
 {
-  AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
-  return MaterialPtr(new Material(mirrorBRDF));
+  return AbstractBRDFPtr(new materials::Mirror(color));
 }
 
-MaterialPtr MaterialFactory::createGlass(
+AbstractSVBxDFPtr MaterialFactory::createGlass(
   const glm::vec3 &color,
   float indexOfRefraction
 )
@@ -72,58 +53,33 @@ MaterialPtr MaterialFactory::createGlass(
   AbstractBTDFPtr glassBTDF(new materials::Glass(color, indexOfRefraction));
   AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
   AbstractReflectivityPtr dielectric(new materials::DielectricFresnel());
-  return MaterialPtr(new Material(mirrorBRDF, glassBTDF, dielectric));
+  return AbstractBSDFPtr(new CombinedBSDF(mirrorBRDF, glassBTDF, dielectric));
 }
 
-MaterialPtr MaterialFactory::createDiffuseGlass(
-        const glm::vec3 &diffuse,
-        const glm::vec3 &specular,
-        float scattering, 
-        float indexOfRefraction
-)
-{
-  AbstractBTDFPtr scatteringGlassBTDF(new materials::ScatteringGlass(diffuse, specular, scattering, indexOfRefraction));
-  return MaterialPtr(new Material(scatteringGlassBTDF));
-}
-
-MaterialPtr MaterialFactory::createShiny(
-  const glm::vec3 &diffuse,
-  const glm::vec3 &specular,
-  float shinyness,
-  float indexOfRefraction
-)
-{
-  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  AbstractReflectivityPtr dielectric(new materials::DielectricFresnel());
-  return MaterialPtr(new Material(phongBRDF, indexOfRefraction, dielectric));
-}
-
-MaterialPtr MaterialFactory::createShiny(
+AbstractSVBxDFPtr MaterialFactory::createShiny(
   const glm::vec3 &diffuse,
   const glm::vec3 &specular,
   float shinyness
 )
 {
-  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  return MaterialPtr(new Material(phongBRDF));
+  return AbstractBRDFPtr(new materials::Phong(diffuse, specular, shinyness));
 }
 
-MaterialPtr MaterialFactory::createShiny(
+AbstractSVBxDFPtr MaterialFactory::createShiny(
   const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
   const textures::Abstract2DTexturePtr<glm::vec3> &specular,
   const textures::Abstract2DTexturePtr<float> &shinyness
 )
 {
-  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
-  return MaterialPtr(new Material(phongBRDF));
+  return AbstractBRDFPtr(new materials::Phong(diffuse, specular, shinyness));
 }
 
-MaterialPtr MaterialFactory::createCombined(
+AbstractSVBxDFPtr MaterialFactory::createCombined(
   const AbstractBRDFPtr &brdf,
   const AbstractBTDFPtr &btdf,
   float constReflectance
 )
 {
   AbstractReflectivityPtr constantRefl(new materials::ConstantReflectivity(constReflectance));
-  return MaterialPtr(new Material(brdf, btdf, constantRefl));
+  return AbstractBSDFPtr(new CombinedBSDF(brdf, btdf, constantRefl));
 }

@@ -5,6 +5,7 @@
 #include "scene/Scene.h"
 #include "random/RandomizationHelper.h"
 #include "objects/Object.h"
+#include "materials/SurfaceInteraction.hpp"
 
 namespace ray_storm
 {
@@ -14,21 +15,15 @@ namespace ray_storm
     {
     public:
 
-      PathTraceVertex(materials::SAMPLE_DIRECTION smplDir) : si(smplDir), object(nullptr), material(nullptr), delta(false) {}
+      PathTraceVertex(materials::SAMPLE_DIRECTION smplDir) : si(smplDir), object(nullptr) {}
 
       materials::SurfaceInteraction si;
 
       glm::vec3 bsdf;
 
-      float bsdfPDF;
-
       glm::vec3 cummulative;
 
       objects::Object *object;
-
-      materials::Material *material;
-
-      bool delta;
       
     };
   }

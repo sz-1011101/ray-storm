@@ -15,27 +15,27 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 {
   ScenePtr scene = TestSceneFactory::buildBox();
 
-  materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
-  materials::MaterialPtr matGlass = materials::MaterialFactory::createGlass(glm::vec3(1.0f), 1.5f);
-  materials::MaterialPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
+  materials::AbstractSVBxDFPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
+  materials::AbstractSVBxDFPtr matGlass = materials::MaterialFactory::createGlass(glm::vec3(1.0f), 1.5f);
+  materials::AbstractSVBxDFPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
   // values from http://refractiveindex.info/
   // gold (Au) at 435 nm (green)
-  materials::MaterialPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(
-    glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523f, 1.8009f
-  );
+  //materials::AbstractSVBxDFPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(
+  // glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523f, 1.8009f
+  //);
 
   // aluminium (Al) at 435 nm (green)
-  materials::MaterialPtr matMetal2 = materials::MaterialFactory::createMetalFresnel(
-    glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.9, 0.9f), 85.0f, 0.56884f, 5.1289f
-  );
+  //materials::AbstractSVBxDFPtr matMetal2 = materials::MaterialFactory::createMetalFresnel(
+  //  glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.9, 0.9f), 85.0f, 0.56884f, 5.1289f
+  //);
   
   //const glm::vec2 matCoatingFreq(21.0f, 10.0f);
-  materials::MaterialPtr matMarble = materials::MaterialFactory::createShiny(
+  materials::AbstractSVBxDFPtr matMarble = materials::MaterialFactory::createShiny(
     textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(6, 1.0f, 2.0f, 2.5f, glm::vec3(1.0f), glm::vec3(0.5f, 0.3f, 0.1f)),
     textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.25f, 0.1f, 0.1f)),
     textures::TextureFactory::createTurbulence2DTexture<float>(6, 1.0f, 2.0f, 5.0f, 15.0f, 55.0f)
   );
-  materials::MaterialPtr matMarble2 = materials::MaterialFactory::createShiny(
+  materials::AbstractSVBxDFPtr matMarble2 = materials::MaterialFactory::createShiny(
     textures::TextureFactory::createTurbulence2DTexture<glm::vec3>(3, 1.0f, 2.0f, 10.0f, glm::vec3(0.8f, 0.9f, 0.9f), glm::vec3(0.05f, 0.1f, 0.05f)),
     textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.0f, 0.2f, 0.1f)),
     textures::TextureFactory::createTurbulence2DTexture<float>(5, 1.0f, 2.0f, 10.0f, 15.0f, 105.0f)
@@ -46,7 +46,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   geometry::AbstractSurfaceNormalModifierPtr bumpMap2 = geometry::SurfaceNormalModifierFactory::createTextureBumpMap(
     textures::TextureFactory::createTurbulence2DTexture<float>(2, 1.0f, 2.0f, 10.0f, 0.0f, 1.0f)
   );
-  materials::MaterialPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.2f), glm::vec3(0.5f, 0.3f, 0.8f), 55.0f, 1.5f);
+  //materials::AbstractSVBxDFPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.2f), glm::vec3(0.5f, 0.3f, 0.8f), 55.0f, 1.5f);
 
   if (lightSources)
   {
@@ -68,15 +68,15 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble2);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMetal1);
-  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matMarble);
-  objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
-  objects::EmitterPtr sphere5 = objects::ObjectFactory::createSphere(glm::vec3(2.5f, 1.0, 2), 1.0f, matDiffGlass);
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matWhite);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matWhite);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matWhite);
+  objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matWhite);
+  objects::EmitterPtr sphere5 = objects::ObjectFactory::createSphere(glm::vec3(2.5f, 1.0, 2), 1.0f, matWhite);
 
-  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matGlass);
+  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matWhite);
 
-  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal2);
+  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matWhite);
 
   sphere4->setSurfaceNormalModifier(bumpMap1);
   sphere2->setSurfaceNormalModifier(bumpMap1);
@@ -94,34 +94,16 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   return scene;
 }
 
-ScenePtr TestSceneFactory::createReflectionTest()
-{
-  ScenePtr scene = TestSceneFactory::buildBigWall();
-  materials::MaterialPtr matShiny1 = materials::MaterialFactory::createShiny(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f);
-  materials::MaterialPtr matShiny2 = materials::MaterialFactory::MaterialFactory::createMetalFresnel(glm::vec3(0.2f), glm::vec3(0.8f), 30.0f, 2.0f, 0.1f);
-  materials::MaterialPtr matLambertian = materials::MaterialFactory::createLambertian(glm::vec3(0.2f));
-
-  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-5.0f, 5.0f, 0.0f), 1.0f, matShiny1);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0.0f, 5.0f, 0.0f), 1.0f, matShiny2);
-  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(5.0f, 5.0f, 0.0f), 1.0f, matLambertian);
-
-  scene->add(sphere1);
-  scene->add(sphere2);
-  scene->add(sphere3);
-  scene->finalize();
-
-  return scene;
-}
 
 ScenePtr TestSceneFactory::buildBox()
 {
   ScenePtr box(new scene::Scene());
   // (some) colors stolen from http://www.kevinbeason.com/smallpt/
-  materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
-  materials::MaterialPtr matRed = materials::MaterialFactory::createLambertian(glm::vec3(0.75f, 0.25f, 0.25f));
-  materials::MaterialPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
+  materials::AbstractSVBxDFPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
+  materials::AbstractSVBxDFPtr matRed = materials::MaterialFactory::createLambertian(glm::vec3(0.75f, 0.25f, 0.25f));
+  materials::AbstractSVBxDFPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
 
-  materials::MaterialPtr matRing = materials::MaterialFactory::createLambertian(
+  materials::AbstractSVBxDFPtr matRing = materials::MaterialFactory::createLambertian(
     textures::TextureFactory::createRing2DTexture(glm::vec3(0.18f, 0.05f, 0.01f), glm::vec3(0.6f, 0.26f, 0.11f))
   );
   // floor
@@ -156,18 +138,4 @@ ScenePtr TestSceneFactory::buildBox()
   //box->add(frontWall);
 
   return box;
-}
-
-ScenePtr TestSceneFactory::buildBigWall()
-{
-  ScenePtr wall(new scene::Scene());
-
-  materials::MaterialPtr matWhite = materials::MaterialFactory::createLambertian(glm::vec3(0.75f));
-
-  objects::Rectangle::RectParams wallRp(glm::vec3(-50.0f, 50.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0), 100.0f, 100.0f);
-  objects::EmitterPtr _wall = objects::ObjectFactory::createRectangle(wallRp, matWhite, glm::vec3(1.0f));
-
-  wall->add(_wall);
-
-  return wall;
 }

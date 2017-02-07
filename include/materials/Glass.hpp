@@ -2,6 +2,7 @@
 #define GLASS_H_
 
 #include "materials/AbstractBTDF.h"
+#include "materials/MaterialHelper.hpp"
 
 namespace ray_storm
 {
@@ -20,36 +21,32 @@ namespace ray_storm
       }
 
       glm::vec3 evaluate(
-        const glm::vec3 &l,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &v
+        const SurfaceInteraction &si
       )
       {
         return this->color;
       }
 
-      void drawDirection(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir
+      virtual void sample(
+        random::RandomizationHelper &randHelper,
+        SurfaceInteraction &si
       )
       {
-        glm::vec3 nRef = n;
-        MaterialHelper::refract(1.0f, this->indexOfRefraction, in, n, randDir.direction, nRef);
-        randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
+        glm::vec3 nRef;
+        glm::vec3 refract;
+        MaterialHelper::refract(1.0f, this->indexOfRefraction, si.getIn(), si.n, refract, nRef);
+        si.setOut(refract);
+        si.type = REFRACTION;
+        this->pdf(si);
+        si.finalizeSampling();
       }
 
-      float getPDF(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &out
+      void pdf(
+        SurfaceInteraction &si
       )
       {
-        return 1.0f;
+        si.PDF = 1.0f;
+        si.delta = true;
       }
 
       bool delta() const

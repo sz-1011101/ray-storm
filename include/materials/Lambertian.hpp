@@ -26,35 +26,29 @@ namespace ray_storm
       }
 
       glm::vec3 evaluate(
-        const glm::vec3 &l, 
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &v
+        const SurfaceInteraction &si
       )
       {
-        return this->albedo->sample(uv)/static_cast<float>(M_PI);
+        return this->albedo->sample(si.uv)/static_cast<float>(M_PI);
       }
 
-      void drawDirection(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir
+      void sample(
+        random::RandomizationHelper &randHelper,
+        SurfaceInteraction &si
       )
       {
-        randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
-        randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
+        si.setOut(randHelper.drawCosineWeightedRandomHemisphereDirection(si.n, 1.0f));
+        this->pdf(si);
+        si.type = REFLECTION;
+        si.finalizeSampling();
       }
 
-      float getPDF(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &out
+      void pdf(
+        SurfaceInteraction &si
       )
       {
-        return random::RandomizationHelper::cosineRandomHemispherePDF(dot(n, out), 1.0f);
+        si.PDF = random::RandomizationHelper::cosineRandomHemispherePDF(dot(si.n, si.getOut()), 1.0f);
+        si.delta = false;
       }
 
     private:

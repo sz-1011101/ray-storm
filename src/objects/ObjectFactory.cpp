@@ -8,7 +8,7 @@
 using namespace ray_storm::objects;
 
 ReflectorPtr ObjectFactory::createDistSphere(
-  const glm::vec3 &position, float radius, const materials::MaterialPtr &material
+  const glm::vec3 &position, float radius, const materials::AbstractSVBxDFPtr &material
 )
 {
   return ReflectorPtr(
@@ -17,7 +17,7 @@ ReflectorPtr ObjectFactory::createDistSphere(
 }
 
 ReflectorPtr ObjectFactory::createSphereUnion(
-  const glm::vec3 &position, const materials::MaterialPtr &material
+  const glm::vec3 &position, const materials::AbstractSVBxDFPtr &material
 )
 {
   geometry::MarchablePtr sphere1(new geometry::DistSphere(glm::vec3(1.5f, 0.0f, 0.0f), 0.75f));
@@ -37,7 +37,7 @@ ReflectorPtr ObjectFactory::createSphereUnion(
 }
 
 ReflectorPtr ObjectFactory::createBox(
-  const glm::vec3 &origin, const glm::vec3 &extends, const materials::MaterialPtr &material
+  const glm::vec3 &origin, const glm::vec3 &extends, const materials::AbstractSVBxDFPtr &material
 )
 {
   return objects::ReflectorPtr(new objects::Box(origin, extends, material));
@@ -46,7 +46,7 @@ ReflectorPtr ObjectFactory::createBox(
 EmitterPtr ObjectFactory::createSphere(
   const glm::vec3 &position,
   float radius,
-  const materials::MaterialPtr &material,
+  const materials::AbstractSVBxDFPtr &material,
   const glm::vec3 &emittance
 )
 {
@@ -56,7 +56,7 @@ EmitterPtr ObjectFactory::createSphere(
 EmitterPtr ObjectFactory::createSphere(
   const glm::vec3 &position,
   float radius,
-  const materials::MaterialPtr &material,
+  const materials::AbstractSVBxDFPtr &material,
   const textures::Abstract2DTexturePtr<glm::vec3> &emittance
 )
 {
@@ -65,7 +65,7 @@ EmitterPtr ObjectFactory::createSphere(
 
 EmitterPtr ObjectFactory::createRectangle(
   const Rectangle::RectParams &rp,
-  const materials::MaterialPtr &material,
+  const materials::AbstractSVBxDFPtr &material,
   const glm::vec3 &emittance
 )
 {
@@ -74,7 +74,7 @@ EmitterPtr ObjectFactory::createRectangle(
 
 EmitterPtr ObjectFactory::createRectangle(
   const Rectangle::RectParams &rp,
-  const materials::MaterialPtr &material,
+  const materials::AbstractSVBxDFPtr &material,
   const textures::Abstract2DTexturePtr<glm::vec3> &emittance
 )
 {

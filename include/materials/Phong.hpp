@@ -33,51 +33,49 @@ namespace ray_storm
       }
 
       glm::vec3 evaluate(
-        const glm::vec3 &l, 
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &v
+        const SurfaceInteraction &si
       )
       {
-        const glm::vec3 r = glm::normalize(glm::reflect(-l, n)); // ideal reflection of light
-        const float e_uv = this->e->sample(uv);
-        return this->kD->sample(uv)/static_cast<float>(M_PI) + 
-          (this->kS->sample(uv)*(e_uv + 2.0f)/(2.0f*static_cast<float>(M_PI)))*std::pow(std::max(0.0f, dot(r, v)), e_uv);
+        const glm::vec3 r = glm::normalize(glm::reflect(-si.l, si.n)); // ideal reflection of light
+        const float e_uv = this->e->sample(si.uv);
+        return this->kD->sample(si.uv)/static_cast<float>(M_PI) + 
+          (this->kS->sample(si.uv)*(e_uv + 2.0f)/(2.0f*static_cast<float>(M_PI)))*std::pow(std::max(0.0f, dot(r, si.v)), e_uv);
       }
 
-      void drawDirection(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        random::RandomizationHelper &randHelper, 
-        random::RandomDirection &randDir)
+      void sample(
+        random::RandomizationHelper &randHelper,
+        SurfaceInteraction &si
+      )
       {
-        if (randHelper.drawUniformRandom() < this->computeCosineSamplingProbability(uv))
+        glm::vec3 dir;
+        if (randHelper.drawUniformRandom() < this->computeCosineSamplingProbability(si.uv))
         {
-          glm::vec3 r = glm::normalize(glm::reflect(in, n));
-          const float e_uv = this->e->sample(uv);
-          randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(r, e_uv);
-          randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
+          const glm::vec3 r = glm::normalize(glm::reflect(si.getIn(), si.n));
+          const float e_uv = this->e->sample(si.uv);
+          dir = randHelper.drawCosineWeightedRandomHemisphereDirection(r, e_uv);
         }
         else
         {
-          randDir.direction = randHelper.drawCosineWeightedRandomHemisphereDirection(n, 1.0f);
-          randDir.PDF = this->getPDF(in, n, uv, randDir.direction);
+          dir = randHelper.drawCosineWeightedRandomHemisphereDirection(si.n, 1.0f);
         }
+        si.setOut(dir);
+        this->pdf(si);
+        si.type = REFLECTION;
+        si.finalizeSampling();
       }
 
-      float getPDF(
-        const glm::vec3 &in,
-        const glm::vec3 &n,
-        const glm::vec2 &uv,
-        const glm::vec3 &out
+      void pdf(
+        SurfaceInteraction &si
       )
       {
-        glm::vec3 r = glm::normalize(glm::reflect(in, n));
-        const float e_uv = this->e->sample(uv);
-        const float cosProb = this->computeCosineSamplingProbability(uv);
-        return cosProb*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(r, out), e_uv) + 
-          (1.0f - cosProb)*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(n, out), 1.0f);
+        const glm::vec3 in = si.getIn();
+        const glm::vec3 out = si.getOut();
+        glm::vec3 r = glm::normalize(glm::reflect(in, si.n));
+        const float e_uv = this->e->sample(si.uv);
+        const float cosProb = this->computeCosineSamplingProbability(si.uv);
+        si.PDF = cosProb*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(r, out), e_uv) + 
+          (1.0f - cosProb)*random::RandomizationHelper::cosineRandomHemispherePDF(glm::dot(si.n, out), 1.0f);
+        si.delta = false;
       }
 
     private:

@@ -27,7 +27,7 @@ namespace ray_storm
     {
     public: 
 
-      Object(const materials::MaterialPtr &material) : Renderable(material)
+      Object(const materials::AbstractSVBxDFPtr &material) : Renderable(material)
       {
         
       }

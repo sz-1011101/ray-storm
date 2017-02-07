@@ -12,7 +12,7 @@ namespace ray_storm
     {
     public:
 
-      DefaultDistanceField(const geometry::MarchablePtr &marchable, const materials::MaterialPtr &material)
+      DefaultDistanceField(const geometry::MarchablePtr &marchable, const materials::AbstractSVBxDFPtr &material)
         : AbstractDistanceField(material), marchable(marchable)
       {
         this->bbox = marchable->computeMarchingCube();

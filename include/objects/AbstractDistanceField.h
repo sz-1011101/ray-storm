@@ -13,7 +13,7 @@ namespace ray_storm
     {
     public:
 
-      AbstractDistanceField(const materials::MaterialPtr &material) : Reflector(material) {};
+      AbstractDistanceField(const materials::AbstractSVBxDFPtr &material) : Reflector(material) {};
 
       virtual ~AbstractDistanceField() {};
       

@@ -43,7 +43,7 @@ namespace ray_storm
 
       Rectangle(
         const RectParams &rectParams,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const glm::vec3 &emittance = glm::vec3(0.0f)
       ) : Emitter(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {
@@ -58,7 +58,7 @@ namespace ray_storm
 
       Rectangle(
         const RectParams &rectParams,
-        const materials::MaterialPtr &material,
+        const materials::AbstractSVBxDFPtr &material,
         const textures::Abstract2DTexturePtr<glm::vec3> &emittance
       ) : Emitter(material, emittance), rectParams(rectParams), plane(rectParams.origin, rectParams.calcNormal())
       {

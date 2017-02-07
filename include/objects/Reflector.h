@@ -18,7 +18,7 @@ namespace ray_storm
     {
     public:
 
-      Reflector(const materials::MaterialPtr &material) : Object(material) {};
+      Reflector(const materials::AbstractSVBxDFPtr &material) : Object(material) {};
       
       virtual ~Reflector() {};
 

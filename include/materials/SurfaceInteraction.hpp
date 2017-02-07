@@ -12,9 +12,9 @@ namespace ray_storm
     class SurfaceInteraction
     {
 
-      SAMPLE_DIRECTION direction;
-
     public:
+
+      SAMPLE_DIRECTION direction;
 
       glm::vec3 l;
       glm::vec3 x;
@@ -25,9 +25,14 @@ namespace ray_storm
       LIGHT_INTERACTION_TYPE type;
       float reflectivity;
 
+      float PDF;
+      bool delta;
+
+      bool sampled;
+
       SurfaceInteraction(
         SAMPLE_DIRECTION direction
-      ) : direction(direction), type(REFLECTION), reflectivity(1.0f)
+      ) : direction(direction), type(REFLECTION), reflectivity(1.0f), delta(false), sampled(false)
       {
 
       }
@@ -79,6 +84,11 @@ namespace ray_storm
       glm::vec3 getOut() const
       {
         return this->direction == SAMPLE_DIRECTION::V_TO_L ? l : v;
+      }
+
+      void finalizeSampling() {
+        this->offset();
+        this->sampled = true;
       }
 
     };

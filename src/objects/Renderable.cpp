@@ -2,7 +2,7 @@
 
 using namespace ray_storm::objects;
 
-ray_storm::materials::Material *Renderable::getMaterial()
+ray_storm::materials::AbstractSVBxDF *Renderable::getMaterial()
 {
   return this->material.get();
 }

@@ -15,7 +15,7 @@ namespace ray_storm
 
       static bool isReflecting(PathTraceVertex &vertex)
       {
-        return vertex.material != nullptr;
+        return vertex.object->getMaterial() != nullptr;
       }
 
       static bool intersect(const geometry::Ray &ray, scene::Scene *scene, PathTraceVertex &vertex)
@@ -31,7 +31,6 @@ namespace ray_storm
         vertex.si.n = isect.intersection.normal;
         vertex.si.uv = isect.intersection.texCoords;
         vertex.object = isect.intersected;
-        vertex.material = vertex.object->getMaterial();
         return true;
       }
 
@@ -40,22 +39,22 @@ namespace ray_storm
         PathTraceVertex &vertex
       )
       {
-        random::RandomDirection dir;
-        if (!vertex.material->sampleBSDF(vertex.si, randHelper, dir))
-        {
-          return false;
-        }
 
-        vertex.bsdf = vertex.material->evaluateBSDF(vertex.si);
-        vertex.bsdfPDF = dir.PDF;
-        vertex.delta = dir.delta;
+        vertex.object->getMaterial()->sample(randHelper, vertex.si);
+        vertex.bsdf = vertex.object->getMaterial()->evaluate(vertex.si);
 
         return true;
       }
 
-      static glm::vec3 evaluateBSDF(const glm::vec3 &l, const PathTraceVertex &vertex, const glm::vec3 &v)
+      static glm::vec3 evaluate(const glm::vec3 &l, const PathTraceVertex &vertex, const glm::vec3 &v)
       {
-        return vertex.material->evaluateBSDF(l, vertex.si.n, vertex.si.uv, v);
+        materials::SurfaceInteraction si(vertex.si.direction);
+        si.l = l;
+        si.v = v;
+        si.n = vertex.si.n;
+        si.uv = vertex.si.uv;
+        si.x = vertex.si.x;
+        return vertex.object->getMaterial()->evaluate(si);
       }
 
       static glm::vec3 emittance(const PathTraceVertex &vertex)
@@ -72,11 +71,16 @@ namespace ray_storm
         return lSample;
       }
 
-      static float bsdfPDF(const glm::vec3 &in, const PathTraceVertex &vertex, const glm::vec3 &out)
+      static float pdf(const glm::vec3 &in, const PathTraceVertex &vertex, const glm::vec3 &out)
       {
-        float pdf = 0.0f;
-        vertex.material->getPDF(in, vertex.si.n, vertex.si.uv, out, pdf);
-        return pdf;
+        materials::SurfaceInteraction si(vertex.si.direction);
+        si.setIn(in);
+        si.setOut(out);
+        si.n = vertex.si.n;
+        si.uv = vertex.si.uv;
+        si.x = vertex.si.x;
+        vertex.object->getMaterial()->pdf(si);
+        return si.PDF;
       }
 
       static float luminarePDF(const glm::vec3 &position, const PathTraceVertex &vertex, scene::Scene *scene)
