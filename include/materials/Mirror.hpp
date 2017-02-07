@@ -27,7 +27,7 @@ namespace ray_storm
         const SurfaceInteraction &si
       )
       {
-        return this->reflectance->sample(si.uv);
+        return si.reflectivity*this->reflectance->sample(si.uv);
       }
 
       void sample(

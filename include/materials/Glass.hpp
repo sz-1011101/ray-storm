@@ -24,7 +24,7 @@ namespace ray_storm
         const SurfaceInteraction &si
       )
       {
-        return this->color;
+        return (1.0f - si.reflectivity)*this->color;
       }
 
       virtual void sample(

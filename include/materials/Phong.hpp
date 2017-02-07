@@ -39,7 +39,7 @@ namespace ray_storm
         const glm::vec3 r = glm::normalize(glm::reflect(-si.l, si.n)); // ideal reflection of light
         const float e_uv = this->e->sample(si.uv);
         return this->kD->sample(si.uv)/static_cast<float>(M_PI) + 
-          (this->kS->sample(si.uv)*(e_uv + 2.0f)/(2.0f*static_cast<float>(M_PI)))*std::pow(std::max(0.0f, dot(r, si.v)), e_uv);
+          (si.reflectivity*this->kS->sample(si.uv)*(e_uv + 2.0f)/(2.0f*static_cast<float>(M_PI)))*std::pow(std::max(0.0f, dot(r, si.v)), e_uv);
       }
 
       void sample(
