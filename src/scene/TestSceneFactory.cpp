@@ -68,15 +68,15 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
     scene->setSky(SunSkyPtr(new SunSky(skyColor, sunColor, sunDir, 650.0f)));
   }
 
-  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matWhite);
-  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matWhite);
+  objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble);
+  objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMarble2);
   objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matWhite);
-  objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matWhite);
-  objects::EmitterPtr sphere5 = objects::ObjectFactory::createSphere(glm::vec3(2.5f, 1.0, 2), 1.0f, matWhite);
+  objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
+  objects::EmitterPtr sphere5 = objects::ObjectFactory::createSphere(glm::vec3(2.5f, 1.0, 2), 1.0f, matGlass);
 
   objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matWhite);
 
-  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matWhite);
+  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
 
   sphere4->setSurfaceNormalModifier(bumpMap1);
   sphere2->setSurfaceNormalModifier(bumpMap1);
