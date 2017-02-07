@@ -36,11 +36,11 @@ void PathTraceHelper::randomWalk
     if (PathTraceVertexFunctions::isReflecting(vert) &&
       PathTraceVertexFunctions::bounce(randHelper, vert) &&
       (vert.si.delta || randHelper.drawUniformRandom() < rr) &&
-      glm::any(glm::greaterThanEqual(vert.bsdf, glm::vec3(0.00001f)))
+      glm::any(glm::greaterThanEqual(vert.reflected, glm::vec3(0.00001f)))
     )
     { // we do always bounce on in case of dirac delta function...
       const float cosTheta = std::abs(glm::dot(vert.si.n, vert.si.getOut()));
-      Lrefl *= vert.si.delta ? vert.bsdf : (1.0f/rr)*vert.bsdf*cosTheta/vert.si.PDF;
+      Lrefl *= vert.si.delta ? vert.reflected : (1.0f/rr)*vert.reflected*cosTheta/vert.si.PDF;
       
       vert.cummulative = Lrefl;
       ray = geometry::Ray(vert.si.x, vert.si.getOut());
@@ -215,7 +215,7 @@ void PathTraceHelper::bidirectional(
   } // HACK to get delta-bounce/sky reflection
   else if (eyeWalkLen == 1 && eyeWalk.vertices[0].si.delta && !eyeWalk.absorbed)
   {
-    camera->gatherSample(sampleRay.xy, eyeWalk.vertices[0].bsdf*scene->sampleSky(eyeWalk.vertices[0].si.l));
+    camera->gatherSample(sampleRay.xy, eyeWalk.vertices[0].reflected*scene->sampleSky(eyeWalk.vertices[0].si.l));
   }
 
   scene::Scene::LuminaireRay lumRay;
@@ -331,12 +331,12 @@ glm::vec3 PathTraceHelper::pathDirectLightingBounce(
       const float cosTheta = glm::dot(vert.si.n, vert.si.l);
       const PathTraceVertex &nextVert = eyeWalk.vertices[i + 1];
       const float lumBouncePDF = PathTraceVertexFunctions::luminarePDF(vert.si.x, nextVert, scene);
-      LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.bsdf*cosTheta/(vert.si.PDF + lumBouncePDF);
+      LdBounce = PathTraceVertexFunctions::emittance(nextVert)*vert.reflected*cosTheta/(vert.si.PDF + lumBouncePDF);
     }
     else if (!eyeWalk.absorbed) // last vertex
     {
       const float cosTheta = glm::dot(vert.si.n, vert.si.l);
-      LdBounce = scene->sampleSky(vert.si.l)*vert.bsdf*cosTheta/(vert.si.PDF + scene->getSkyPDF());
+      LdBounce = scene->sampleSky(vert.si.l)*vert.reflected*cosTheta/(vert.si.PDF + scene->getSkyPDF());
     }
     glm::vec3 Ld = LdLum + LdBounce;
 

@@ -19,7 +19,7 @@ namespace ray_storm
 
       materials::SurfaceInteraction si;
 
-      glm::vec3 bsdf;
+      glm::vec3 reflected; // e.g. from brdf...
 
       glm::vec3 cummulative;
 

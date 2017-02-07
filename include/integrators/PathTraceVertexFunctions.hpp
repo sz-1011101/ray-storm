@@ -41,7 +41,7 @@ namespace ray_storm
       {
 
         vertex.object->getMaterial()->sample(randHelper, vertex.si);
-        vertex.bsdf = vertex.object->getMaterial()->evaluate(vertex.si);
+        vertex.reflected = vertex.object->getMaterial()->evaluate(vertex.si);
 
         return true;
       }
