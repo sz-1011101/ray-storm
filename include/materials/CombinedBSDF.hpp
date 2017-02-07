@@ -35,20 +35,20 @@ namespace ray_storm
         const SurfaceInteraction &si
       )
       {
-
-        const float refl = this->reflectivity->computeF(1.0f, this->btdf->getIndexOfRefraction(), -si.v, si.n);
+        float refl = si.sampled ? si.reflectivity : this->reflectivity->computeF(1.0f, this->btdf->getIndexOfRefraction(), -si.v, si.n);
+        SurfaceInteraction siMod = si; // FIXME ugly copying -> move to BRDFs?
+        siMod.reflectivity = refl;
         // decide if we have a refraction or reflection based on the given situation
-        if (si.type == REFLECTION)
+        if (siMod.type == REFLECTION)
         {
           // to evaluate the brdf, we have to flip the normal around if we reflect at the anti normal side
-          SurfaceInteraction siFlippedNormal = si; // FIXME ugly copying -> move to BRDFs?
-          siFlippedNormal.n = glm::dot(si.n, si.l) < 0.0f ? -si.n : si.n;
-          return refl*this->brdf->evaluate(siFlippedNormal);
+          siMod.n = glm::dot(si.n, si.l) < 0.0f ? -si.n : si.n;
+          return this->brdf->evaluate(siMod);
         }
-        else if (si.type == REFRACTION)
+        else if (siMod.type == REFRACTION)
         {
           // conservation of energy applies here, we also use the intersection normal to flip the IORs later
-          return (1.0f - refl)*this->btdf->evaluate(si);
+          return this->btdf->evaluate(siMod);
         }
 
         return glm::vec3(0.0f);
