@@ -21,7 +21,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   // values from http://refractiveindex.info/
   // gold (Au) at 435 nm (green)
   materials::AbstractSVBxDFPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(
-    glm::vec3(0.0f, 0.00f, 0.0f), glm::vec3(0.8f, 0.6f, 0.2f), 35.0f, 1.4523f, 1.8009f
+    glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.8f, 0.6f, 0.25f), 55.0f, 1.4523f, 1.8009f
   );
 
   // aluminium (Al) at 435 nm (green)
@@ -102,8 +102,11 @@ ScenePtr TestSceneFactory::buildBox()
   materials::AbstractSVBxDFPtr matRed = materials::MaterialFactory::createLambertian(glm::vec3(0.75f, 0.25f, 0.25f));
   materials::AbstractSVBxDFPtr matBlue = materials::MaterialFactory::createLambertian(glm::vec3(0.25f, 0.25f, 0.75f));
 
-  materials::AbstractSVBxDFPtr matRing = materials::MaterialFactory::createLambertian(
-    textures::TextureFactory::createRing2DTexture(glm::vec3(0.18f, 0.05f, 0.01f), glm::vec3(0.6f, 0.26f, 0.11f))
+  materials::AbstractSVBxDFPtr matRing = materials::MaterialFactory::createShinyFresnel(
+    textures::TextureFactory::createRing2DTexture(glm::vec3(0.18f, 0.05f, 0.01f), glm::vec3(0.6f, 0.26f, 0.11f)),
+    textures::TextureFactory::createConstant2DTexture<glm::vec3>(glm::vec3(0.3f)),
+    textures::TextureFactory::createConstant2DTexture<float>(15.0f),
+    4.0f
   );
   // floor
   objects::Rectangle::RectParams floorRp(glm::vec3(-5.0f, 0.0f, -5.0f), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 10.0f, 15.0f);
