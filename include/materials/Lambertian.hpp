@@ -40,6 +40,7 @@ namespace ray_storm
         si.setOut(randHelper.drawCosineWeightedRandomHemisphereDirection(si.n, 1.0f));
         this->pdf(si);
         si.type = REFLECTION;
+        si.reflectivity = 1.0f;
         si.finalizeSampling();
       }
 

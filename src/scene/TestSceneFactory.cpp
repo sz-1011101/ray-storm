@@ -20,14 +20,14 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   materials::AbstractSVBxDFPtr matMirror = materials::MaterialFactory::createMirror(glm::vec3(1.0f));
   // values from http://refractiveindex.info/
   // gold (Au) at 435 nm (green)
-  //materials::AbstractSVBxDFPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(
-  // glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.6f, 0.2f), 55.0f, 1.4523f, 1.8009f
-  //);
+  materials::AbstractSVBxDFPtr matMetal1 = materials::MaterialFactory::createMetalFresnel(
+    glm::vec3(0.0f, 0.00f, 0.0f), glm::vec3(0.8f, 0.6f, 0.2f), 35.0f, 1.4523f, 1.8009f
+  );
 
   // aluminium (Al) at 435 nm (green)
-  //materials::AbstractSVBxDFPtr matMetal2 = materials::MaterialFactory::createMetalFresnel(
-  //  glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.9, 0.9f), 85.0f, 0.56884f, 5.1289f
-  //);
+  materials::AbstractSVBxDFPtr matMetal2 = materials::MaterialFactory::createMetalFresnel(
+    glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.9f, 0.9, 0.9f), 85.0f, 0.56884f, 5.1289f
+  );
   
   //const glm::vec2 matCoatingFreq(21.0f, 10.0f);
   materials::AbstractSVBxDFPtr matMarble = materials::MaterialFactory::createShiny(
@@ -46,8 +46,7 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
   geometry::AbstractSurfaceNormalModifierPtr bumpMap2 = geometry::SurfaceNormalModifierFactory::createTextureBumpMap(
     textures::TextureFactory::createTurbulence2DTexture<float>(2, 1.0f, 2.0f, 10.0f, 0.0f, 1.0f)
   );
-  //materials::AbstractSVBxDFPtr matDiffGlass = materials::MaterialFactory::createDiffuseGlass(glm::vec3(0.3f, 0.1f, 0.2f), glm::vec3(0.5f, 0.3f, 0.8f), 55.0f, 1.5f);
-
+ 
   if (lightSources)
   {
     // ceiling light
@@ -70,13 +69,13 @@ ScenePtr TestSceneFactory::createCornellBox(bool naturalLighting, bool lightSour
 
   objects::EmitterPtr sphere1 = objects::ObjectFactory::createSphere(glm::vec3(-3, 0.75, 2), 1.0f, matMarble);
   objects::EmitterPtr sphere2 = objects::ObjectFactory::createSphere(glm::vec3(0, 1.0, 2), 1.0f, matMarble2);
-  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matWhite);
+  objects::EmitterPtr sphere3 = objects::ObjectFactory::createSphere(glm::vec3(3, 4.5f, -2), 1.5f, matMetal1);
   objects::EmitterPtr sphere4 = objects::ObjectFactory::createSphere(glm::vec3(-2, 2, -2), 2.0f, matMirror);
   objects::EmitterPtr sphere5 = objects::ObjectFactory::createSphere(glm::vec3(2.5f, 1.0, 2), 1.0f, matGlass);
 
-  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matWhite);
+  objects::ReflectorPtr sphereUnion1 = objects::ObjectFactory::createSphereUnion(glm::vec3(-2.5, 6.5, -2.5), matMetal1);
 
-  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMirror);
+  objects::ReflectorPtr box = objects::ObjectFactory::createBox(glm::vec3(1.5f, 0.0f, -3.5f), glm::vec3(3.0f), matMetal2);
 
   sphere4->setSurfaceNormalModifier(bumpMap1);
   sphere2->setSurfaceNormalModifier(bumpMap1);

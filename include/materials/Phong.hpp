@@ -61,6 +61,7 @@ namespace ray_storm
         si.setOut(dir);
         this->pdf(si);
         si.type = REFLECTION;
+        si.reflectivity = 1.0f;
         si.finalizeSampling();
       }
 

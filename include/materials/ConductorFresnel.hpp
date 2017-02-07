@@ -1,7 +1,7 @@
 #ifndef CONDUCTOR_FRESNEL_H_
 #define CONDUCTOR_FRESNEL_H_
 
-#include "materials/AbstractReflectivity.hpp"
+#include "materials/AbstractReflectivity.h"
 
 namespace ray_storm
 {
@@ -11,14 +11,17 @@ namespace ray_storm
     {
     public:
 
-      ConductorFresnel(float absorption) {
-        this->absorption = absorption;
+      ConductorFresnel(
+        float indexOfRefraction,
+        float absorption
+      ) : indexOfRefraction(indexOfRefraction), absorption(absorption)
+      {
+
       }
 
-      virtual ~ConductorFresnel() {};
-
-      virtual float computeF(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
+      float computeF(float eta, const glm::vec3 &in, const glm::vec3 &n)
       {
+        const float eta2 = this->indexOfRefraction;
         float cosIn = glm::dot(-in, n);
         const float t1 = eta2*eta2 + this->absorption*this->absorption;
         const float cosIn2 = cosIn*cosIn;
@@ -32,8 +35,12 @@ namespace ray_storm
         return (Rs2 + Rp2)*0.5f;
       }
     
-    protected:
+    private:
+
+      float indexOfRefraction;
+
       float absorption;
+
     };
   }
 }

@@ -2,7 +2,7 @@
 #define COMBINED_BSDF_H_
 
 #include "materials/AbstractBSDF.h"
-#include "materials/AbstractReflectivity.hpp"
+#include "materials/AbstractReflectivity.h"
 #include "materials/MaterialHelper.hpp"
 
 namespace ray_storm
@@ -35,7 +35,7 @@ namespace ray_storm
         const SurfaceInteraction &si
       )
       {
-        float refl = si.sampled ? si.reflectivity : this->reflectivity->computeF(1.0f, this->btdf->getIndexOfRefraction(), -si.v, si.n);
+        float refl = si.sampled ? si.reflectivity : this->reflectivity->computeF(1.0f, -si.v, si.n);
         SurfaceInteraction siMod = si; // FIXME ugly copying -> move to BRDFs?
         siMod.reflectivity = refl;
         // decide if we have a refraction or reflection based on the given situation
@@ -47,7 +47,7 @@ namespace ray_storm
         }
         else if (siMod.type == REFRACTION)
         {
-          // conservation of energy applies here, we also use the intersection normal to flip the IORs later
+          // we also use the intersection normal to flip the IoRs later
           return this->btdf->evaluate(siMod);
         }
 
@@ -61,7 +61,7 @@ namespace ray_storm
       )
       {
         // fresnel term
-        const float rfl = this->reflectivity->computeF(1.0f, this->btdf->getIndexOfRefraction(), si.getIn(), si.n);
+        const float rfl = this->reflectivity->computeF(1.0f, si.getIn(), si.n);
         // reflect with probabilty proportional to reflectivity
         if (randHelper.drawUniformRandom() < rfl)
         {
@@ -90,7 +90,7 @@ namespace ray_storm
         {
           const glm::vec3 in = si.getIn();
           type = MaterialHelper::determineType(si.getOut(), si.n, -in);
-          rfl = this->reflectivity->computeF(1.0f, this->btdf->getIndexOfRefraction(), in, si.n);
+          rfl = this->reflectivity->computeF(1.0f, in, si.n);
         }
         
 

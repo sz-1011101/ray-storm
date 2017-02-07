@@ -38,6 +38,7 @@ namespace ray_storm
         si.setOut(glm::normalize(glm::reflect(si.getIn(), si.n)));
         this->pdf(si);
         si.type = REFLECTION;
+        si.reflectivity = 1.0f;
         si.finalizeSampling();
       }
 

@@ -28,6 +28,14 @@ namespace ray_storm
         float shinyness
       );
 
+      static AbstractSVBxDFPtr createMetalFresnel(
+        const glm::vec3 &diffuse,
+        const glm::vec3 &specular,
+        float shinyness,
+        float indexOfRefraction,
+        float absorption
+      );
+
       static AbstractSVBxDFPtr createMirror(
         const glm::vec3 &color
       );
@@ -51,6 +59,13 @@ namespace ray_storm
         const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
         const textures::Abstract2DTexturePtr<glm::vec3> &specular,
         const textures::Abstract2DTexturePtr<float> &shinyness
+      );
+
+      static AbstractSVBxDFPtr createShinyFresnel(
+        const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
+        const textures::Abstract2DTexturePtr<glm::vec3> &specular,
+        const textures::Abstract2DTexturePtr<float> &shinyness,
+        float indexOfRefraction
       );
 
       static AbstractSVBxDFPtr createCombined(

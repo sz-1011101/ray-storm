@@ -1,7 +1,7 @@
 #ifndef CONSTANT_REFLECTIVITY_H_
 #define CONSTANT_REFLECTIVITY_H_
 
-#include "materials/AbstractReflectivity.hpp"
+#include "materials/AbstractReflectivity.h"
 
 namespace ray_storm
 {
@@ -11,14 +11,14 @@ namespace ray_storm
     {
     public:
 
-      ConstantReflectivity(float reflectivity)
+      ConstantReflectivity(float reflectivity) : reflectivity(reflectivity)
       {
-        this->reflectivity = reflectivity;
+        
       }
 
       virtual ~ConstantReflectivity() {};
 
-      virtual float computeF(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n)
+      virtual float computeF(float eta, const glm::vec3 &in, const glm::vec3 &n)
       {
         return this->reflectivity;
       }

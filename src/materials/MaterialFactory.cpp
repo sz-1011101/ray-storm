@@ -8,6 +8,7 @@
 #include "materials/ConstantReflectivity.hpp"
 #include "materials/ConductorFresnel.hpp"
 #include "materials/CombinedBSDF.hpp"
+#include "materials/ReflectivityBRDF.hpp"
 
 using namespace ray_storm::materials;
 
@@ -28,6 +29,19 @@ AbstractSVBxDFPtr MaterialFactory::createMetal(
 )
 {
   return AbstractBRDFPtr(new materials::Phong(diffuse, specular, shinyness));
+}
+
+AbstractSVBxDFPtr  MaterialFactory::createMetalFresnel(
+  const glm::vec3 &diffuse,
+  const glm::vec3 &specular,
+  float shinyness,
+  float indexOfRefraction,
+  float absorption
+)
+{
+  AbstractBRDFPtr phong(new materials::Phong(diffuse, specular, shinyness));
+  AbstractReflectivityPtr conductor(new materials::ConductorFresnel(indexOfRefraction, absorption));
+  return AbstractBRDFPtr(new ReflectivityBRDF(phong, conductor));
 }
 
 AbstractSVBxDFPtr MaterialFactory::createMirror
@@ -52,7 +66,7 @@ AbstractSVBxDFPtr MaterialFactory::createGlass(
 {
   AbstractBTDFPtr glassBTDF(new materials::Glass(color, indexOfRefraction));
   AbstractBRDFPtr mirrorBRDF(new materials::Mirror(color));
-  AbstractReflectivityPtr dielectric(new materials::DielectricFresnel());
+  AbstractReflectivityPtr dielectric(new materials::DielectricFresnel(indexOfRefraction));
   return AbstractBSDFPtr(new CombinedBSDF(mirrorBRDF, glassBTDF, dielectric));
 }
 
@@ -72,6 +86,18 @@ AbstractSVBxDFPtr MaterialFactory::createShiny(
 )
 {
   return AbstractBRDFPtr(new materials::Phong(diffuse, specular, shinyness));
+}
+
+AbstractSVBxDFPtr MaterialFactory::createShinyFresnel(
+  const textures::Abstract2DTexturePtr<glm::vec3> &diffuse,
+  const textures::Abstract2DTexturePtr<glm::vec3> &specular,
+  const textures::Abstract2DTexturePtr<float> &shinyness,
+  float indexOfRefraction
+)
+{
+  AbstractBRDFPtr phongBRDF(new materials::Phong(diffuse, specular, shinyness));
+  AbstractReflectivityPtr dielectric(new materials::DielectricFresnel(indexOfRefraction));
+  return AbstractBRDFPtr(new ReflectivityBRDF(phongBRDF, dielectric));
 }
 
 AbstractSVBxDFPtr MaterialFactory::createCombined(

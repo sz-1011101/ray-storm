@@ -37,6 +37,7 @@ namespace ray_storm
         MaterialHelper::refract(1.0f, this->indexOfRefraction, si.getIn(), si.n, refract, nRef);
         si.setOut(refract);
         si.type = REFRACTION;
+        si.reflectivity = 0.0f;
         this->pdf(si);
         si.finalizeSampling();
       }

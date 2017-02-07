@@ -15,7 +15,7 @@ namespace ray_storm
 
       virtual ~AbstractReflectivity() {};
 
-      virtual float computeF(float eta1, float eta2, const glm::vec3 &in, const glm::vec3 &n) = 0;
+      virtual float computeF(float eta, const glm::vec3 &in, const glm::vec3 &n) = 0;
       
     };
 
